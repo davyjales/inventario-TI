@@ -1,4 +1,11 @@
 {
+  "name": "inventario-visteon",
+  "version": "1.0.0",
+  "description": "Sistema de Inventário para o Setor de T.I da Visteon",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
   "dependencies": {
     "body-parser": "^2.2.0",
     "cors": "^2.8.5",
