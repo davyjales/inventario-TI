@@ -1,0 +1,23 @@
+{
+  "equipamentos": [
+    {
+      "categoria": "Notebooks",
+      "nome": "BRD778899",
+      "dono": "Davy Jales",
+      "setor": "TI",
+      "descricao": "Notebook Primário de Davy",
+      "qrCode": "1123322"
+    }
+  ],
+  "categorias": [
+    "Notebooks",
+    "Desktops",
+    "Celulares",
+    "Mouses",
+    "Teclados",
+    "Monitores",
+    "Cabos HDMI",
+    "Cabos VGA",
+    "Adaptadores"
+  ]
+}
