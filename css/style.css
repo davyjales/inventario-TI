@@ -3,12 +3,29 @@ body {
     margin: 0;
     padding: 0;
     background-color: #f4f4f4;
+    background-image: url('../images/visteon-bg.jpg.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+    z-index: 0;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(230, 126, 34, 0.3); /* overlay laranja com transparência */
+    z-index: -1;
 }
 
 header {
-    background-color: #004080;
+    background-color: #e67e22;
     color: white;
-    padding: 1rem;
+    padding: 0.5rem; /* antes era 1rem */
     text-align: center;
 }
 
@@ -18,11 +35,13 @@ header {
     margin: 0;
     display: flex;
     justify-content: center;
-    background-color: #0066cc;
+    background-color: transparent; /* fundo transparente da barra de navegação */
+    transition: background-color 0.3s ease;
 }
 
 .nav-menu li {
     margin: 0 1rem;
+    position: relative;
 }
 
 .nav-menu li a {
@@ -31,20 +50,24 @@ header {
     font-weight: bold;
     padding: 0.5rem 1rem;
     display: inline-block;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    border-radius: 4px;
 }
 
 .nav-menu li a.active,
 .nav-menu li a:hover {
-    background-color: #004080;
-    border-radius: 4px;
+    background-color: #e67e22;
+    color: #fff;
 }
 
 main {
     max-width: 900px;
     margin: 2rem auto;
     padding: 1rem;
-    background-color: white;
+    background-color: transparent; /* remove a caixa branca central */
     border-radius: 8px;
+    position: relative;
+    z-index: 1;
 }
 
 .page-section {
@@ -55,26 +78,35 @@ main {
     display: block;
 }
 
+#home {
+    padding-top: 6rem; /* novo: afasta o conteúdo do topo */
+}
+#home h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 2rem;
+}
+
 .home-functions {
     display: flex;
     gap: 1rem;
     justify-content: center;
-    margin-top: 2rem;
+    margin-top: 3rem;
 }
 
 .home-functions button {
     padding: 1rem 2rem;
     font-size: 1rem;
     cursor: pointer;
-    background-color: #0066cc;
-    color: white;
+    background-color: black; /* botão preto */
+    color: white; /* texto branco */
     border: none;
     border-radius: 6px;
     transition: background-color 0.3s ease;
 }
 
 .home-functions button:hover {
-    background-color: #004080;
+    background-color: #333;
 }
 
 .equipment-list {
@@ -110,7 +142,7 @@ main {
 .btn-voltar {
     margin-top: 1rem;
     padding: 0.5rem 1rem;
-    background-color: #0066cc;
+    background-color: #e67e22;
     color: white;
     border: none;
     border-radius: 6px;
@@ -118,7 +150,7 @@ main {
 }
 
 .btn-voltar:hover {
-    background-color: #004080;
+    background-color: #d35400;
 }
 
 form label {
@@ -141,7 +173,7 @@ form select {
 form button[type="submit"] {
     margin-top: 1.5rem;
     padding: 0.75rem 1.5rem;
-    background-color: #0066cc;
+    background-color: #e67e22;
     color: white;
     border: none;
     border-radius: 6px;
@@ -149,7 +181,7 @@ form button[type="submit"] {
 }
 
 form button[type="submit"]:hover {
-    background-color: #004080;
+    background-color: #d35400;
 }
 
 #categoria-lista {

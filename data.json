@@ -7,6 +7,14 @@
       "setor": "TI",
       "descricao": "Notebook Primário de Davy",
       "qrCode": "1123322"
+    },
+    {
+      "categoria": "Celulares",
+      "nome": "293231",
+      "dono": "Davy",
+      "setor": "TI",
+      "descricao": "",
+      "qrCode": "123213"
     }
   ],
   "categorias": [
