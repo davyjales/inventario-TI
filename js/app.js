@@ -111,6 +111,10 @@ document.addEventListener('DOMContentLoaded', () => {
         equipmentList.innerHTML = '';
         const filterMode = filterModeSelect.value;
         const filtered = equipamentos.filter(eq => {
+            if (filterMode === 'categoria') {
+                const categoriaValue = eq.categoria ? eq.categoria.toLowerCase() : '';
+                return categoriaValue.includes(filter.toLowerCase());
+            }
             const fieldValue = eq[filterMode] ? eq[filterMode].toLowerCase() : '';
             return fieldValue.includes(filter.toLowerCase());
         });
@@ -169,7 +173,19 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         let categoria = selectCategoria.value;
         const novaCat = inputNovaCategoria.value.trim();
-        if (novaCat) {
+
+        // Validation: cannot select existing and add new category simultaneously unless "nao-existente" is selected
+        if (categoria && novaCat && categoria !== 'nao-existente') {
+            alert('Por favor, selecione uma categoria existente ou adicione uma nova, não ambos.');
+            return;
+        }
+
+        // If "nao-existente" is selected, use novaCat as categoria
+        if (categoria === 'nao-existente') {
+            if (!novaCat) {
+                alert('Por favor, preencha o campo de nova categoria.');
+                return;
+            }
             if (!categorias.includes(novaCat)) {
                 // Add new category to backend
                 try {
@@ -193,15 +209,18 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 categoria = novaCat;
             }
+            // Clear selectCategoria value to avoid conflict
+            selectCategoria.value = '';
         }
+
         const nome = document.getElementById('nome').value.trim();
         const dono = document.getElementById('dono').value.trim();
         const setor = document.getElementById('setor').value.trim();
         const descricao = document.getElementById('descricao').value.trim();
         const qrCode = document.getElementById('qr-code').value.trim();
 
-        if (!nome || !qrCode || !dono || !setor) {
-            alert('Por favor, preencha os campos obrigatórios: Nome, Dono, Setor e QR Code.');
+        if (!nome) {
+            alert('Por favor, preencha o campo obrigatório: Service Tag.');
             return;
         }
 

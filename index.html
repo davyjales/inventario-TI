@@ -1,85 +1,112 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Inventário T.I - Visteon</title>
-    <link rel="stylesheet" href="css/style.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Inventário T.I - Visteon</title>
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-    <header>
-        <h1>Inventário T.I - Visteon</h1>
-        <nav>
-            <ul class="nav-menu">
-                <li><a href="#home" class="nav-link active">Home</a></li>
-                <li><a href="#consulta" class="nav-link">Consulta de Equipamentos</a></li>
-                <li><a href="#cadastro" class="nav-link">Cadastramento de Equipamentos</a></li>
-                <li><a href="#categorias" class="nav-link">Categorias</a></li>
-            </ul>
-        </nav>
-    </header>
+  <header>
+    <h1>Inventário T.I - Visteon</h1>
+    <nav>
+      <ul class="nav-menu">
+        <li><a href="#home" class="nav-link active">Home</a></li>
+        <li><a href="#consulta" class="nav-link">Consulta de Equipamentos</a></li>
+        <li><a href="#cadastro" class="nav-link">Cadastramento de Equipamentos</a></li>
+        <li><a href="#categorias" class="nav-link">Categorias</a></li>
+      </ul>
+    </nav>
+  </header>
 
-    <main>
-        <section id="home" class="page-section active">
-            
-            <div class="home-functions">
-                <button id="btn-cadastrar">Cadastrar Novo Equipamento</button>
-                <button id="btn-consultar">Consultar Equipamentos</button>
-            </div>
-        </section>
+  <main>
+    <section id="home" class="page-section active">
+      <h2>Bem-vindo ao Sistema de Inventário</h2>
+      <div class="home-functions">
+        <button id="btn-cadastrar">Cadastrar Novo Equipamento</button>
+        <button id="btn-consultar">Consultar Equipamentos</button>
+      </div>
+    </section>
 
-        <section id="consulta" class="page-section">
-            <h2>Consulta de Equipamentos</h2>
-            <label for="filter-mode">Filtrar por:</label>
-            <select id="filter-mode" name="filter-mode">
-                <option value="nome">Nome do Equipamento</option>
-                <option value="qrCode">ID (QR Code)</option>
-                <option value="dono">Nome do Dono</option>
-                <option value="setor">Setor</option>
-            </select>
-            <input type="text" id="search-equipment" placeholder="Pesquisar equipamentos..." />
-            <div id="equipment-list" class="equipment-list"></div>
-            <div id="equipment-details" class="equipment-details hidden"></div>
-            <button id="btn-voltar-consulta" class="btn-voltar hidden">Voltar à lista</button>
-        </section>
+    <section id="consulta" class="page-section">
+      <h2>Consulta de Equipamentos</h2>
+      <label for="filter-mode">Filtrar por:</label>
+      <select id="filter-mode" name="filter-mode">
+        <option value="nome">Service Tag</option>
+        <option value="qrCode">ID (QR Code)</option>
+        <option value="dono">User</option>
+        <option value="setor">Setor</option>
+      </select>
+      <input type="text" id="search-equipment" placeholder="Pesquisar equipamentos..." />
+      <div id="equipment-list" class="equipment-list"></div>
+      <div id="equipment-details" class="equipment-details hidden"></div>
+      <button id="btn-voltar-consulta" class="btn-voltar hidden">Voltar à lista</button>
+    </section>
 
-        <section id="cadastro" class="page-section">
-            <h2>Cadastramento de Equipamentos</h2>
-            <form id="form-cadastro">
-                <label for="categoria">Categoria:</label>
-                <select id="categoria" name="categoria"></select>
-                <input type="text" id="nova-categoria" name="nova-categoria" placeholder="Nova categoria (se não existir)" />
-                
-                <label for="nome">Nome do Equipamento:</label>
-                <input type="text" id="nome" name="nome" required />
+    <section id="cadastro" class="page-section">
+      <h2>Cadastramento de Equipamentos</h2>
+      <form id="form-cadastro" enctype="multipart/form-data">
+        <label for="categoria">Categoria:</label>
+        <select id="categoria" name="categoria"></select>
 
-                <label for="dono">Nome do Dono:</label>
-                <input type="text" id="dono" name="dono" required />
+        <label for="nome">Service Tag:</label>
+        <input type="text" id="nome" name="nome" required />
 
-                <label for="setor">Setor:</label>
-                <input type="text" id="setor" name="setor" required />
+        <label for="dono">User:</label>
+        <input type="text" id="dono" name="dono" />
 
-                <label for="descricao">Descrição:</label>
-                <textarea id="descricao" name="descricao"></textarea>
+        <label for="setor">Setor:</label>
+        <input type="text" id="setor" name="setor" />
 
-                <label for="qr-code">QR Code (ID):</label>
-                <input type="text" id="qr-code" name="qr-code" required />
+        <label for="descricao">Descrição:</label>
+        <textarea id="descricao" name="descricao"></textarea>
 
-                <button type="submit">Cadastrar</button>
-            </form>
-        </section>
+        <label for="qr-code">QR Code (ID):</label>
+        <input type="text" id="qr-code" name="qr-code" required />
 
-        <section id="categorias" class="page-section">
-            <h2>Categorias</h2>
-            <ul id="categoria-lista"></ul>
-            <form id="form-categoria">
-                <input type="text" id="input-nova-categoria" placeholder="Adicionar nova categoria" />
-                <button type="submit">Adicionar Categoria</button>
-            </form>
-        </section>
-    </main>
+        <label>Existe termo?</label>
+        <div>
+          <label><input type="radio" name="existeTermo" value="sim" /> Sim</label>
+          <label><input type="radio" name="existeTermo" value="nao" checked /> Não</label>
+        </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-    <script src="js/app.js"></script>
+        <div id="upload-termo-container" style="display: none;">
+          <label for="termo">Anexar termo (PDF):</label>
+          <input type="file" id="termo" name="termo" accept=".pdf" />
+        </div>
+
+        <button type="submit">Cadastrar</button>
+      </form>
+    </section>
+
+    <section id="categorias" class="page-section">
+      <h2>Categorias</h2>
+      <ul id="categoria-lista"></ul>
+      <form id="form-categoria">
+        <input type="text" id="input-nova-categoria" placeholder="Adicionar nova categoria" />
+        <button type="submit">Adicionar Categoria</button>
+      </form>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    // Mostra/oculta campo de upload se termo = 'sim'
+    document.addEventListener('DOMContentLoaded', () => {
+      const radios = document.getElementsByName('existeTermo');
+      const container = document.getElementById('upload-termo-container');
+
+      radios.forEach(radio => {
+        radio.addEventListener('change', () => {
+          if (radio.value === 'sim') {
+            container.style.display = 'block';
+          } else {
+            container.style.display = 'none';
+          }
+        });
+      });
+    });
+  </script>
 </body>
 </html>

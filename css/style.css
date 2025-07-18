@@ -25,7 +25,7 @@ body::before {
 header {
     background-color: #e67e22;
     color: white;
-    padding: 0.5rem; /* antes era 1rem */
+    padding: 1rem;
     text-align: center;
 }
 
@@ -78,13 +78,9 @@ main {
     display: block;
 }
 
-#home {
-    padding-top: 6rem; /* novo: afasta o conteúdo do topo */
-}
 #home h2 {
     text-align: center;
-    color: #333;
-    margin-bottom: 2rem;
+    color: white; /* mensagem de boas-vindas branca */
 }
 
 .home-functions {
