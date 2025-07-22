@@ -78,6 +78,11 @@
     .hidden {
       display: none;
     }
+
+    #qrcode-img {
+      max-width: 200px;
+      margin-top: 1rem;
+    }
   </style>
 </head>
 <body>
@@ -88,6 +93,7 @@
   <main>
     <section id="detalhes-equipamento" class="page-section active">
       <div id="detalhes-container" class="equipment-details"></div>
+
       <form id="form-editar" class="hidden">
         <h3>Editar Equipamento</h3>
         <label for="edit-categoria">Categoria:</label>
@@ -111,7 +117,7 @@
       <div class="actions">
         <button id="btn-editar">Editar</button>
         <button id="btn-excluir">Excluir</button>
-        <a href="index.html" class="btn-voltar">Voltar</a>
+        <button id="btn-voltar" class="btn-voltar">Voltar</button>
       </div>
     </section>
   </main>
@@ -119,11 +125,11 @@
   <script>
     const id = new URLSearchParams(window.location.search).get("id");
     const API_URL = "http://localhost:3000/equipamentos/" + id;
-
     const container = document.getElementById("detalhes-container");
     const form = document.getElementById("form-editar");
     const btnEditar = document.getElementById("btn-editar");
     const btnExcluir = document.getElementById("btn-excluir");
+    const btnVoltar = document.getElementById("btn-voltar");
 
     let equipamento = null;
 
@@ -131,14 +137,22 @@
       const res = await fetch(API_URL);
       equipamento = await res.json();
 
+      const nomeImagemQRCode = `${equipamento.categoria}_${equipamento.qrCode}.png`.replace(/\s/g, "_");
+      const caminhoQRCode = `http://localhost:3000/uploads/${nomeImagemQRCode}`;
+
       container.innerHTML = `
         <h3>${equipamento.nome}</h3>
         <p><strong>Categoria:</strong> ${equipamento.categoria}</p>
         <p><strong>User:</strong> ${equipamento.dono}</p>
         <p><strong>Setor:</strong> ${equipamento.setor}</p>
         <p><strong>Descrição:</strong> ${equipamento.descricao}</p>
-        <p><strong>ID (QR Code):</strong> ${equipamento.qrCode}</p>
         ${equipamento.termo ? `<p><strong>Termo:</strong> <a href="http://localhost:3000/uploads/${equipamento.termo}" target="_blank">Visualizar PDF</a></p>` : ""}
+        <p><strong>ID (QR Code):</strong> ${equipamento.qrCode}</p>
+        <p><strong>QR Code:</strong><br>
+          <img id="qrcode-img" src="${caminhoQRCode}" alt="QR Code">
+          <br>
+          <a href="${caminhoQRCode}" download="${nomeImagemQRCode}">Baixar QR Code</a>
+        </p>
       `;
 
       document.getElementById("edit-categoria").value = equipamento.categoria;
@@ -177,9 +191,13 @@
         const res = await fetch(API_URL, { method: "DELETE" });
         if (res.ok) {
           alert("Equipamento excluído.");
-          window.location.href = "index.html";
+          window.location.href = "index.html#consulta";
         }
       }
+    });
+
+    btnVoltar.addEventListener("click", () => {
+      window.location.href = "index.html#consulta";
     });
 
     carregarDetalhes();

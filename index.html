@@ -15,8 +15,8 @@
         <li><a href="#consulta" class="nav-link">Consulta de Equipamentos</a></li>
         <li><a href="#cadastro" class="nav-link">Cadastramento de Equipamentos</a></li>
         <li><a href="#categorias" class="nav-link">Categorias</a></li>
-        <li id="admin-link" style="display: none;"><a href="login/admin.html" class="nav-link">Administração</a></li>
-        <li><button id="btn-logout">Sair</button></li>
+        <li id="admin-link" style="display: none;"><a href="login/admin.html" class="nav-link">Administração</a></li> 
+        <!-- Removed the Sair button as requested -->
       </ul>
     </nav>
   </header>
@@ -63,11 +63,7 @@
         <label for="descricao">Descrição:</label>
         <textarea id="descricao" name="descricao"></textarea>
 
-        <label>Existe QR Code?</label>
-        <div style="display: flex; gap: 20px; margin-bottom: 10px;">
-          <label><input type="radio" name="existeQRCode" value="sim" /> Sim</label>
-          <label><input type="radio" name="existeQRCode" value="nao" checked /> Não</label>
-        </div>
+        <!-- Removed QR Code input as requested -->
 
         <div id="qrcode-container" style="display: none;">
           <label for="qrCode">QR Code (ID):</label>

@@ -34,6 +34,18 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnCadastrar) btnCadastrar.addEventListener('click', () => showSection('cadastro'));
     if (btnConsultar) btnConsultar.addEventListener('click', () => showSection('consulta'));
 
+    // 👇 NOVO TRECHO — detecta hash e ativa seção correta
+    const hash = window.location.hash;
+    if (hash) {
+        const sectionId = hash.substring(1);
+        showSection(sectionId);
+    }
+
+    window.addEventListener('hashchange', () => {
+        const id = window.location.hash.substring(1);
+        showSection(id);
+    });
+
     const searchInput = document.getElementById('search-equipment');
     const filterModeSelect = document.getElementById('filter-mode');
     const equipmentList = document.getElementById('equipment-list');
@@ -53,10 +65,8 @@ document.addEventListener('DOMContentLoaded', () => {
     radio.addEventListener('change', () => {
         const isSim = radio.value === 'sim';
         qrCodeContainer.style.display = isSim ? 'block' : 'none';
-        if (qrCodeInput) {
-            qrCodeInput.required = isSim;
-            if (!isSim) qrCodeInput.value = ''; // limpa campo quando "não"
-        }
+        if (!isSim) qrCodeInput.value = '';
+        qrCodeInput.required = isSim;
     });
 });
 
@@ -66,11 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     radios.forEach(radio => {
         radio.addEventListener('change', () => {
-            if (radio.value === 'sim') {
-                termoInputContainer.style.display = 'block';
-            } else {
-                termoInputContainer.style.display = 'none';
-            }
+            termoInputContainer.style.display = radio.value === 'sim' ? 'block' : 'none';
         });
     });
 
@@ -157,18 +163,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const dono = getInputValue('dono');
             const setor = getInputValue('setor');
             const descricao = getInputValue('descricao');
-            const qrCodeRadio = document.querySelector('input[name="existeQRCode"]:checked');
-            const existeQRCode = qrCodeRadio ? qrCodeRadio.value : 'nao';
-            const qrCode = existeQRCode === 'sim' ? getInputValue('qrCode') : '';
             const termoInput = document.getElementById('termo');
             const termoSelecionado = document.querySelector('input[name="existeTermo"]:checked');
             const existeTermo = termoSelecionado ? termoSelecionado.value : 'nao';
 
             if (!categoria || !nome || !dono || !setor) {
-            alert('Por favor, preencha todos os campos obrigatórios.');
-            return;
-        }
-
+                alert('Por favor, preencha todos os campos obrigatórios.');
+                return;
+            }
 
             const formData = new FormData();
             formData.append('categoria', categoria);
@@ -176,10 +178,6 @@ document.addEventListener('DOMContentLoaded', () => {
             formData.append('dono', dono);
             formData.append('setor', setor);
             formData.append('descricao', descricao);
-            formData.append('existeQRCode', existeQRCode);
-            formData.append('qrCode', existeQRCode === 'sim' ? qrCode : '');
-
-
 
             if (existeTermo === 'sim' && termoInput && termoInput.files.length > 0) {
                 formData.append('termo', termoInput.files[0]);
@@ -197,7 +195,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert('Equipamento cadastrado com sucesso!');
                 formCadastro.reset();
                 if (termoInputContainer) termoInputContainer.style.display = 'none';
-                fetchEquipamentos();
+                setTimeout(() => {
+                    fetchEquipamentos();
+                }, 500);
             } catch (error) {
                 console.error('Erro ao enviar formulário:', error);
                 alert('Erro ao cadastrar equipamento: ' + error.message);
