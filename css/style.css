@@ -1,3 +1,4 @@
+/* === RESET === */
 body {
     font-family: Arial, sans-serif;
     margin: 0;
@@ -18,10 +19,11 @@ body::before {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(230, 126, 34, 0.3); /* overlay laranja com transparência */
+    background-color: rgba(230, 126, 34, 0.3);
     z-index: -1;
 }
 
+/* === HEADER === */
 header {
     background-color: #e67e22;
     color: white;
@@ -35,13 +37,11 @@ header {
     margin: 0;
     display: flex;
     justify-content: center;
-    background-color: transparent; /* fundo transparente da barra de navegação */
-    transition: background-color 0.3s ease;
+    background-color: transparent;
 }
 
 .nav-menu li {
     margin: 0 1rem;
-    position: relative;
 }
 
 .nav-menu li a {
@@ -49,23 +49,23 @@ header {
     text-decoration: none;
     font-weight: bold;
     padding: 0.5rem 1rem;
-    display: inline-block;
-    transition: background-color 0.3s ease, color 0.3s ease;
     border-radius: 4px;
+    transition: background-color 0.3s ease;
 }
 
 .nav-menu li a.active,
 .nav-menu li a:hover {
-    background-color: #e67e22;
-    color: #fff;
+    background-color: #d35400;
 }
 
+/* === MAIN === */
 main {
     max-width: 900px;
     margin: 2rem auto;
     padding: 1rem;
-    background-color: transparent; /* remove a caixa branca central */
+    background-color: rgba(255, 255, 255, 0.95);
     border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     position: relative;
     z-index: 1;
 }
@@ -78,24 +78,25 @@ main {
     display: block;
 }
 
+/* === HOME === */
 #home h2 {
     text-align: center;
-    color: white; /* mensagem de boas-vindas branca */
+    color: black;
 }
 
 .home-functions {
     display: flex;
     gap: 1rem;
     justify-content: center;
-    margin-top: 3rem;
+    margin-top: 2rem;
 }
 
 .home-functions button {
     padding: 1rem 2rem;
     font-size: 1rem;
     cursor: pointer;
-    background-color: black; /* botão preto */
-    color: white; /* texto branco */
+    background-color: black;
+    color: white;
     border: none;
     border-radius: 6px;
     transition: background-color 0.3s ease;
@@ -105,30 +106,45 @@ main {
     background-color: #333;
 }
 
+/* === EQUIPAMENTOS === */
 .equipment-list {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 1rem;
+    margin-top: 1rem;
 }
 
 .equipment-list > div {
-    background-color: #e9ecef;
+    background-color: #fff;
     padding: 1rem;
     border-radius: 6px;
-    width: calc(50% - 1rem);
-    box-sizing: border-box;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: transform 0.2s, background-color 0.2s;
 }
 
 .equipment-list > div:hover {
-    background-color: #d0d7de;
+    transform: translateY(-3px);
+    background-color: #f9f9f9;
+}
+
+.equipment-list h3 {
+    margin: 0 0 0.5rem;
+    font-size: 1.1rem;
+    color: #e67e22;
+}
+
+.equipment-list p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #444;
 }
 
 .equipment-details {
-    background-color: #e9ecef;
+    background-color: #fff;
     padding: 1rem;
     border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 .hidden {
@@ -149,21 +165,25 @@ main {
     background-color: #d35400;
 }
 
+/* === FORMULÁRIOS === */
 form label {
     display: block;
     margin-top: 1rem;
     font-weight: bold;
+    color: #333;
 }
 
 form input[type="text"],
 form textarea,
-form select {
+form select,
+form input[type="file"] {
     width: 100%;
     padding: 0.5rem;
     margin-top: 0.25rem;
     border: 1px solid #ccc;
     border-radius: 4px;
     box-sizing: border-box;
+    background-color: white;
 }
 
 form button[type="submit"] {
@@ -174,20 +194,33 @@ form button[type="submit"] {
     border: none;
     border-radius: 6px;
     cursor: pointer;
+    font-size: 1rem;
 }
 
 form button[type="submit"]:hover {
     background-color: #d35400;
 }
 
+.termo-options {
+    display: flex;
+    gap: 2rem;
+    margin-top: 0.5rem;
+}
+
 #categoria-lista {
     list-style: none;
     padding: 0;
+    margin-top: 1rem;
 }
 
 #categoria-lista li {
-    background-color: #e9ecef;
+    background-color: #fff;
     margin-bottom: 0.5rem;
     padding: 0.5rem 1rem;
     border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+#categoria-lista li span {
+    font-weight: bold;
+    color: #e67e22;
 }

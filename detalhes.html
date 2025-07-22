@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Detalhes do Equipamento</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    main {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 1rem;
+      background-color: rgba(255, 255, 255, 0.95);
+      border-radius: 8px;
+    }
+
+    .equipment-details {
+      background-color: #e9ecef;
+      padding: 1rem;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+    }
+
+    .actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .actions button,
+    .actions a {
+      padding: 0.5rem 1.2rem;
+      border: none;
+      background-color: #e67e22;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .actions button:hover,
+    .actions a:hover {
+      background-color: #d35400;
+    }
+
+    form label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+
+    form input,
+    form textarea {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 0.25rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+
+    form button[type="submit"] {
+      margin-top: 1.5rem;
+      padding: 0.75rem 1.5rem;
+      background-color: #e67e22;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    form button[type="submit"]:hover {
+      background-color: #d35400;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Detalhes do Equipamento</h1>
+  </header>
+
+  <main>
+    <section id="detalhes-equipamento" class="page-section active">
+      <div id="detalhes-container" class="equipment-details"></div>
+      <form id="form-editar" class="hidden">
+        <h3>Editar Equipamento</h3>
+        <label for="edit-categoria">Categoria:</label>
+        <input type="text" id="edit-categoria" name="categoria" />
+
+        <label for="edit-nome">Service Tag:</label>
+        <input type="text" id="edit-nome" name="nome" required />
+
+        <label for="edit-dono">User:</label>
+        <input type="text" id="edit-dono" name="dono" />
+
+        <label for="edit-setor">Setor:</label>
+        <input type="text" id="edit-setor" name="setor" />
+
+        <label for="edit-descricao">Descrição:</label>
+        <textarea id="edit-descricao" name="descricao"></textarea>
+
+        <button type="submit">Salvar Alterações</button>
+      </form>
+
+      <div class="actions">
+        <button id="btn-editar">Editar</button>
+        <button id="btn-excluir">Excluir</button>
+        <a href="index.html" class="btn-voltar">Voltar</a>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const id = new URLSearchParams(window.location.search).get("id");
+    const API_URL = "http://localhost:3000/equipamentos/" + id;
+
+    const container = document.getElementById("detalhes-container");
+    const form = document.getElementById("form-editar");
+    const btnEditar = document.getElementById("btn-editar");
+    const btnExcluir = document.getElementById("btn-excluir");
+
+    let equipamento = null;
+
+    async function carregarDetalhes() {
+      const res = await fetch(API_URL);
+      equipamento = await res.json();
+
+      container.innerHTML = `
+        <h3>${equipamento.nome}</h3>
+        <p><strong>Categoria:</strong> ${equipamento.categoria}</p>
+        <p><strong>User:</strong> ${equipamento.dono}</p>
+        <p><strong>Setor:</strong> ${equipamento.setor}</p>
+        <p><strong>Descrição:</strong> ${equipamento.descricao}</p>
+        <p><strong>ID (QR Code):</strong> ${equipamento.qrCode}</p>
+        ${equipamento.termo ? `<p><strong>Termo:</strong> <a href="http://localhost:3000/uploads/${equipamento.termo}" target="_blank">Visualizar PDF</a></p>` : ""}
+      `;
+
+      document.getElementById("edit-categoria").value = equipamento.categoria;
+      document.getElementById("edit-nome").value = equipamento.nome;
+      document.getElementById("edit-dono").value = equipamento.dono;
+      document.getElementById("edit-setor").value = equipamento.setor;
+      document.getElementById("edit-descricao").value = equipamento.descricao;
+    }
+
+    btnEditar.addEventListener("click", () => {
+      form.classList.toggle("hidden");
+    });
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const dadosAtualizados = {
+        categoria: form.categoria.value,
+        nome: form.nome.value,
+        dono: form.dono.value,
+        setor: form.setor.value,
+        descricao: form.descricao.value
+      };
+      const res = await fetch(API_URL, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(dadosAtualizados)
+      });
+      if (res.ok) {
+        alert("Atualizado com sucesso!");
+        location.reload();
+      }
+    });
+
+    btnExcluir.addEventListener("click", async () => {
+      if (confirm("Deseja realmente excluir este equipamento?")) {
+        const res = await fetch(API_URL, { method: "DELETE" });
+        if (res.ok) {
+          alert("Equipamento excluído.");
+          window.location.href = "index.html";
+        }
+      }
+    });
+
+    carregarDetalhes();
+  </script>
+</body>
+</html>
