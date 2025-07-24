@@ -108,6 +108,9 @@
         <label for="edit-setor">Setor:</label>
         <input type="text" id="edit-setor" name="setor" />
 
+        <label for="edit-hostname">Hostname:</label>
+        <input type="text" id="edit-hostname" name="hostname" />
+
         <label for="edit-descricao">Descrição:</label>
         <textarea id="edit-descricao" name="descricao"></textarea>
 
@@ -145,13 +148,14 @@
         <p><strong>Categoria:</strong> ${equipamento.categoria}</p>
         <p><strong>User:</strong> ${equipamento.dono}</p>
         <p><strong>Setor:</strong> ${equipamento.setor}</p>
+        <p><strong>Hostname:</strong> ${equipamento.hostname || "Não informado"}</p>
         <p><strong>Descrição:</strong> ${equipamento.descricao}</p>
         ${equipamento.termo ? `<p><strong>Termo:</strong> <a href="http://localhost:3000/uploads/${equipamento.termo}" target="_blank">Visualizar PDF</a></p>` : ""}
         <p><strong>ID (QR Code):</strong> ${equipamento.qrCode}</p>
         <p><strong>QR Code:</strong><br>
-          <img id="qrcode-img" src="${caminhoQRCode}" alt="QR Code">
-          <br>
+          <img id="qrcode-img" src="${caminhoQRCode}" alt="QR Code"><br>
           <a href="${caminhoQRCode}" download="${nomeImagemQRCode}">Baixar QR Code</a>
+          <button onclick="imprimirQRCode()">Imprimir QR Code</button>
         </p>
       `;
 
@@ -159,7 +163,22 @@
       document.getElementById("edit-nome").value = equipamento.nome;
       document.getElementById("edit-dono").value = equipamento.dono;
       document.getElementById("edit-setor").value = equipamento.setor;
+      document.getElementById("edit-hostname").value = equipamento.hostname || "";
       document.getElementById("edit-descricao").value = equipamento.descricao;
+    }
+
+    function imprimirQRCode() {
+      const img = document.getElementById('qrcode-img');
+      const janela = window.open('', '_blank');
+      janela.document.write(`
+        <html><head><title>Imprimir QR Code</title></head>
+        <body style="text-align:center;">
+          <img src="${img.src}" style="max-width: 300px;" />
+          <br><br>
+          <button onclick="window.print();">Imprimir</button>
+        </body></html>
+      `);
+      janela.document.close();
     }
 
     btnEditar.addEventListener("click", () => {
@@ -173,6 +192,7 @@
         nome: form.nome.value,
         dono: form.dono.value,
         setor: form.setor.value,
+        hostname: form.hostname.value,
         descricao: form.descricao.value
       };
       const res = await fetch(API_URL, {

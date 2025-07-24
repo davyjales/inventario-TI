@@ -31,16 +31,16 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 const termoUpload = upload.single('termo');
 
-// 🔄 POST novo equipamento com termo opcional e QR Code automático
+// 🔄 POST novo equipamento com termo opcional, hostname e QR Code automático
 app.post('/equipamentos', termoUpload, async (req, res) => {
-    const { categoria, nome, dono, setor, descricao } = req.body;
+    const { categoria, nome, dono, setor, descricao, hostname } = req.body;
     const termo = req.file ? req.file.filename : null;
 
     if (!categoria || !nome || !dono || !setor) {
         return res.status(400).json({ error: 'Campos obrigatórios faltando.' });
     }
 
-    const identificador = uuidv4(); // 🔑 Gera identificador único
+    const identificador = uuidv4();
     const nomeQRCode = `${categoria}_${identificador}.png`.replace(/\s/g, '_');
     const caminhoQRCode = path.join(__dirname, 'uploads', nomeQRCode);
 
@@ -56,11 +56,11 @@ app.post('/equipamentos', termoUpload, async (req, res) => {
 
     const query = `
         INSERT INTO equipamentos 
-        (categoria, nome, dono, setor, descricao, termo, qrCode) 
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        (categoria, nome, dono, setor, descricao, termo, qrCode, hostname) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
-    db.query(query, [categoria, nome, dono, setor, descricao, termo, identificador], (err, result) => {
+    db.query(query, [categoria, nome, dono, setor, descricao, termo, identificador, hostname || null], (err, result) => {
         if (err) return res.status(400).json({ error: err.message });
         res.status(201).json({ message: 'Equipamento cadastrado com sucesso!', id: result.insertId });
     });
@@ -79,7 +79,7 @@ app.get('/categorias', (req, res) => {
     });
 });
 
-// ➕ Adicionar categoria
+// ➕ Adicionar nova categoria
 app.post('/categorias', (req, res) => {
     const { categoria } = req.body;
     if (!categoria) {
@@ -95,10 +95,19 @@ app.post('/categorias', (req, res) => {
     });
 });
 
-// 📦 Listar equipamentos
+// 📦 Listar equipamentos (com filtro opcional por hostname)
 app.get('/equipamentos', (req, res) => {
-    const query = 'SELECT * FROM equipamentos';
-    db.query(query, (err, results) => {
+    const { hostname } = req.query;
+
+    let query = 'SELECT * FROM equipamentos';
+    const values = [];
+
+    if (hostname) {
+        query += ' WHERE hostname LIKE ?';
+        values.push(`%${hostname}%`);
+    }
+
+    db.query(query, values, (err, results) => {
         if (err) {
             console.error('Erro ao buscar equipamentos:', err);
             return res.status(500).json({ error: 'Erro ao buscar equipamentos.' });
@@ -110,7 +119,11 @@ app.get('/equipamentos', (req, res) => {
 // 🔎 Detalhes de um equipamento
 app.get('/equipamentos/:id', (req, res) => {
     const { id } = req.params;
-    const query = 'SELECT id, categoria, nome, dono, setor, descricao, termo, qrCode FROM equipamentos WHERE id = ?';
+    const query = `
+        SELECT id, categoria, nome, dono, setor, descricao, termo, qrCode, hostname 
+        FROM equipamentos 
+        WHERE id = ?
+    `;
     db.query(query, [id], (err, results) => {
         if (err) {
             console.error('Erro ao buscar equipamento:', err);
@@ -123,12 +136,17 @@ app.get('/equipamentos/:id', (req, res) => {
     });
 });
 
-// ✏️ Editar equipamento
+// ✏️ Editar equipamento (incluindo hostname)
 app.put('/equipamentos/:id', express.json(), (req, res) => {
     const { id } = req.params;
-    const { categoria, nome, dono, setor, descricao } = req.body;
-    const query = 'UPDATE equipamentos SET categoria = ?, nome = ?, dono = ?, setor = ?, descricao = ? WHERE id = ?';
-    db.query(query, [categoria, nome, dono, setor, descricao, id], (err) => {
+    const { categoria, nome, dono, setor, descricao, hostname } = req.body;
+
+    const query = `
+        UPDATE equipamentos 
+        SET categoria = ?, nome = ?, dono = ?, setor = ?, descricao = ?, hostname = ?
+        WHERE id = ?
+    `;
+    db.query(query, [categoria, nome, dono, setor, descricao, hostname || null, id], (err) => {
         if (err) {
             console.error('Erro ao atualizar equipamento:', err);
             return res.status(500).json({ error: 'Erro ao atualizar equipamento.' });

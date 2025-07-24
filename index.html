@@ -15,8 +15,7 @@
         <li><a href="#consulta" class="nav-link">Consulta de Equipamentos</a></li>
         <li><a href="#cadastro" class="nav-link">Cadastramento de Equipamentos</a></li>
         <li><a href="#categorias" class="nav-link">Categorias</a></li>
-        <li id="admin-link" style="display: none;"><a href="login/admin.html" class="nav-link">Administração</a></li> 
-        <!-- Removed the Sair button as requested -->
+        <li id="admin-link" style="display: none;"><a href="login/admin.html" class="nav-link">Administração</a></li>
       </ul>
     </nav>
   </header>
@@ -38,6 +37,7 @@
         <option value="qrCode">ID (QR Code)</option>
         <option value="dono">User</option>
         <option value="setor">Setor</option>
+        <option value="hostname">Hostname</option> <!-- ✅ ADICIONADO -->
       </select>
       <input type="text" id="search-equipment" placeholder="Pesquisar equipamentos..." />
       <div id="equipment-list" class="equipment-list"></div>
@@ -51,8 +51,11 @@
         <label for="categoria">Categoria:</label>
         <select id="categoria" name="categoria" required></select>
 
-        <label for="nome">Service Tag:</label>
+        <label for="nome">Service Tag (wmic bios get serialnumber):</label>
         <input type="text" id="nome" name="nome" required />
+
+        <label for="hostname">Hostname:</label>
+        <input type="text" id="hostname" name="hostname" />
 
         <label for="dono">User:</label>
         <input type="text" id="dono" name="dono" required />
@@ -63,14 +66,10 @@
         <label for="descricao">Descrição:</label>
         <textarea id="descricao" name="descricao"></textarea>
 
-        <!-- Removed QR Code input as requested -->
-
         <div id="qrcode-container" style="display: none;">
           <label for="qrCode">QR Code (ID):</label>
           <input type="text" id="qrCode" name="qrCode" />
         </div>
-
-
 
         <label>Existe termo?</label>
         <div>
@@ -98,10 +97,9 @@
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-  <script src="js/loginUtils.js"></script> <!-- NOVO SCRIPT -->
+  <script src="js/loginUtils.js"></script>
   <script src="js/app.js"></script>
   <script>
-    // Controla exibição do campo de upload
     document.addEventListener('DOMContentLoaded', () => {
       const radios = document.getElementsByName('existeTermo');
       const container = document.getElementById('upload-termo-container');

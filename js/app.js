@@ -34,7 +34,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnCadastrar) btnCadastrar.addEventListener('click', () => showSection('cadastro'));
     if (btnConsultar) btnConsultar.addEventListener('click', () => showSection('consulta'));
 
-    // 👇 NOVO TRECHO — detecta hash e ativa seção correta
     const hash = window.location.hash;
     if (hash) {
         const sectionId = hash.substring(1);
@@ -62,14 +61,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const qrCodeInput = document.getElementById('qrCode');
 
     qrcodeRadios.forEach(radio => {
-    radio.addEventListener('change', () => {
-        const isSim = radio.value === 'sim';
-        qrCodeContainer.style.display = isSim ? 'block' : 'none';
-        if (!isSim) qrCodeInput.value = '';
-        qrCodeInput.required = isSim;
+        radio.addEventListener('change', () => {
+            const isSim = radio.value === 'sim';
+            qrCodeContainer.style.display = isSim ? 'block' : 'none';
+            if (!isSim) qrCodeInput.value = '';
+            qrCodeInput.required = isSim;
+        });
     });
-});
-
 
     const radios = document.getElementsByName('existeTermo');
     const termoInputContainer = document.getElementById('upload-termo-container');
@@ -163,6 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const dono = getInputValue('dono');
             const setor = getInputValue('setor');
             const descricao = getInputValue('descricao');
+            const hostname = getInputValue('hostname'); // <- NOVO
             const termoInput = document.getElementById('termo');
             const termoSelecionado = document.querySelector('input[name="existeTermo"]:checked');
             const existeTermo = termoSelecionado ? termoSelecionado.value : 'nao';
@@ -178,6 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
             formData.append('dono', dono);
             formData.append('setor', setor);
             formData.append('descricao', descricao);
+            formData.append('hostname', hostname); // <- NOVO
 
             if (existeTermo === 'sim' && termoInput && termoInput.files.length > 0) {
                 formData.append('termo', termoInput.files[0]);
