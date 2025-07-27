@@ -151,20 +151,6 @@ main {
     display: none;
 }
 
-/*.btn-voltar {
-    margin-top: 1rem;
-    padding: 0.5rem 1.5rem;
-    background-color: #e67e22;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-} 
-
-.btn-voltar:hover {
-    background-color: #d35400;
-} */
-
 /* === FORMULÁRIOS === */
 form label {
     display: block;
@@ -224,3 +210,78 @@ form button[type="submit"]:hover {
     font-weight: bold;
     color: #e67e22;
 }
+
+/* === TABELA DE USUÁRIOS === */
+.user-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 2rem;
+    background-color: #fff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.user-table thead {
+    background-color: #e67e22;
+    color: white;
+}
+
+.user-table thead th {
+    padding: 1rem;
+    text-align: left;
+    font-weight: bold;
+    border-bottom: 2px solid #d35400;
+}
+
+.user-table tbody td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #eee;
+    color: #333;
+}
+
+.user-table tbody tr:hover {
+    background-color: #f9f9f9;
+}
+
+.user-table td .action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0.2rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    color: white;
+    transition: all 0.3s ease;
+    min-width: 140px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-admin {
+    background-color: #3498db;
+}
+.btn-admin:hover {
+    background-color: #2980b9;
+}
+
+.btn-auth {
+    background-color: #27ae60;
+}
+.btn-auth:hover {
+    background-color: #1e8449;
+}
+
+.btn-delete {
+    background-color: #e74c3c;
+}
+.btn-delete:hover {
+    background-color: #c0392b;
+}
+
+
+
