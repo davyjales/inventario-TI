@@ -11,6 +11,17 @@
     if (!token) {
       window.location.href = 'login.html';
     }
+
+    // Variável global para armazenar ID do usuário que terá a senha alterada
+    let idUsuarioAlterandoSenha = null;
+
+    // Função global para abrir modal de alteração de senha
+    function abrirModalSenha(id, nome) {
+      idUsuarioAlterandoSenha = id;
+      document.getElementById('modal-title').innerText = `Alterar senha de ${nome}`;
+      document.getElementById('nova-senha').value = '';
+      document.getElementById('modal-senha').classList.remove('hidden');
+    }
   </script>
 </head>
 <body>
@@ -46,6 +57,7 @@
         <option value="dono">User</option>
         <option value="setor">Setor</option>
         <option value="hostname">Hostname</option>
+        <option value="categoria">Categoria</option>
       </select>
       <input type="text" id="search-equipment" placeholder="Pesquisar equipamentos..." />
       <div id="equipment-list" class="equipment-list"></div>
@@ -109,13 +121,12 @@
             <th>User</th>
             <th>Email</th>
             <th>Admin</th>
+            <th>Inventariante</th>
             <th>Autorizado</th>
             <th>Ações</th>
           </tr>
         </thead>
-        <tbody id="user-table-body">
-          <!-- Populado via JS -->
-        </tbody>
+        <tbody id="user-table-body"></tbody>
       </table>
     </section>
   </main>
@@ -135,52 +146,78 @@
         });
       });
 
-      const logoutBtn = document.getElementById('logout-link');
-      if (logoutBtn) {
-        logoutBtn.addEventListener('click', e => {
-          e.preventDefault();
-          localStorage.removeItem('token');
-          window.location.href = 'login.html';
-        });
-      }
-    });
-  </script>
+      document.getElementById('cancelar-senha').addEventListener('click', () => {
+        document.getElementById('modal-senha').classList.add('hidden');
+      });
 
-  <script>
-    document.addEventListener('DOMContentLoaded', async () => {
+      document.getElementById('confirmar-senha').addEventListener('click', async () => {
+        const novaSenha = document.getElementById('nova-senha').value;
+        if (novaSenha.length < 6) return alert('A senha deve ter no mínimo 6 caracteres.');
+
+        const token = localStorage.getItem('token');
+        try {
+          const res = await fetch(`http://localhost:3000/admin/alterar-senha/${idUsuarioAlterandoSenha}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ novaSenha })
+          });
+
+          const data = await res.json();
+          if (res.ok) {
+            alert('Senha atualizada com sucesso!');
+            document.getElementById('modal-senha').classList.add('hidden');
+          } else {
+            alert(data.erro || 'Erro ao atualizar senha.');
+          }
+        } catch {
+          alert('Erro de conexão.');
+        }
+      });
+
       const token = localStorage.getItem('token');
-      if (!token) {
-        window.location.href = 'login.html';
-        return;
-      }
-
       let decoded;
       try {
         decoded = jwt_decode(token);
-      } catch (err) {
+      } catch {
         localStorage.removeItem('token');
-        window.location.href = 'login.html';
-        return;
+        return window.location.href = 'login.html';
       }
 
-      if (!decoded.admin) {
-        // Esconder funcionalidades de admin
-        document.getElementById('cadastro')?.remove();
-        document.querySelector('a[href="#cadastro"]')?.remove();
-        document.getElementById('form-categoria')?.remove();
-      } else {
-        // Mostrar aba admin
+      const isAdmin = decoded.admin;
+      const isInventariante = decoded.inventariante;
+
+      if (isAdmin) {
         document.getElementById('admin-link').style.display = 'inline-block';
         document.getElementById('admin').style.display = 'block';
+      }
 
-        try {
-          const res = await fetch('http://localhost:3000/admin/users', {
-            headers: { Authorization: `Bearer ${token}` }
-          });
-          const users = await res.json();
+      if (!isAdmin && !isInventariante) {
+        document.getElementById('form-categoria')?.remove();
+        document.getElementById('cadastro')?.remove();
+        document.querySelector('a[href="#cadastro"]')?.remove();
+        document.getElementById('btn-cadastrar')?.remove();
+      }
+
+      // Redirecionamento dos botões da home
+      document.getElementById('btn-cadastrar')?.addEventListener('click', () => {
+        document.querySelector('.nav-link[href="#cadastro"]')?.click();
+      });
+
+      document.getElementById('btn-consultar')?.addEventListener('click', () => {
+        document.querySelector('.nav-link[href="#consulta"]')?.click();
+      });
+
+      if (isAdmin) {
+        fetch('http://localhost:3000/admin/users', {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        .then(res => res.json())
+        .then(users => {
           const tbody = document.getElementById('user-table-body');
           tbody.innerHTML = '';
-
           users.forEach(user => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
@@ -188,24 +225,42 @@
               <td>${user.user}</td>
               <td>${user.email}</td>
               <td>${user.admin ? 'Sim' : 'Não'}</td>
+              <td>${user.inventariante ? 'Sim' : 'Não'}</td>
               <td>${user.autorizado ? 'Sim' : 'Não'}</td>
               <td>
                 <button class="action-btn btn-admin" onclick="toggleAdmin(${user.id})">Alternar Admin</button>
+                <button class="action-btn btn-inventariante" onclick="toggleInventariante(${user.id})">Alternar Inventariante</button>
                 <button class="action-btn btn-auth" onclick="toggleAutorizado(${user.id})">Alternar Autorização</button>
+                <button class="action-btn btn-password" onclick="abrirModalSenha(${user.id}, '${user.nome}')">Alterar Senha</button>
                 <button class="action-btn btn-delete" onclick="excluirUsuario(${user.id})">Excluir</button>
               </td>
             `;
             tbody.appendChild(tr);
           });
-        } catch (err) {
-          console.error('Erro ao carregar usuários:', err);
-        }
+        })
+        .catch(console.error);
       }
+
+      const logoutBtn = document.getElementById('logout-link');
+      logoutBtn?.addEventListener('click', e => {
+        e.preventDefault();
+        localStorage.removeItem('token');
+        window.location.href = 'login.html';
+      });
     });
 
     async function toggleAdmin(id) {
       const token = localStorage.getItem('token');
       await fetch(`http://localhost:3000/admin/toggle-admin/${id}`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      location.reload();
+    }
+
+    async function toggleInventariante(id) {
+      const token = localStorage.getItem('token');
+      await fetch(`http://localhost:3000/admin/toggle-inventariante/${id}`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -232,43 +287,48 @@
     }
   </script>
 
+  <!-- Script para navegação por abas -->
   <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const links = document.querySelectorAll(".nav-link");
-    const sections = document.querySelectorAll(".page-section");
+    document.addEventListener("DOMContentLoaded", () => {
+      const links = document.querySelectorAll(".nav-link");
+      const sections = document.querySelectorAll(".page-section");
 
-    links.forEach(link => {
-      link.addEventListener("click", e => {
-        e.preventDefault();
-        const target = link.getAttribute("href").substring(1);
-
-        // Remove classe 'active' de todos os links
-        links.forEach(l => l.classList.remove("active"));
-        link.classList.add("active");
-
-        // Esconde todas as seções
-        sections.forEach(section => {
-          section.classList.remove("active");
-          section.style.display = "none";
+      links.forEach(link => {
+        link.addEventListener("click", e => {
+          e.preventDefault();
+          const target = link.getAttribute("href").substring(1);
+          links.forEach(l => l.classList.remove("active"));
+          link.classList.add("active");
+          sections.forEach(section => {
+            section.classList.remove("active");
+            section.style.display = "none";
+          });
+          const targetSection = document.getElementById(target);
+          if (targetSection) {
+            targetSection.classList.add("active");
+            targetSection.style.display = "block";
+          }
         });
+      });
 
-        // Mostra a seção clicada
-        const targetSection = document.getElementById(target);
-        if (targetSection) {
-          targetSection.classList.add("active");
-          targetSection.style.display = "block";
+      sections.forEach(section => {
+        if (!section.classList.contains("active")) {
+          section.style.display = "none";
         }
       });
     });
+  </script>
 
-    // Exibe apenas a seção ativa ao carregar a página
-    sections.forEach(section => {
-      if (!section.classList.contains("active")) {
-        section.style.display = "none";
-      }
-    });
-  });
-</script>
-
+  <!-- Modal de senha -->
+  <div id="modal-senha" class="modal hidden">
+    <div class="modal-content">
+      <h3 id="modal-title">Alterar Senha</h3>
+      <input type="password" id="nova-senha" placeholder="Nova senha" />
+      <div class="modal-buttons">
+        <button id="confirmar-senha" class="btn-auth">Confirmar</button>
+        <button id="cancelar-senha" class="btn-delete">Cancelar</button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

@@ -57,10 +57,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const qrcodeRadios = document.getElementsByName('existeQRCode');
     const qrCodeContainer = document.getElementById('qrcode-container');
-
     const qrCodeInput = document.getElementById('qrCode');
 
-    qrcodeRadios.forEach(radio => {
+    qrcodeRadios?.forEach(radio => {
         radio.addEventListener('change', () => {
             const isSim = radio.value === 'sim';
             qrCodeContainer.style.display = isSim ? 'block' : 'none';
@@ -122,6 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         equipmentList.innerHTML = '';
         const filterMode = filterModeSelect.value;
+
         const filtered = equipamentos.filter(eq => {
             const fieldValue = eq[filterMode] ? eq[filterMode].toLowerCase() : '';
             return fieldValue.includes(filter.toLowerCase());
@@ -133,9 +133,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         filtered.forEach(eq => {
+            const valorExibido = eq[filterMode] || '—';
             const div = document.createElement('div');
             div.className = 'equipment-item';
-            div.innerHTML = `<h3>${eq.nome}</h3><p>${eq.categoria}</p>`;
+            div.innerHTML = `<h3>${valorExibido}</h3><p>${eq.categoria}</p>`;
             div.addEventListener('click', () => {
                 window.location.href = `detalhes.html?id=${eq.id}`;
             });
@@ -145,6 +146,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (searchInput) {
         searchInput.addEventListener('input', () => renderEquipamentosList(searchInput.value));
+    }
+
+    if (filterModeSelect) {
+        filterModeSelect.addEventListener('change', () => {
+            renderEquipamentosList(searchInput?.value || '');
+        });
+
+        // Garante que "categoria" seja uma opção
+        if (![...filterModeSelect.options].some(opt => opt.value === 'categoria')) {
+            const option = document.createElement('option');
+            option.value = 'categoria';
+            option.textContent = 'Categoria';
+            filterModeSelect.appendChild(option);
+        }
     }
 
     if (formCadastro) {
@@ -161,7 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const dono = getInputValue('dono');
             const setor = getInputValue('setor');
             const descricao = getInputValue('descricao');
-            const hostname = getInputValue('hostname'); // <- NOVO
+            const hostname = getInputValue('hostname');
             const termoInput = document.getElementById('termo');
             const termoSelecionado = document.querySelector('input[name="existeTermo"]:checked');
             const existeTermo = termoSelecionado ? termoSelecionado.value : 'nao';
@@ -177,7 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
             formData.append('dono', dono);
             formData.append('setor', setor);
             formData.append('descricao', descricao);
-            formData.append('hostname', hostname); // <- NOVO
+            formData.append('hostname', hostname);
 
             if (existeTermo === 'sim' && termoInput && termoInput.files.length > 0) {
                 formData.append('termo', termoInput.files[0]);

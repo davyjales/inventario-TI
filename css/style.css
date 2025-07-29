@@ -282,6 +282,42 @@ form button[type="submit"]:hover {
 .btn-delete:hover {
     background-color: #c0392b;
 }
+.btn-inventariante {
+  background-color: #f39c12;
+}
+.btn-inventariante:hover {
+  background-color: #d68910;
+}
+.btn-password {
+    background-color: #8e44ad;
+}
+
+.modal {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex; justify-content: center; align-items: center;
+  z-index: 999;
+}
+.modal-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+.modal-buttons {
+  margin-top: 1rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+.hidden {
+  display: none !important;
+}
+
 
 
 

@@ -1,3 +1,5 @@
+// --- substitua seu server.js atual por este abaixo --- //
+
 const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
@@ -21,7 +23,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(__dirname));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Middleware para proteger rotas de admin
+// Middleware para admin
 function verificarAdmin(req, res, next) {
   const authHeader = req.headers['authorization'];
   if (!authHeader) return res.status(401).json({ erro: 'Token ausente' });
@@ -30,6 +32,20 @@ function verificarAdmin(req, res, next) {
   jwt.verify(token, SECRET, (err, user) => {
     if (err) return res.status(403).json({ erro: 'Token inválido' });
     if (!user.admin) return res.status(403).json({ erro: 'Acesso negado' });
+    req.user = user;
+    next();
+  });
+}
+
+// Middleware para inventariante ou admin
+function verificarAcessoGeral(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  if (!authHeader) return res.status(401).json({ erro: 'Token ausente' });
+
+  const token = authHeader.split(' ')[1];
+  jwt.verify(token, SECRET, (err, user) => {
+    if (err) return res.status(403).json({ erro: 'Token inválido' });
+    if (!user.admin && !user.inventariante) return res.status(403).json({ erro: 'Acesso negado' });
     req.user = user;
     next();
   });
@@ -59,7 +75,6 @@ app.post('/equipamentos', termoUpload, async (req, res) => {
   try {
     await QRCode.toFile(caminhoQRCode, identificador, { width: 300, margin: 2 });
   } catch (err) {
-    console.error('Erro ao gerar QR Code:', err);
     return res.status(500).json({ error: 'Erro ao gerar QR Code.' });
   }
 
@@ -105,21 +120,6 @@ app.get('/equipamentos/:id', (req, res) => {
   });
 });
 
-app.put('/equipamentos/:id', express.json(), (req, res) => {
-  const { id } = req.params;
-  const { categoria, nome, dono, setor, descricao, hostname } = req.body;
-
-  const query = `
-    UPDATE equipamentos 
-    SET categoria = ?, nome = ?, dono = ?, setor = ?, descricao = ?, hostname = ?
-    WHERE id = ?
-  `;
-  db.query(query, [categoria, nome, dono, setor, descricao, hostname || null, id], (err) => {
-    if (err) return res.status(500).json({ error: 'Erro ao atualizar equipamento.' });
-    res.json({ message: 'Equipamento atualizado com sucesso.' });
-  });
-});
-
 app.delete('/equipamentos/:id', (req, res) => {
   const { id } = req.params;
   const query = 'DELETE FROM equipamentos WHERE id = ?';
@@ -128,6 +128,50 @@ app.delete('/equipamentos/:id', (req, res) => {
     res.json({ message: 'Equipamento excluído com sucesso.' });
   });
 });
+
+// ---------- ATUALIZAÇÃO DE EQUIPAMENTO + TERMO ---------- //
+
+app.put('/equipamentos/:id', upload.single('termo'), (req, res) => {
+  if (!req.body) return res.status(400).json({ error: 'Corpo da requisição está vazio.' });
+
+  const { id } = req.params;
+  const { categoria, nome, dono, setor, descricao, hostname, removerTermo } = req.body;
+  const novoTermo = req.file ? req.file.filename : null;
+
+  const buscarQuery = 'SELECT termo FROM equipamentos WHERE id = ?';
+  db.query(buscarQuery, [id], (err, results) => {
+    if (err) return res.status(500).json({ error: 'Erro ao buscar equipamento.' });
+    if (results.length === 0) return res.status(404).json({ error: 'Equipamento não encontrado.' });
+
+    const termoAntigo = results[0].termo;
+    const deveRemoverTermo = removerTermo === 'true';
+    let novoValorTermo = termoAntigo;
+
+    if (deveRemoverTermo || novoTermo) {
+      if (termoAntigo) {
+        const caminhoAntigo = path.join(__dirname, 'uploads', termoAntigo);
+        fs.unlink(caminhoAntigo, (fsErr) => {
+          if (fsErr && fsErr.code !== 'ENOENT') {
+            console.warn('Erro ao remover termo antigo:', fsErr);
+          }
+        });
+      }
+      novoValorTermo = novoTermo || null;
+    }
+
+    const updateQuery = `
+      UPDATE equipamentos
+      SET categoria = ?, nome = ?, dono = ?, setor = ?, descricao = ?, hostname = ?, termo = ?
+      WHERE id = ?
+    `;
+
+    db.query(updateQuery, [categoria, nome, dono, setor, descricao, hostname || null, novoValorTermo, id], (err) => {
+      if (err) return res.status(500).json({ error: 'Erro ao atualizar equipamento.' });
+      res.json({ message: 'Equipamento atualizado com sucesso.' });
+    });
+  });
+});
+
 
 // ---------------- CATEGORIAS ---------------- //
 
@@ -146,8 +190,8 @@ app.post('/categorias', (req, res) => {
   const query = 'INSERT INTO categorias (nome) VALUES (?)';
   db.query(query, [categoria], (err, result) => {
     if (err) return res.status(500).json({ error: 'Erro ao inserir categoria' });
-    res.status(201).json({ message: 'Categoria adicionada com sucesso', id: result.insertId });
-  });
+    res.status(201).json({ message: 'Categoria adicionada com sucesso', id: result.insertId });
+  });
 });
 
 // ---------------- USUÁRIOS ---------------- //
@@ -191,7 +235,13 @@ app.post('/login', express.json(), (req, res) => {
     if (!senhaCorreta) return res.status(401).json({ error: 'Senha incorreta.' });
     if (!usuario.autorizado) return res.status(403).json({ error: 'Usuário não autorizado.' });
 
-    const token = jwt.sign({ id: usuario.id, user: usuario.user, admin: usuario.admin }, SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({
+      id: usuario.id,
+      user: usuario.user,
+      admin: usuario.admin,
+      inventariante: usuario.inventariante
+    }, SECRET, { expiresIn: '1h' });
+
     res.json({ message: 'Login bem-sucedido', token });
   });
 });
@@ -199,7 +249,7 @@ app.post('/login', express.json(), (req, res) => {
 // ---------------- ADMINISTRAÇÃO ---------------- //
 
 app.get('/admin/users', verificarAdmin, (req, res) => {
-  const sql = 'SELECT id, nome, user, email, admin, autorizado FROM usuarios';
+  const sql = 'SELECT id, nome, user, email, admin, autorizado, inventariante FROM usuarios';
   db.query(sql, (err, results) => {
     if (err) return res.status(500).json({ erro: 'Erro no banco' });
     res.json(results);
@@ -215,6 +265,15 @@ app.post('/admin/toggle-admin/:id', verificarAdmin, (req, res) => {
   });
 });
 
+app.post('/admin/toggle-inventariante/:id', verificarAdmin, (req, res) => {
+  const id = req.params.id;
+  const sql = 'UPDATE usuarios SET inventariante = NOT inventariante WHERE id = ?';
+  db.query(sql, [id], (err) => {
+    if (err) return res.status(500).json({ erro: 'Erro ao atualizar inventariante' });
+    res.sendStatus(200);
+  });
+});
+
 app.post('/admin/toggle-autorizado/:id', verificarAdmin, (req, res) => {
   const id = req.params.id;
   const sql = 'UPDATE usuarios SET autorizado = NOT autorizado WHERE id = ?';
@@ -222,6 +281,26 @@ app.post('/admin/toggle-autorizado/:id', verificarAdmin, (req, res) => {
     if (err) return res.status(500).json({ erro: 'Erro ao atualizar autorização' });
     res.sendStatus(200);
   });
+});
+
+app.post('/admin/alterar-senha/:id', verificarAdmin, async (req, res) => {
+  const { id } = req.params;
+  const { novaSenha } = req.body;
+
+  if (!novaSenha || novaSenha.length < 6) {
+    return res.status(400).json({ erro: 'Senha inválida. Mínimo 6 caracteres.' });
+  }
+
+  try {
+    const hash = await bcrypt.hash(novaSenha, 12);
+    const query = 'UPDATE usuarios SET senha = ? WHERE id = ?';
+    db.query(query, [hash, id], (err) => {
+      if (err) return res.status(500).json({ erro: 'Erro ao atualizar senha.' });
+      res.json({ message: 'Senha atualizada com sucesso.' });
+    });
+  } catch (err) {
+    res.status(500).json({ erro: 'Erro ao processar a senha.' });
+  }
 });
 
 app.delete('/admin/excluir/:id', verificarAdmin, (req, res) => {
@@ -232,8 +311,6 @@ app.delete('/admin/excluir/:id', verificarAdmin, (req, res) => {
     res.sendStatus(200);
   });
 });
-
-// ---------------- INICIAR SERVIDOR ---------------- //
 
 app.listen(PORT, () => {
   console.log(`Servidor rodando em http://localhost:${PORT}`);
