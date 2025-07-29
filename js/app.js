@@ -2,15 +2,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const API_URL = 'http://localhost:3000/';
     let equipamentos = [], categorias = [];
 
+    // Corrigido: obter admin e inventariante a partir do token JWT
+    let isAdmin = false;
+    let isInventariante = false;
+    const token = localStorage.getItem('token');
+    if (token) {
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            isAdmin = payload.admin;
+            isInventariante = payload.inventariante;
+        } catch (err) {
+            console.warn('Token inválido:', err);
+        }
+    }
+
     const navLinks = document.querySelectorAll('.nav-link');
     const sections = document.querySelectorAll('.page-section');
 
     function showSection(id) {
         sections.forEach(section => {
             section.classList.remove('active');
-            if (section.id === id) {
-                section.classList.add('active');
-            }
+            if (section.id === id) section.classList.add('active');
         });
 
         navLinks.forEach(link => {
@@ -35,14 +47,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnConsultar) btnConsultar.addEventListener('click', () => showSection('consulta'));
 
     const hash = window.location.hash;
-    if (hash) {
-        const sectionId = hash.substring(1);
-        showSection(sectionId);
-    }
-
+    if (hash) showSection(hash.substring(1));
     window.addEventListener('hashchange', () => {
-        const id = window.location.hash.substring(1);
-        showSection(id);
+        showSection(window.location.hash.substring(1));
     });
 
     const searchInput = document.getElementById('search-equipment');
@@ -124,8 +131,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const filtered = equipamentos.filter(eq => {
             const fieldValue = eq[filterMode] ? eq[filterMode].toLowerCase() : '';
-            return fieldValue.includes(filter.toLowerCase());
+            const termo = filter.toLowerCase();
+
+            // Se for filtragem por status, use igualdade exata
+            if (filterMode === 'status') {
+                return fieldValue === termo;
+            }
+
+            // Caso contrário, use includes
+            return fieldValue.includes(termo);
         });
+
 
         if (filtered.length === 0) {
             equipmentList.textContent = 'Nenhum equipamento encontrado.';
@@ -133,13 +149,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         filtered.forEach(eq => {
-            const valorExibido = eq[filterMode] || '—';
             const div = document.createElement('div');
             div.className = 'equipment-item';
-            div.innerHTML = `<h3>${valorExibido}</h3><p>${eq.categoria}</p>`;
-            div.addEventListener('click', () => {
-                window.location.href = `detalhes.html?id=${eq.id}`;
-            });
+
+            const statusColor = eq.status === 'disponivel' ? 'green' : 'red';
+            const displayValue = eq[filterMode] || eq.nome;
+
+            div.innerHTML = `
+                <h3>
+                    <span style="color: ${statusColor}; font-size: 1.1em;">●</span>
+                    ${displayValue}
+                </h3>
+                <p>${eq.categoria}</p>
+            `;
+
+            if (isAdmin || isInventariante) {
+                div.addEventListener('click', () => {
+                    window.location.href = `detalhes.html?id=${eq.id}`;
+                });
+            }
+
             equipmentList.appendChild(div);
         });
     }
@@ -153,13 +182,17 @@ document.addEventListener('DOMContentLoaded', () => {
             renderEquipamentosList(searchInput?.value || '');
         });
 
-        // Garante que "categoria" seja uma opção
-        if (![...filterModeSelect.options].some(opt => opt.value === 'categoria')) {
-            const option = document.createElement('option');
-            option.value = 'categoria';
-            option.textContent = 'Categoria';
-            filterModeSelect.appendChild(option);
-        }
+        const addOptionIfNotExists = (value, label) => {
+            if (![...filterModeSelect.options].some(opt => opt.value === value)) {
+                const option = document.createElement('option');
+                option.value = value;
+                option.textContent = label;
+                filterModeSelect.appendChild(option);
+            }
+        };
+
+        addOptionIfNotExists('categoria', 'Categoria');
+        addOptionIfNotExists('status', 'Status');
     }
 
     if (formCadastro) {
@@ -177,6 +210,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const setor = getInputValue('setor');
             const descricao = getInputValue('descricao');
             const hostname = getInputValue('hostname');
+            const status = getInputValue('status') || 'disponivel';
+
             const termoInput = document.getElementById('termo');
             const termoSelecionado = document.querySelector('input[name="existeTermo"]:checked');
             const existeTermo = termoSelecionado ? termoSelecionado.value : 'nao';
@@ -193,8 +228,9 @@ document.addEventListener('DOMContentLoaded', () => {
             formData.append('setor', setor);
             formData.append('descricao', descricao);
             formData.append('hostname', hostname);
+            formData.append('status', status);
 
-            if (existeTermo === 'sim' && termoInput && termoInput.files.length > 0) {
+            if (existeTermo === 'sim' && termoInput?.files.length > 0) {
                 formData.append('termo', termoInput.files[0]);
             }
 
@@ -210,9 +246,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert('Equipamento cadastrado com sucesso!');
                 formCadastro.reset();
                 if (termoInputContainer) termoInputContainer.style.display = 'none';
-                setTimeout(() => {
-                    fetchEquipamentos();
-                }, 500);
+                setTimeout(() => fetchEquipamentos(), 500);
             } catch (error) {
                 console.error('Erro ao enviar formulário:', error);
                 alert('Erro ao cadastrar equipamento: ' + error.message);
@@ -223,7 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (formCategoria) {
         formCategoria.addEventListener('submit', async e => {
             e.preventDefault();
-            const novaCat = inputNovaCategoriaLista ? inputNovaCategoriaLista.value.trim() : '';
+            const novaCat = inputNovaCategoriaLista?.value.trim();
             if (!novaCat || categorias.includes(novaCat)) {
                 alert('Categoria inválida ou já existente.');
                 return;

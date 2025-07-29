@@ -61,7 +61,7 @@ const upload = multer({ storage });
 const termoUpload = upload.single('termo');
 
 app.post('/equipamentos', termoUpload, async (req, res) => {
-  const { categoria, nome, dono, setor, descricao, hostname } = req.body;
+  const { categoria, nome, dono, setor, descricao, hostname, status } = req.body;
   const termo = req.file ? req.file.filename : null;
 
   if (!categoria || !nome || !dono || !setor) {
@@ -80,25 +80,31 @@ app.post('/equipamentos', termoUpload, async (req, res) => {
 
   const query = `
     INSERT INTO equipamentos 
-    (categoria, nome, dono, setor, descricao, termo, qrCode, hostname) 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    (categoria, nome, dono, setor, descricao, termo, qrCode, hostname, status) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
-  db.query(query, [categoria, nome, dono, setor, descricao, termo, identificador, hostname || null], (err, result) => {
+  db.query(query, [categoria, nome, dono, setor, descricao, termo, identificador, hostname || null, status || 'disponivel'], (err, result) => {
     if (err) return res.status(400).json({ error: err.message });
     res.status(201).json({ message: 'Equipamento cadastrado com sucesso!', id: result.insertId });
   });
 });
 
 app.get('/equipamentos', (req, res) => {
-  const { hostname } = req.query;
-  let query = 'SELECT * FROM equipamentos';
+  const { hostname, status } = req.query;
+  let query = 'SELECT * FROM equipamentos WHERE 1=1';
   const values = [];
 
   if (hostname) {
     query += ' WHERE hostname LIKE ?';
     values.push(`%${hostname}%`);
   }
+
+  if (status) {
+    query += ' AND status = ?';
+    values.push(status);
+  }
+
 
   db.query(query, values, (err, results) => {
     if (err) return res.status(500).json({ error: 'Erro ao buscar equipamentos.' });
@@ -109,7 +115,7 @@ app.get('/equipamentos', (req, res) => {
 app.get('/equipamentos/:id', (req, res) => {
   const { id } = req.params;
   const query = `
-    SELECT id, categoria, nome, dono, setor, descricao, termo, qrCode, hostname 
+    SELECT id, categoria, nome, dono, setor, descricao, termo, qrCode, hostname , status
     FROM equipamentos 
     WHERE id = ?
   `;
@@ -135,7 +141,7 @@ app.put('/equipamentos/:id', upload.single('termo'), (req, res) => {
   if (!req.body) return res.status(400).json({ error: 'Corpo da requisição está vazio.' });
 
   const { id } = req.params;
-  const { categoria, nome, dono, setor, descricao, hostname, removerTermo } = req.body;
+  const { categoria, nome, dono, setor, descricao, hostname, removerTermo, status } = req.body;
   const novoTermo = req.file ? req.file.filename : null;
 
   const buscarQuery = 'SELECT termo FROM equipamentos WHERE id = ?';
@@ -161,14 +167,18 @@ app.put('/equipamentos/:id', upload.single('termo'), (req, res) => {
 
     const updateQuery = `
       UPDATE equipamentos
-      SET categoria = ?, nome = ?, dono = ?, setor = ?, descricao = ?, hostname = ?, termo = ?
+      SET categoria = ?, nome = ?, dono = ?, setor = ?, descricao = ?, hostname = ?, termo = ?, status = ?
       WHERE id = ?
     `;
 
-    db.query(updateQuery, [categoria, nome, dono, setor, descricao, hostname || null, novoValorTermo, id], (err) => {
-      if (err) return res.status(500).json({ error: 'Erro ao atualizar equipamento.' });
-      res.json({ message: 'Equipamento atualizado com sucesso.' });
-    });
+    db.query(
+      updateQuery,
+      [categoria, nome, dono, setor, descricao, hostname || null, novoValorTermo, status || 'disponivel', id],
+      (err) => {
+        if (err) return res.status(500).json({ error: 'Erro ao atualizar equipamento.' });
+        res.json({ message: 'Equipamento atualizado com sucesso.' });
+      }
+    );
   });
 });
 

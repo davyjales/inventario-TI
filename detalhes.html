@@ -54,7 +54,8 @@
     }
 
     form input,
-    form textarea {
+    form textarea,
+    form select {
       width: 100%;
       padding: 0.5rem;
       margin-top: 0.25rem;
@@ -117,6 +118,12 @@
         <label for="edit-descricao">Descrição:</label>
         <textarea id="edit-descricao" name="descricao"></textarea>
 
+        <label for="edit-status">Status:</label>
+        <select id="edit-status" name="status">
+          <option value="disponivel">Disponível</option>
+          <option value="indisponivel">Indisponível</option>
+        </select>
+
         <label for="edit-termo">Anexar novo termo (PDF):</label>
         <input type="file" id="edit-termo" name="termo" accept=".pdf" />
 
@@ -169,6 +176,7 @@
         <p><strong>Setor:</strong> ${equipamento.setor}</p>
         <p><strong>Hostname:</strong> ${equipamento.hostname || "Não informado"}</p>
         <p><strong>Descrição:</strong> ${equipamento.descricao}</p>
+        <p><strong>Status:</strong> ${equipamento.status === 'disponivel' ? 'Disponível' : 'Indisponível'}</p>
         ${equipamento.termo ? `<p><strong>Termo:</strong> <a href="http://localhost:3000/uploads/${equipamento.termo}" target="_blank">Visualizar PDF</a></p>` : ""}
         <p><strong>ID (QR Code):</strong> ${equipamento.qrCode}</p>
         <p><strong>QR Code:</strong><br>
@@ -178,13 +186,14 @@
         </p>
       `;
 
-      // Preenche o formulário de edição
+      // Preenche os campos do formulário com os dados atuais
       document.getElementById("edit-categoria").value = equipamento.categoria;
       document.getElementById("edit-nome").value = equipamento.nome;
       document.getElementById("edit-dono").value = equipamento.dono;
       document.getElementById("edit-setor").value = equipamento.setor;
       document.getElementById("edit-hostname").value = equipamento.hostname || "";
       document.getElementById("edit-descricao").value = equipamento.descricao;
+      document.getElementById("edit-status").value = equipamento.status;
 
       if (equipamento.termo) {
         termoLink.href = `http://localhost:3000/uploads/${equipamento.termo}`;

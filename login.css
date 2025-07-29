@@ -98,5 +98,5 @@ form button:hover {
 
 .login-right {
   flex: 1;
-  background: url('../img/login-bg.jpg') center/cover no-repeat;
+  background: url('img_site.jpg') center/cover no-repeat;
 }

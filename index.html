@@ -58,6 +58,7 @@
         <option value="setor">Setor</option>
         <option value="hostname">Hostname</option>
         <option value="categoria">Categoria</option>
+        <option value="status">Status</option>
       </select>
       <input type="text" id="search-equipment" placeholder="Pesquisar equipamentos..." />
       <div id="equipment-list" class="equipment-list"></div>
@@ -85,6 +86,12 @@
 
         <label for="descricao">Descrição:</label>
         <textarea id="descricao" name="descricao"></textarea>
+
+        <label for="status">Status:</label>
+        <select id="status" name="status" required>
+          <option value="disponivel">Disponível</option>
+          <option value="indisponivel">Indisponível</option>
+        </select>
 
         <label>Existe termo?</label>
         <div>
