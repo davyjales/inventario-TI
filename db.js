@@ -1,12 +1,12 @@
 const mysql = require('mysql2');
 
 const db = mysql.createConnection({
-  host: 'localhost',
+  host: 'localhost', // ou o IP do servidor MySQL
   user: 'root',
-  password: '', // se você definiu senha no XAMPP, coloque aqui
+  password:'', // se você definiu senha no XAMPP, coloque aqui
   database: 'inventario_visteon',
   port: 3306 // porta explícita do MySQL
-});
+}); 
 
 db.connect((err) => {
   if (err) {

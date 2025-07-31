@@ -1,5 +1,3 @@
-// --- substitua seu server.js atual por este abaixo --- //
-
 const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
@@ -23,32 +21,28 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(__dirname));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Middleware para admin
-function verificarAdmin(req, res, next) {
+function autenticarToken(req, res, next) {
   const authHeader = req.headers['authorization'];
   if (!authHeader) return res.status(401).json({ erro: 'Token ausente' });
 
   const token = authHeader.split(' ')[1];
   jwt.verify(token, SECRET, (err, user) => {
     if (err) return res.status(403).json({ erro: 'Token inválido' });
-    if (!user.admin) return res.status(403).json({ erro: 'Acesso negado' });
     req.user = user;
     next();
   });
 }
 
-// Middleware para inventariante ou admin
-function verificarAcessoGeral(req, res, next) {
-  const authHeader = req.headers['authorization'];
-  if (!authHeader) return res.status(401).json({ erro: 'Token ausente' });
+function verificarAdmin(req, res, next) {
+  if (!req.user.admin) return res.status(403).json({ erro: 'Acesso negado' });
+  next();
+}
 
-  const token = authHeader.split(' ')[1];
-  jwt.verify(token, SECRET, (err, user) => {
-    if (err) return res.status(403).json({ erro: 'Token inválido' });
-    if (!user.admin && !user.inventariante) return res.status(403).json({ erro: 'Acesso negado' });
-    req.user = user;
-    next();
-  });
+function verificarInventarianteOuAdmin(req, res, next) {
+  if (!req.user.admin && !req.user.inventariante) {
+    return res.status(403).json({ erro: 'Acesso negado' });
+  }
+  next();
 }
 
 // ---------------- EQUIPAMENTOS ---------------- //
@@ -200,9 +194,37 @@ app.post('/categorias', (req, res) => {
   const query = 'INSERT INTO categorias (nome) VALUES (?)';
   db.query(query, [categoria], (err, result) => {
     if (err) return res.status(500).json({ error: 'Erro ao inserir categoria' });
-    res.status(201).json({ message: 'Categoria adicionada com sucesso', id: result.insertId });
-  });
+    res.status(201).json({ message: 'Categoria adicionada com sucesso', id: result.insertId });
+  });
 });
+
+// ---------------- STATUS ---------------- //
+
+app.get('/status', (req, res) => {
+  const query = 'SELECT * FROM status_equipamentos ORDER BY nome';
+  db.query(query, (err, results) => {
+    if (err) return res.status(500).json({ error: 'Erro ao buscar status' });
+    res.json(results); // Return results directly for MySQL
+  });
+});
+
+app.post('/status', (req, res) => {
+  const { nome } = req.body;
+  if (!nome) return res.status(400).json({ error: 'Status inválido' });
+
+  const query = 'INSERT INTO status_equipamentos (nome) VALUES (?)';
+  db.query(query, [nome], (err) => {
+    if (err) {
+      if (err.code === 'ER_DUP_ENTRY') return res.status(400).json({ error: 'Status já existe' }); // MySQL duplicate error code
+      return res.status(500).json({ error: 'Erro ao adicionar status' });
+    }
+    res.sendStatus(201);
+  });
+});
+
+
+
+// Remove POST /status endpoint as statuses are managed per equipment
 
 // ---------------- USUÁRIOS ---------------- //
 
@@ -258,7 +280,7 @@ app.post('/login', express.json(), (req, res) => {
 
 // ---------------- ADMINISTRAÇÃO ---------------- //
 
-app.get('/admin/users', verificarAdmin, (req, res) => {
+app.get('/admin/users', autenticarToken, verificarAdmin, (req, res) => {
   const sql = 'SELECT id, nome, user, email, admin, autorizado, inventariante FROM usuarios';
   db.query(sql, (err, results) => {
     if (err) return res.status(500).json({ erro: 'Erro no banco' });
@@ -266,7 +288,7 @@ app.get('/admin/users', verificarAdmin, (req, res) => {
   });
 });
 
-app.post('/admin/toggle-admin/:id', verificarAdmin, (req, res) => {
+app.post('/admin/toggle-admin/:id', autenticarToken, verificarAdmin, (req, res) => {
   const id = req.params.id;
   const sql = 'UPDATE usuarios SET admin = NOT admin WHERE id = ?';
   db.query(sql, [id], (err) => {
@@ -275,7 +297,7 @@ app.post('/admin/toggle-admin/:id', verificarAdmin, (req, res) => {
   });
 });
 
-app.post('/admin/toggle-inventariante/:id', verificarAdmin, (req, res) => {
+app.post('/admin/toggle-inventariante/:id', autenticarToken, verificarAdmin, (req, res) => {
   const id = req.params.id;
   const sql = 'UPDATE usuarios SET inventariante = NOT inventariante WHERE id = ?';
   db.query(sql, [id], (err) => {
@@ -284,16 +306,34 @@ app.post('/admin/toggle-inventariante/:id', verificarAdmin, (req, res) => {
   });
 });
 
-app.post('/admin/toggle-autorizado/:id', verificarAdmin, (req, res) => {
+app.post('/admin/toggle-autorizado/:id', autenticarToken, verificarAdmin, (req, res) => {
   const id = req.params.id;
   const sql = 'UPDATE usuarios SET autorizado = NOT autorizado WHERE id = ?';
   db.query(sql, [id], (err) => {
     if (err) return res.status(500).json({ erro: 'Erro ao atualizar autorização' });
     res.sendStatus(200);
   });
+}); 
+
+app.post('/admin/atualizar-permissao/:id', autenticarToken, async (req, res) => {
+  const { id } = req.params;
+  const { campo, valor } = req.body;
+
+  if (!['admin', 'inventariante', 'autorizado'].includes(campo)) {
+    return res.status(400).json({ erro: 'Campo inválido.' });
+  }
+
+  try {
+    await db.query(`UPDATE usuarios SET ${campo} = ? WHERE id = ?`, [valor ? 1 : 0, id]);
+    res.json({ sucesso: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ erro: 'Erro ao atualizar permissão.' });
+  }
 });
 
-app.post('/admin/alterar-senha/:id', verificarAdmin, async (req, res) => {
+
+app.post('/admin/alterar-senha/:id', autenticarToken, verificarAdmin, async (req, res) => {
   const { id } = req.params;
   const { novaSenha } = req.body;
 
@@ -313,7 +353,7 @@ app.post('/admin/alterar-senha/:id', verificarAdmin, async (req, res) => {
   }
 });
 
-app.delete('/admin/excluir/:id', verificarAdmin, (req, res) => {
+app.delete('/admin/excluir/:id', autenticarToken, verificarAdmin, (req, res) => {
   const id = req.params.id;
   const sql = 'DELETE FROM usuarios WHERE id = ?';
   db.query(sql, [id], (err) => {

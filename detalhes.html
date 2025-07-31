@@ -139,8 +139,8 @@
       </form>
 
       <div class="actions">
-        <button id="btn-editar">Editar</button>
-        <button id="btn-excluir">Excluir</button>
+        <button id="btn-editar" class="hidden">Editar</button>
+        <button id="btn-excluir" class="hidden">Excluir</button>
         <button id="btn-voltar">Voltar</button>
       </div>
     </section>
@@ -161,7 +161,7 @@
     const inputRemoverTermo = document.getElementById("remover-termo");
 
     let equipamento = null;
-
+ 
     async function carregarDetalhes() {
       const res = await fetch(API_URL);
       equipamento = await res.json();

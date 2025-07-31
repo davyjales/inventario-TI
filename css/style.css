@@ -234,8 +234,8 @@ form button[type="submit"]:hover {
     border-bottom: 2px solid #d35400;
 }
 
-.user-table tbody td {
-    padding: 0.75rem 1rem;
+.user-table tbody td  {
+    padding: 0.75rem 0.75rem;
     border-bottom: 1px solid #eee;
     color: #333;
 }
@@ -244,12 +244,12 @@ form button[type="submit"]:hover {
     background-color: #f9f9f9;
 }
 
-.user-table td .action-btn {
+.user-table td .action-btn .checkbox{
     display: inline-flex;
     align-items: center;
     justify-content: center;
     margin: 0.2rem;
-    padding: 0.5rem 1rem;
+    padding: 0.75rem 0.75rem;
     font-size: 0.85rem;
     font-weight: bold;
     border: none;
@@ -276,21 +276,21 @@ form button[type="submit"]:hover {
     background-color: #1e8449;
 }
 
-.btn-delete {
+/*.btn-delete {
     background-color: #e74c3c;
 }
 .btn-delete:hover {
     background-color: #c0392b;
-}
+} */
 .btn-inventariante {
   background-color: #f39c12;
 }
 .btn-inventariante:hover {
   background-color: #d68910;
-}
+}/*
 .btn-password {
     background-color: #8e44ad;
-}
+}*/
 
 .modal {
   position: fixed;
@@ -318,6 +318,68 @@ form button[type="submit"]:hover {
   display: none !important;
 }
 
+.centralizado {
+  text-align: center;
+  vertical-align: middle;
+}
 
+/* Increase row height and padding for equipment table */
+.tabela-equipamentos tbody tr {
+  height: 50px;
+}
 
+.tabela-equipamentos tbody td {
+  padding: 2px 5px;
+  vertical-align: middle;
+  font-size: 1rem;
+  cursor: default;
+}
 
+.tabela-equipamentos tbody td.service-tag-link {
+  color: #007bff;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+/* === NAVIGATION DROPDOWN MENU === */
+.nav-dropdown {
+  position: relative;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: #e67e22;
+  list-style: none;
+  padding: 0.5rem 0;
+  margin: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease;
+  border-radius: 0 0 6px 6px;
+  min-width: 180px;
+  z-index: 10;
+}
+
+.dropdown-menu li {
+  margin: 0;
+}
+
+.dropdown-menu li a {
+  display: block;
+  padding: 0.5rem 1rem;
+  color: white;
+  text-decoration: none;
+  font-weight: normal;
+  transition: background-color 0.3s ease;
+}
+
+.dropdown-menu li a:hover {
+  background-color: #d35400;
+}
+
+.nav-dropdown:hover .dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+}

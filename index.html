@@ -5,17 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Inventário T.I - Visteon</title>
   <link rel="stylesheet" href="css/style.css" />
-
+  <!-- Script de autenticação e modal -->
   <script>
     const token = localStorage.getItem('token');
     if (!token) {
       window.location.href = 'login.html';
     }
 
-    // Variável global para armazenar ID do usuário que terá a senha alterada
     let idUsuarioAlterandoSenha = null;
 
-    // Função global para abrir modal de alteração de senha
     function abrirModalSenha(id, nome) {
       idUsuarioAlterandoSenha = id;
       document.getElementById('modal-title').innerText = `Alterar senha de ${nome}`;
@@ -24,19 +22,26 @@
     }
   </script>
 </head>
+
 <body>
   <header>
     <h1>Inventário T.I - Visteon</h1>
-    <nav>
-      <ul class="nav-menu">
+      <nav>
+        <ul class="nav-menu">
         <li><a href="#home" class="nav-link active">Home</a></li>
-        <li><a href="#consulta" class="nav-link">Consulta de Equipamentos</a></li>
-        <li><a href="#cadastro" class="nav-link">Cadastramento de Equipamentos</a></li>
-        <li><a href="#categorias" class="nav-link">Categorias</a></li>
-        <li id="admin-link" style="display: none;"><a href="#admin" class="nav-link">Administração</a></li>
-        <li><a href="#" id="logout-link" class="nav-link">Sair</a></li>
+        <li><a href="#consulta" class="nav-link">Relatório</a></li>
+        <li class="nav-dropdown">
+          <a href="#cadastro-equipamentos" class="nav-link">Cadastro</a>
+      <ul class="dropdown-menu">
+        <li><a href="#cadastro-equipamentos" class="nav-link submenu-link">Equipamentos</a></li>
+        <li><a href="#categorias" class="nav-link submenu-link">Categorias</a></li>
+        <li><a href="status.html">Status</a></li>
       </ul>
-    </nav>
+    </li>
+        <li id="admin-link" style="display: none;"><a href="#admin" class="nav-link">Administração</a></li>
+        <li><a href="#" id="logout-link"><img src="logout.png" style="width: 23px;" ></a></li>
+        </ul>
+      </nav>
   </header>
 
   <main>
@@ -49,61 +54,373 @@
     </section>
 
     <section id="consulta" class="page-section">
-      <h2>Consulta de Equipamentos</h2>
-      <label for="filter-mode">Filtrar por:</label>
-      <select id="filter-mode" name="filter-mode">
-        <option value="nome">Service Tag</option>
-        <option value="qrCode">ID (QR Code)</option>
-        <option value="dono">User</option>
-        <option value="setor">Setor</option>
-        <option value="hostname">Hostname</option>
-        <option value="categoria">Categoria</option>
-        <option value="status">Status</option>
-      </select>
-      <input type="text" id="search-equipment" placeholder="Pesquisar equipamentos..." />
-      <div id="equipment-list" class="equipment-list"></div>
-      <div id="equipment-details" class="equipment-details hidden"></div>
-      <button id="btn-voltar-consulta" class="btn-voltar hidden">Voltar à lista</button>
-    </section>
+  <div class="report-header">
+    <h2>Relatório de Equipamentos</h2>
+    <div class="search-container">
+      <div class="filter-controls">
+        <label for="filter-mode">Filtrar por:</label>
+        <select id="filter-mode" name="filter-mode" class="filter-select">
+          <option value="nome">Service Tag</option>
+          <option value="qrCode">(QR Code)</option>
+          <option value="dono">Usuário</option>
+          <option value="setor">Setor</option>
+          <option value="hostname">Hostname</option>
+          <option value="categoria">Categoria</option>
+          <option value="status">Status</option>
+        </select>
+      </div>
+      <div class="search-box">
+        <input type="text" id="search-equipment" placeholder="Pesquisar equipamentos..." class="search-input" />
+      </div>
+    </div>
+  </div>
 
-    <section id="cadastro" class="page-section">
+  <div class="tabela-container">
+    <table class="tabela-equipamentos">
+      <thead>
+        <tr>
+          <th>
+            <div class="th-content">
+              Service Tag
+              <input type="text" class="column-filter" data-column="nome" placeholder="Filtrar..." />
+            </div>
+          </th>
+          <th>
+            <div class="th-content">
+              (QR Code)
+              <input type="text" class="column-filter" data-column="qrCode" placeholder="Filtrar..." />
+            </div>
+          </th>
+          <th>
+            <div class="th-content">
+              Usuário
+              <input type="text" class="column-filter" data-column="dono" placeholder="Filtrar..." />
+            </div>
+          </th>
+          <th>
+            <div class="th-content">
+              Setor
+              <input type="text" class="column-filter" data-column="setor" placeholder="Filtrar..." />
+            </div>
+          </th>
+          <th>
+            <div class="th-content">
+              Hostname
+              <input type="text" class="column-filter" data-column="hostname" placeholder="Filtrar..." />
+            </div>
+          </th>
+          <th>
+            <div class="th-content">
+              Categoria
+              <input type="text" class="column-filter" data-column="categoria" placeholder="Filtrar..." />
+            </div>
+          </th>
+          <th>
+            <div class="th-content">
+              Status
+              <input type="text" class="column-filter" data-column="status" placeholder="Filtrar..." />
+            </div>
+          </th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="equipamentos-body">
+        <!-- Conteúdo será preenchido via JavaScript -->
+      </tbody>
+    </table>
+  </div>
+
+  <div class="table-footer">
+    <div class="pagination-controls">
+      <button class="pagination-btn" id="prev-page">◀ Anterior</button>
+      <span class="page-info">Página <span id="current-page">1</span> de <span id="total-pages">1</span></span>
+      <button class="pagination-btn" id="next-page">Próxima ▶</button>
+    </div>
+    <div class="results-info">
+      Mostrando <span id="showing-results">0</span> de <span id="total-results">0</span> resultados
+    </div>
+  </div>
+
+  <div id="equipment-details" class="equipment-details hidden"></div>
+  <button id="btn-voltar-consulta" class="btn-voltar hidden">Voltar à lista</button>
+</section>
+
+<style>
+  /* Estilos Gerais */
+  .page-section {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 25px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  .report-header {
+    margin-bottom: 25px;
+  }
+
+  .report-header h2 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+    font-size: 1.8rem;
+    font-weight: 600;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 10px;
+  }
+
+  /* Barra de Pesquisa */
+  .search-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .filter-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .filter-controls label {
+    font-weight: 500;
+    color: #555;
+  }
+
+  .filter-select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background-color: #fff;
+    font-size: 14px;
+    min-width: 150px;
+  }
+
+  .search-box {
+    position: relative;
+    flex-grow: 1;
+  }
+
+  .search-input {
+    width: 100%;
+    padding: 10px 15px 10px 35px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.3s;
+  }
+
+  .search-input:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #777;
+  }
+
+  /* Tabela */
+  .tabela-container {
+    max-height: 500px;
+    overflow-y: auto;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  }
+
+  .tabela-equipamentos {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: fixed;
+  }
+
+  .tabela-equipamentos th {
+    background-color: #b9610f;
+    color: white;
+    padding: 12px 15px;
+    text-align: left;
+    font-weight: 500;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .tabela-equipamentos td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
+  }
+
+  .tabela-equipamentos tr:last-child td {
+    border-bottom: none;
+  }
+
+  .tabela-equipamentos tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+
+  .tabela-equipamentos tr:hover {
+    background-color: #f0f7ff;
+  }
+
+  .th-content {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .column-filter {
+    width: 100%;
+    padding: 5px 8px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    font-size: 12px;
+  }
+
+  .column-filter::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  /* Rodapé da Tabela */
+  .table-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 20px;
+  }
+
+  .pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .pagination-btn {
+    padding: 8px 15px;
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+  }
+
+  .pagination-btn:hover {
+    background-color: #e9ecef;
+    border-color: #ccc;
+  }
+
+  .pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .page-info {
+    font-size: 14px;
+    color: #555;
+  }
+
+  .results-info {
+    font-size: 14px;
+    color: #666;
+  }
+
+  /* Detalhes do Equipamento */
+  .equipment-details {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #3498db;
+  }
+
+  .btn-voltar {
+    margin-top: 15px;
+    padding: 10px 20px;
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .btn-voltar:hover {
+    background-color: #5a6268;
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  /* Responsividade */
+  @media (max-width: 768px) {
+    .search-container {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    
+    .filter-controls {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    
+    .table-footer {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 10px;
+    }
+    
+    .pagination-controls {
+      justify-content: center;
+    }
+  }
+</style>
+
+    <section id="cadastro-equipamentos" class="page-section">
       <h2>Cadastramento de Equipamentos</h2>
       <form id="form-cadastro" enctype="multipart/form-data">
         <label for="categoria">Categoria:</label>
         <select id="categoria" name="categoria" required></select>
-
         <label for="nome">Service Tag (wmic bios get serialnumber):</label>
         <input type="text" id="nome" name="nome" required />
-
         <label for="hostname">Hostname:</label>
         <input type="text" id="hostname" name="hostname" />
-
         <label for="dono">User:</label>
         <input type="text" id="dono" name="dono" required />
-
         <label for="setor">Setor:</label>
         <input type="text" id="setor" name="setor" required />
-
         <label for="descricao">Descrição:</label>
         <textarea id="descricao" name="descricao"></textarea>
-
         <label for="status">Status:</label>
         <select id="status" name="status" required>
-          <option value="disponivel">Disponível</option>
-          <option value="indisponivel">Indisponível</option>
+          <!-- Status options will be populated dynamically -->
         </select>
-
-        <label>Existe termo?</label>
-        <div>
-          <label><input type="radio" name="existeTermo" value="sim" /> Sim</label>
-          <label><input type="radio" name="existeTermo" value="nao" checked /> Não</label>
+        <div style="display:flex; gap: 40px; align-items: flex-start; margin-top: 10px;">
+          <label>Existe termo?</label>
+          <div>
+            <label><input type="radio" name="existeTermo" value="sim" /> Sim</label>
+            <label><input type="radio" name="existeTermo" value="nao" checked /> Não</label>
+          </div>
+          <div id="upload-termo-container" style="display: none;">
+            <label for="termo">Anexar termo (PDF):</label>
+            <input type="file" id="termo" name="termo" accept=".pdf" />
+          </div>
         </div>
-
-        <div id="upload-termo-container" style="display: none;">
-          <label for="termo">Anexar termo (PDF):</label>
-          <input type="file" id="termo" name="termo" accept=".pdf" />
-        </div>
-
         <button type="submit">Cadastrar</button>
       </form>
     </section>
@@ -120,6 +437,7 @@
     </section>
 
     <section id="admin" class="page-section" style="display: none;">
+      <h2>Administração</h2>
       <h2>Administração de Usuários</h2>
       <table id="user-table" class="user-table">
         <thead>
@@ -141,6 +459,23 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jwt-decode/build/jwt-decode.min.js"></script>
   <script src="js/app.js"></script>
+
+
+  <script>
+    fetch('http://localhost:3000/status')
+      .then(response => response.json())
+      .then(statuses => {
+        const statusLista = document.getElementById('status-lista');
+        statuses.forEach(status => {
+          const li = document.createElement('li');
+          li.textContent = status.nome; // <- aqui é `nome`!
+          statusLista.appendChild(li);
+        });
+      })
+      .catch(err => {
+        console.error('Erro ao buscar status:', err);
+      });
+  </script>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -231,15 +566,18 @@
               <td>${user.nome}</td>
               <td>${user.user}</td>
               <td>${user.email}</td>
-              <td>${user.admin ? 'Sim' : 'Não'}</td>
-              <td>${user.inventariante ? 'Sim' : 'Não'}</td>
-              <td>${user.autorizado ? 'Sim' : 'Não'}</td>
-              <td>
-                <button class="action-btn btn-admin" onclick="toggleAdmin(${user.id})">Alternar Admin</button>
-                <button class="action-btn btn-inventariante" onclick="toggleInventariante(${user.id})">Alternar Inventariante</button>
-                <button class="action-btn btn-auth" onclick="toggleAutorizado(${user.id})">Alternar Autorização</button>
-                <button class="action-btn btn-password" onclick="abrirModalSenha(${user.id}, '${user.nome}')">Alterar Senha</button>
-                <button class="action-btn btn-delete" onclick="excluirUsuario(${user.id})">Excluir</button>
+              <td class="centralizado"> 
+                <input type="checkbox"  ${user.admin ? 'checked' : ''} onclick="toggleAdmin(${user.id})" />
+              </td>
+              <td class="centralizado">
+                <input type="checkbox"  ${user.inventariante ? 'checked' : ''} onclick="toggleInventariante(${user.id})" />
+              </td>
+              <td class="centralizado">
+                <input type="checkbox"  ${user.Authorization ? 'checked' : ''} onclick="toggleAutorizado(${user.id})" />
+              </td>
+              <td class="centralizado">
+                <button class="action-btn btn-password" onclick="abrirModalSenha(${user.id}, '${user.nome}')">🔐</button>
+                <button class="action-btn btn-delete" onclick="excluirUsuario(${user.id})">🗑️</button>
               </td>
             `;
             tbody.appendChild(tr);
@@ -256,7 +594,33 @@
       });
     });
 
-    async function toggleAdmin(id) {
+    const formStatus = document.getElementById('form-status');
+    formStatus.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const novoStatus = document.getElementById('input-novo-status').value.trim();
+      if (!novoStatus) return alert('Digite um status válido.');
+
+      try {
+        await fetch('http://localhost:3000/status', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ nome: novoStatus })
+        });
+
+        alert('Status adicionado com sucesso!');
+        document.getElementById('input-novo-status').value = '';
+        location.reload(); // recarrega a lista de status
+      } catch (error) {
+        console.error('Erro ao adicionar status:', error);
+        alert('Erro ao adicionar status.');
+      }
+    });
+
+
+     async function toggleAdmin(id) {
       const token = localStorage.getItem('token');
       await fetch(`http://localhost:3000/admin/toggle-admin/${id}`, {
         method: 'POST',
@@ -281,7 +645,7 @@
         headers: { Authorization: `Bearer ${token}` }
       });
       location.reload();
-    }
+    } 
 
     async function excluirUsuario(id) {
       if (!confirm('Tem certeza que deseja excluir este usuário?')) return;
@@ -302,6 +666,10 @@
 
       links.forEach(link => {
         link.addEventListener("click", e => {
+          // Allow normal navigation for status.html link
+          if (link.id === 'status-submenu-link') {
+            return; // do not preventDefault or tab logic
+          }
           e.preventDefault();
           const target = link.getAttribute("href").substring(1);
           links.forEach(l => l.classList.remove("active"));
@@ -324,6 +692,23 @@
         }
       });
     });
+
+    fetch('http://localhost:3000/status')
+    .then(res => res.json())
+    .then(statuses => {
+      const statusSelect = document.getElementById('status');
+      statuses.forEach(status => {
+        const option = document.createElement('option');
+        option.value = status.nome;
+        option.textContent = status.nome;
+        statusSelect.appendChild(option);
+      });
+    })
+    .catch(err => {
+      console.error('Erro ao carregar status para o select:', err);
+    });
+
+
   </script>
 
   <!-- Modal de senha -->
@@ -337,5 +722,102 @@
       </div>
     </div>
   </div>
+
+  <script>
+  fetch('/api/equipamentos')
+    .then(res => res.json())
+    .then(equipamentos => {
+      const tbody = document.getElementById('equipamentos-body');
+      equipamentos.forEach(eq => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${nome}</td>
+          <td>${qrCode}</td>
+          <td>${dono}</td>
+          <td>${setor}</td>
+          <td>${hostname}</td>
+          <td>${categoria}</td>
+          <td>${status}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    });
+
+
+
+    // Função para atualizar a contagem de resultados
+function atualizarContagemResultados() {
+  const tabela = document.querySelector('.tabela-equipamentos');
+  const linhasVisiveis = tabela.querySelectorAll('tbody tr:not([style*="display: none"])').length;
+  const totalLinhas = tabela.querySelectorAll('tbody tr').length;
+  
+  document.getElementById('showing-results').textContent = linhasVisiveis;
+  document.getElementById('total-results').textContent = totalLinhas;
+  
+  // Atualiza também o texto alternativo quando não há resultados
+  if (linhasVisiveis === 0) {
+    document.querySelector('.results-info').textContent = 'Nenhum resultado encontrado';
+  } else {
+    document.querySelector('.results-info').textContent = 
+      `Mostrando ${linhasVisiveis} de ${totalLinhas} resultado${totalLinhas !== 1 ? 's' : ''}`;
+  }
+}
+
+// Função para filtrar a tabela (exemplo)
+function filtrarTabela() {
+  const filtro = document.getElementById('search-equipment').value.toLowerCase();
+  const coluna = document.getElementById('filter-mode').value;
+  const linhas = document.querySelectorAll('#equipamentos-body tr');
+  
+  linhas.forEach(linha => {
+    const conteudoCelula = linha.querySelector(`td[data-column="${coluna}"]`).textContent.toLowerCase();
+    if (conteudoCelula.includes(filtro)) {
+      linha.style.display = '';
+    } else {
+      linha.style.display = 'none';
+    }
+  });
+  
+  atualizarContagemResultados();
+}
+
+// Função para filtrar por coluna (exemplo)
+function filtrarPorColuna(coluna, valor) {
+  const linhas = document.querySelectorAll('#equipamentos-body tr');
+  
+  linhas.forEach(linha => {
+    const conteudoCelula = linha.querySelector(`td[data-column="${coluna}"]`).textContent.toLowerCase();
+    if (conteudoCelula.includes(valor.toLowerCase())) {
+      linha.style.display = '';
+    } else {
+      linha.style.display = 'none';
+    }
+  });
+  
+  atualizarContagemResultados();
+}
+
+// Event listeners para os filtros
+document.getElementById('search-equipment').addEventListener('input', filtrarTabela);
+document.getElementById('filter-mode').addEventListener('change', filtrarTabela);
+
+// Event listeners para filtros de coluna
+document.querySelectorAll('.column-filter').forEach(input => {
+  input.addEventListener('input', function() {
+    const coluna = this.getAttribute('data-column');
+    filtrarPorColuna(coluna, this.value);
+  });
+});
+
+// Chamada inicial para exibir a contagem quando a página carrega
+document.addEventListener('DOMContentLoaded', function() {
+  // Simulação de dados - substitua pelo seu código real de carregamento
+  setTimeout(() => {
+    atualizarContagemResultados();
+  }, 500);
+});
+</script>
+
+
 </body>
 </html>
