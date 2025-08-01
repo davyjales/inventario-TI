@@ -28,7 +28,8 @@
     }
 
     .actions button,
-    .actions a {
+    .actions a,
+    #btn-remover-termo {
       padding: 0.5rem 1.2rem;
       border: none;
       background-color: #e67e22;
@@ -41,7 +42,8 @@
     }
 
     .actions button:hover,
-    .actions a:hover {
+    .actions a:hover,
+    #btn-remover-termo:hover {
       background-color: #d35400;
     }
 
@@ -52,7 +54,8 @@
     }
 
     form input,
-    form textarea {
+    form textarea,
+    form select {
       width: 100%;
       padding: 0.5rem;
       margin-top: 0.25rem;
@@ -78,6 +81,11 @@
     .hidden {
       display: none;
     }
+
+    #qrcode-img {
+      max-width: 200px;
+      margin-top: 1rem;
+    }
   </style>
 </head>
 <body>
@@ -88,8 +96,10 @@
   <main>
     <section id="detalhes-equipamento" class="page-section active">
       <div id="detalhes-container" class="equipment-details"></div>
-      <form id="form-editar" class="hidden">
+
+      <form id="form-editar" class="hidden" enctype="multipart/form-data">
         <h3>Editar Equipamento</h3>
+
         <label for="edit-categoria">Categoria:</label>
         <input type="text" id="edit-categoria" name="categoria" />
 
@@ -102,16 +112,36 @@
         <label for="edit-setor">Setor:</label>
         <input type="text" id="edit-setor" name="setor" />
 
+        <label for="edit-hostname">Hostname:</label>
+        <input type="text" id="edit-hostname" name="hostname" />
+
         <label for="edit-descricao">Descrição:</label>
         <textarea id="edit-descricao" name="descricao"></textarea>
 
+        <label for="edit-status">Status:</label>
+        <select id="edit-status" name="status">
+          <option value="disponivel">Disponível</option>
+          <option value="indisponivel">Indisponível</option>
+        </select>
+
+        <label for="edit-termo">Anexar novo termo (PDF):</label>
+        <input type="file" id="edit-termo" name="termo" accept=".pdf" />
+
+        <div id="termo-existente" class="hidden">
+          <p>
+            Termo atual: <a id="link-termo" href="#" target="_blank">Visualizar PDF</a>
+          </p>
+          <button type="button" id="btn-remover-termo">Remover termo</button>
+        </div>
+
+        <input type="hidden" id="remover-termo" name="removerTermo" value="false" />
         <button type="submit">Salvar Alterações</button>
       </form>
 
       <div class="actions">
-        <button id="btn-editar">Editar</button>
-        <button id="btn-excluir">Excluir</button>
-        <a href="index.html" class="btn-voltar">Voltar</a>
+        <button id="btn-editar" class="hidden">Editar</button>
+        <button id="btn-excluir" class="hidden">Excluir</button>
+        <button id="btn-voltar">Voltar</button>
       </div>
     </section>
   </main>
@@ -119,56 +149,101 @@
   <script>
     const id = new URLSearchParams(window.location.search).get("id");
     const API_URL = "http://localhost:3000/equipamentos/" + id;
-
     const container = document.getElementById("detalhes-container");
     const form = document.getElementById("form-editar");
     const btnEditar = document.getElementById("btn-editar");
     const btnExcluir = document.getElementById("btn-excluir");
+    const btnVoltar = document.getElementById("btn-voltar");
+
+    const termoDiv = document.getElementById("termo-existente");
+    const termoLink = document.getElementById("link-termo");
+    const btnRemoverTermo = document.getElementById("btn-remover-termo");
+    const inputRemoverTermo = document.getElementById("remover-termo");
 
     let equipamento = null;
-
+ 
     async function carregarDetalhes() {
       const res = await fetch(API_URL);
       equipamento = await res.json();
+
+      const nomeImagemQRCode = `${equipamento.categoria}_${equipamento.qrCode}.png`.replace(/\s/g, "_");
+      const caminhoQRCode = `http://localhost:3000/uploads/${nomeImagemQRCode}`;
 
       container.innerHTML = `
         <h3>${equipamento.nome}</h3>
         <p><strong>Categoria:</strong> ${equipamento.categoria}</p>
         <p><strong>User:</strong> ${equipamento.dono}</p>
         <p><strong>Setor:</strong> ${equipamento.setor}</p>
+        <p><strong>Hostname:</strong> ${equipamento.hostname || "Não informado"}</p>
         <p><strong>Descrição:</strong> ${equipamento.descricao}</p>
-        <p><strong>ID (QR Code):</strong> ${equipamento.qrCode}</p>
+        <p><strong>Status:</strong> ${equipamento.status === 'disponivel' ? 'Disponível' : 'Indisponível'}</p>
         ${equipamento.termo ? `<p><strong>Termo:</strong> <a href="http://localhost:3000/uploads/${equipamento.termo}" target="_blank">Visualizar PDF</a></p>` : ""}
+        <p><strong>ID (QR Code):</strong> ${equipamento.qrCode}</p>
+        <p><strong>QR Code:</strong><br>
+          <img id="qrcode-img" src="${caminhoQRCode}" alt="QR Code"><br>
+          <a href="${caminhoQRCode}" download="${nomeImagemQRCode}">Baixar QR Code</a>
+          <button onclick="imprimirQRCode()">Imprimir QR Code</button>
+        </p>
       `;
 
+      // Preenche os campos do formulário com os dados atuais
       document.getElementById("edit-categoria").value = equipamento.categoria;
       document.getElementById("edit-nome").value = equipamento.nome;
       document.getElementById("edit-dono").value = equipamento.dono;
       document.getElementById("edit-setor").value = equipamento.setor;
+      document.getElementById("edit-hostname").value = equipamento.hostname || "";
       document.getElementById("edit-descricao").value = equipamento.descricao;
+      document.getElementById("edit-status").value = equipamento.status;
+
+      if (equipamento.termo) {
+        termoLink.href = `http://localhost:3000/uploads/${equipamento.termo}`;
+        termoDiv.classList.remove("hidden");
+      }
+    }
+
+    function imprimirQRCode() {
+      const img = document.getElementById('qrcode-img');
+      const janela = window.open('', '_blank');
+      janela.document.write(`
+        <html><head><title>Imprimir QR Code</title></head>
+        <body style="text-align:center;">
+          <img src="${img.src}" style="max-width: 300px;" />
+          <br><br>
+          <button onclick="window.print();">Imprimir</button>
+        </body></html>
+      `);
+      janela.document.close();
     }
 
     btnEditar.addEventListener("click", () => {
       form.classList.toggle("hidden");
     });
 
+    btnRemoverTermo.addEventListener("click", () => {
+      inputRemoverTermo.value = "true";
+      termoDiv.classList.add("hidden");
+    });
+
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const dadosAtualizados = {
-        categoria: form.categoria.value,
-        nome: form.nome.value,
-        dono: form.dono.value,
-        setor: form.setor.value,
-        descricao: form.descricao.value
-      };
-      const res = await fetch(API_URL, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(dadosAtualizados)
-      });
-      if (res.ok) {
-        alert("Atualizado com sucesso!");
-        location.reload();
+      const formData = new FormData(form);
+
+      try {
+        const res = await fetch(API_URL, {
+          method: "PUT",
+          body: formData
+        });
+
+        if (res.ok) {
+          alert("Atualizado com sucesso!");
+          location.reload();
+        } else {
+          const erro = await res.json();
+          alert("Erro ao atualizar: " + (erro.error || "Erro interno"));
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Erro de conexão ao atualizar.");
       }
     });
 
@@ -177,9 +252,13 @@
         const res = await fetch(API_URL, { method: "DELETE" });
         if (res.ok) {
           alert("Equipamento excluído.");
-          window.location.href = "index.html";
+          window.location.href = "index.html#consulta";
         }
       }
+    });
+
+    btnVoltar.addEventListener("click", () => {
+      window.location.href = "index.html#consulta";
     });
 
     carregarDetalhes();

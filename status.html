@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Status - Inventário T.I - Visteon</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header>
+    <h1>Inventário T.I - Visteon</h1>
+  </header>
+
+  <main>
+    <section id="status" class="page-section active">
+      <h2>Status</h2>
+      <ul id="status-lista"></ul>
+      <div id="admin-only-status">
+        <form id="form-status">
+          <input type="text" id="input-novo-status" placeholder="Adicionar novo status" />
+          <button type="submit">Adicionar Status</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const API_URL = 'http://localhost:3000/';
+
+    async function fetchStatus() {
+      try {
+        const res = await fetch(API_URL + 'status');
+        const statuses = await res.json();
+        renderStatus(statuses);
+      } catch (error) {
+        alert('Erro ao carregar status.');
+      }
+    }
+
+    function renderStatus(statuses) {
+      const statusLista = document.getElementById('status-lista');
+      statusLista.innerHTML = '';
+      statuses.forEach(status => {
+        const li = document.createElement('li');
+        li.textContent = status.nome;
+        statusLista.appendChild(li);
+      });
+      // Show admin-only section if needed (simplified here)
+      document.getElementById('admin-only-status').style.display = 'block';
+    }
+
+    document.getElementById('form-status').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const novoStatus = document.getElementById('input-novo-status').value.trim();
+      if (!novoStatus) return alert('Digite um status válido.');
+
+      try {
+        const res = await fetch(API_URL + 'status', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nome: novoStatus })
+        });
+
+        if (res.ok) {
+          alert('Status adicionado com sucesso!');
+          document.getElementById('input-novo-status').value = '';
+          fetchStatus();
+        } else {
+          const data = await res.json();
+          alert(data.error || 'Erro ao adicionar status.');
+        }
+      } catch (error) {
+        alert('Erro de conexão ao adicionar status.');
+      }
+    });
+
+
+    fetchStatus();
+  </script>
+</body>
+</html>

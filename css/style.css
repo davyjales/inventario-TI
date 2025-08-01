@@ -151,20 +151,6 @@ main {
     display: none;
 }
 
-.btn-voltar {
-    margin-top: 1rem;
-    padding: 0.5rem 1rem;
-    background-color: #e67e22;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-}
-
-.btn-voltar:hover {
-    background-color: #d35400;
-}
-
 /* === FORMULÁRIOS === */
 form label {
     display: block;
@@ -223,4 +209,177 @@ form button[type="submit"]:hover {
 #categoria-lista li span {
     font-weight: bold;
     color: #e67e22;
+}
+
+/* === TABELA DE USUÁRIOS === */
+.user-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 2rem;
+    background-color: #fff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.user-table thead {
+    background-color: #e67e22;
+    color: white;
+}
+
+.user-table thead th {
+    padding: 1rem;
+    text-align: left;
+    font-weight: bold;
+    border-bottom: 2px solid #d35400;
+}
+
+.user-table tbody td  {
+    padding: 0.75rem 0.75rem;
+    border-bottom: 1px solid #eee;
+    color: #333;
+}
+
+.user-table tbody tr:hover {
+    background-color: #f9f9f9;
+}
+
+.user-table td .action-btn .checkbox{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0.2rem;
+    padding: 0.75rem 0.75rem;
+    font-size: 0.85rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    color: white;
+    transition: all 0.3s ease;
+    min-width: 140px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-admin {
+    background-color: #3498db;
+}
+.btn-admin:hover {
+    background-color: #2980b9;
+}
+
+.btn-auth {
+    background-color: #27ae60;
+}
+.btn-auth:hover {
+    background-color: #1e8449;
+}
+
+/*.btn-delete {
+    background-color: #e74c3c;
+}
+.btn-delete:hover {
+    background-color: #c0392b;
+} */
+.btn-inventariante {
+  background-color: #f39c12;
+}
+.btn-inventariante:hover {
+  background-color: #d68910;
+}/*
+.btn-password {
+    background-color: #8e44ad;
+}*/
+
+.modal {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex; justify-content: center; align-items: center;
+  z-index: 999;
+}
+.modal-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+.modal-buttons {
+  margin-top: 1rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+.hidden {
+  display: none !important;
+}
+
+.centralizado {
+  text-align: center;
+  vertical-align: middle;
+}
+
+/* Increase row height and padding for equipment table */
+.tabela-equipamentos tbody tr {
+  height: 50px;
+}
+
+.tabela-equipamentos tbody td {
+  padding: 2px 5px;
+  vertical-align: middle;
+  font-size: 1rem;
+  cursor: default;
+}
+
+.tabela-equipamentos tbody td.service-tag-link {
+  color: #007bff;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+/* === NAVIGATION DROPDOWN MENU === */
+.nav-dropdown {
+  position: relative;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: #e67e22;
+  list-style: none;
+  padding: 0.5rem 0;
+  margin: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease;
+  border-radius: 0 0 6px 6px;
+  min-width: 180px;
+  z-index: 10;
+}
+
+.dropdown-menu li {
+  margin: 0;
+}
+
+.dropdown-menu li a {
+  display: block;
+  padding: 0.5rem 1rem;
+  color: white;
+  text-decoration: none;
+  font-weight: normal;
+  transition: background-color 0.3s ease;
+}
+
+.dropdown-menu li a:hover {
+  background-color: #d35400;
+}
+
+.nav-dropdown:hover .dropdown-menu {
+  opacity: 1;
+  visibility: visible;
 }

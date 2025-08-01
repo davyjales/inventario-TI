@@ -2,15 +2,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const API_URL = 'http://localhost:3000/';
     let equipamentos = [], categorias = [];
 
+    // Corrigido: obter admin e inventariante a partir do token JWT
+    let isAdmin = false;
+    let isInventariante = false;
+    const token = localStorage.getItem('token');
+    if (token) {
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            isAdmin = payload.admin;
+            isInventariante = payload.inventariante;
+        } catch (err) {
+            console.warn('Token inválido:', err);
+        }
+    }
+
     const navLinks = document.querySelectorAll('.nav-link');
     const sections = document.querySelectorAll('.page-section');
 
+    
     function showSection(id) {
         sections.forEach(section => {
             section.classList.remove('active');
-            if (section.id === id) {
-                section.classList.add('active');
-            }
+            if (section.id === id) section.classList.add('active');
         });
 
         navLinks.forEach(link => {
@@ -31,46 +44,70 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const btnCadastrar = document.getElementById('btn-cadastrar');
     const btnConsultar = document.getElementById('btn-consultar');
-    if (btnCadastrar) btnCadastrar.addEventListener('click', () => showSection('cadastro'));
+    if (btnCadastrar) btnCadastrar.addEventListener('click', () => showSection('cadastro-equipamentos'));
     if (btnConsultar) btnConsultar.addEventListener('click', () => showSection('consulta'));
+
+    const hash = window.location.hash;
+    if (hash) showSection(hash.substring(1));
+    window.addEventListener('hashchange', () => {
+        showSection(window.location.hash.substring(1));
+    });
 
     const searchInput = document.getElementById('search-equipment');
     const filterModeSelect = document.getElementById('filter-mode');
     const equipmentList = document.getElementById('equipment-list');
 
     const formCadastro = document.getElementById('form-cadastro');
+
+    // Add form submission handler for equipment registration
+    if (formCadastro) {
+        formCadastro.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(formCadastro);
+
+            try {
+                const res = await fetch(`${API_URL}equipamentos`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (res.ok) {
+                    alert('Equipamento cadastrado com sucesso!');
+                    formCadastro.reset();
+                    showSection('consulta');
+                    fetchEquipamentos();
+                } else {
+                    const data = await res.json();
+                    alert(data.error || 'Erro ao cadastrar equipamento.');
+                }
+            } catch (err) {
+                alert('Erro de conexão ao cadastrar equipamento.');
+            }
+        });
+    }
     const selectCategoria = document.getElementById('categoria');
     const categoriaLista = document.getElementById('categoria-lista');
-    const formCategoria = document.getElementById('form-categoria');
-    const inputNovaCategoriaLista = document.getElementById('input-nova-categoria');
 
     const qrcodeRadios = document.getElementsByName('existeQRCode');
     const qrCodeContainer = document.getElementById('qrcode-container');
-
     const qrCodeInput = document.getElementById('qrCode');
 
-    qrcodeRadios.forEach(radio => {
-    radio.addEventListener('change', () => {
-        const isSim = radio.value === 'sim';
-        qrCodeContainer.style.display = isSim ? 'block' : 'none';
-        if (qrCodeInput) {
+    qrcodeRadios?.forEach(radio => {
+        radio.addEventListener('change', () => {
+            const isSim = radio.value === 'sim';
+            qrCodeContainer.style.display = isSim ? 'block' : 'none';
+            if (!isSim) qrCodeInput.value = '';
             qrCodeInput.required = isSim;
-            if (!isSim) qrCodeInput.value = ''; // limpa campo quando "não"
-        }
+        });
     });
-});
-
 
     const radios = document.getElementsByName('existeTermo');
     const termoInputContainer = document.getElementById('upload-termo-container');
 
     radios.forEach(radio => {
         radio.addEventListener('change', () => {
-            if (radio.value === 'sim') {
-                termoInputContainer.style.display = 'block';
-            } else {
-                termoInputContainer.style.display = 'none';
-            }
+            termoInputContainer.style.display = radio.value === 'sim' ? 'block' : 'none';
         });
     });
 
@@ -88,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const res = await fetch(`${API_URL}equipamentos`);
             equipamentos = await res.json();
-            renderEquipamentosList();
+            renderEquipamentosTable();
         } catch {
             alert('Erro ao carregar equipamentos.');
         }
@@ -113,123 +150,116 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function renderEquipamentosList(filter = '') {
-        if (!equipmentList || !filterModeSelect) return;
+    // Initial fetch calls
+    fetchCategorias();
+    fetchEquipamentos();
 
-        equipmentList.innerHTML = '';
-        const filterMode = filterModeSelect.value;
+    function renderEquipamentosTable() {
+        const tbody = document.getElementById('equipamentos-body');
+        if (!tbody) return;
+
+        // Get filter values from inputs
+        const filters = {};
+        document.querySelectorAll('.column-filter').forEach(input => {
+            filters[input.dataset.column] = input.value.trim().toLowerCase();
+        });
+
+        tbody.innerHTML = '';
+
         const filtered = equipamentos.filter(eq => {
-            const fieldValue = eq[filterMode] ? eq[filterMode].toLowerCase() : '';
-            return fieldValue.includes(filter.toLowerCase());
+            return Object.entries(filters).every(([key, value]) => {
+                if (!value) return true;
+                const fieldValue = eq[key] ? eq[key].toString().toLowerCase() : '';
+                return fieldValue.includes(value);
+            });
         });
 
         if (filtered.length === 0) {
-            equipmentList.textContent = 'Nenhum equipamento encontrado.';
+            const tr = document.createElement('tr');
+            const td = document.createElement('td');
+            td.colSpan = 7;
+            td.textContent = 'Nenhum equipamento encontrado.';
+            td.style.textAlign = 'center';
+            tr.appendChild(td);
+            tbody.appendChild(tr);
             return;
         }
 
         filtered.forEach(eq => {
-            const div = document.createElement('div');
-            div.className = 'equipment-item';
-            div.innerHTML = `<h3>${eq.nome}</h3><p>${eq.categoria}</p>`;
-            div.addEventListener('click', () => {
-                window.location.href = `detalhes.html?id=${eq.id}`;
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td class="service-tag-link" data-id="${eq.id}">${eq.nome || ''}</td>
+                <td>${eq.qrCode || ''}</td>
+                <td>${eq.dono || ''}</td>
+                <td>${eq.setor || ''}</td>
+                <td>${eq.hostname || ''}</td>
+                <td>${eq.categoria || ''}</td>
+                <td>${eq.status || ''}</td>
+                <td>
+                  <span class="action-icon edit-icon" data-id="${eq.id}" title="Editar">✏️</span>
+                  <span class="action-icon delete-icon" data-id="${eq.id}" title="Excluir">🗑️</span>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        // Add click event listener to service tag cells for redirection
+        document.querySelectorAll('.service-tag-link').forEach(cell => {
+            cell.addEventListener('click', () => {
+                const id = cell.dataset.id;
+                if (id) {
+                    window.location.href = `detalhes.html?id=${id}`;
+                }
             });
-            equipmentList.appendChild(div);
+        });
+
+        // Add click event listener to edit icons for redirection to edit page
+        document.querySelectorAll('.edit-icon').forEach(icon => {
+            icon.addEventListener('click', () => {
+                const id = icon.dataset.id;
+                if (id) {
+                    window.location.href = `editar.html?id=${id}`;
+                }
+            });
+        });
+
+        // Add click event listener to delete icons for deleting equipment
+        document.querySelectorAll('.delete-icon').forEach(icon => {
+            icon.addEventListener('click', async () => {
+                const id = icon.dataset.id;
+                if (!id) return;
+                if (!confirm('Deseja realmente excluir este equipamento?')) return;
+
+                try {
+                    const res = await fetch(`http://localhost:3000/equipamentos/${id}`, {
+                        method: 'DELETE'
+                    });
+                    if (res.ok) {
+                        alert('Equipamento excluído.');
+                        fetchEquipamentos();
+                    } else {
+                        alert('Erro ao excluir equipamento.');
+                    }
+                } catch (err) {
+                    alert('Erro de conexão ao excluir equipamento.');
+                }
+            });
         });
     }
 
     if (searchInput) {
-        searchInput.addEventListener('input', () => renderEquipamentosList(searchInput.value));
+        searchInput.style.display = 'none'; // Hide global search input as we have column filters now
     }
 
-    if (formCadastro) {
-        formCadastro.addEventListener('submit', async e => {
-            e.preventDefault();
+    if (filterModeSelect) {
+        filterModeSelect.style.display = 'none'; // Hide global filter mode select as we have column filters now
+    }
 
-            const getInputValue = (id) => {
-                const el = document.getElementById(id);
-                return el ? el.value.trim() : '';
-            };
-
-            const categoria = selectCategoria ? selectCategoria.value : '';
-            const nome = getInputValue('nome');
-            const dono = getInputValue('dono');
-            const setor = getInputValue('setor');
-            const descricao = getInputValue('descricao');
-            const qrCodeRadio = document.querySelector('input[name="existeQRCode"]:checked');
-            const existeQRCode = qrCodeRadio ? qrCodeRadio.value : 'nao';
-            const qrCode = existeQRCode === 'sim' ? getInputValue('qrCode') : '';
-            const termoInput = document.getElementById('termo');
-            const termoSelecionado = document.querySelector('input[name="existeTermo"]:checked');
-            const existeTermo = termoSelecionado ? termoSelecionado.value : 'nao';
-
-            if (!categoria || !nome || !dono || !setor) {
-            alert('Por favor, preencha todos os campos obrigatórios.');
-            return;
-        }
-
-
-            const formData = new FormData();
-            formData.append('categoria', categoria);
-            formData.append('nome', nome);
-            formData.append('dono', dono);
-            formData.append('setor', setor);
-            formData.append('descricao', descricao);
-            formData.append('existeQRCode', existeQRCode);
-            formData.append('qrCode', existeQRCode === 'sim' ? qrCode : '');
-
-
-
-            if (existeTermo === 'sim' && termoInput && termoInput.files.length > 0) {
-                formData.append('termo', termoInput.files[0]);
-            }
-
-            try {
-                const res = await fetch(`${API_URL}equipamentos`, {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.error || 'Erro desconhecido.');
-
-                alert('Equipamento cadastrado com sucesso!');
-                formCadastro.reset();
-                if (termoInputContainer) termoInputContainer.style.display = 'none';
-                fetchEquipamentos();
-            } catch (error) {
-                console.error('Erro ao enviar formulário:', error);
-                alert('Erro ao cadastrar equipamento: ' + error.message);
-            }
+    // Add event listeners to column filter inputs
+    document.querySelectorAll('.column-filter').forEach(input => {
+        input.addEventListener('input', () => {
+            renderEquipamentosTable();
         });
-    }
+    });
 
-    if (formCategoria) {
-        formCategoria.addEventListener('submit', async e => {
-            e.preventDefault();
-            const novaCat = inputNovaCategoriaLista ? inputNovaCategoriaLista.value.trim() : '';
-            if (!novaCat || categorias.includes(novaCat)) {
-                alert('Categoria inválida ou já existente.');
-                return;
-            }
-            try {
-                const res = await fetch(`${API_URL}categorias`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ categoria: novaCat })
-                });
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.error);
-                categorias.push(novaCat);
-                inputNovaCategoriaLista.value = '';
-                renderCategorias();
-            } catch (error) {
-                alert('Erro ao adicionar categoria: ' + error.message);
-            }
-        });
-    }
-
-    fetchCategorias();
-    fetchEquipamentos();
 });
