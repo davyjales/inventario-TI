@@ -1,0 +1,17 @@
+// Substitua por:
+const mysql = require('mysql2/promise'); // Note o /promise
+
+const pool = mysql.createPool({
+  host: '10.137.174.45',
+  user: 'suporte',
+  password: 'InicioOK2015',
+  database: 'inventario_visteon',
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
+});
+
+module.exports = pool;
+
+
+
