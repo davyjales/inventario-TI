@@ -117,7 +117,12 @@
 
       async function fetchCategorias() {
         try {
-          const res = await fetch(API_CATEGORIAS_URL);
+          const token = localStorage.getItem('token');
+          const res = await fetch(API_CATEGORIAS_URL, {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
           if (!res.ok) throw new Error("Erro ao buscar categorias");
           categorias = await res.json();
         } catch (error) {
@@ -161,7 +166,12 @@
         try {
           await fetchCategorias();
 
-          const res = await fetch(API_URL);
+          const token = localStorage.getItem('token');
+          const res = await fetch(API_URL, {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
           if (!res.ok) {
             if (res.status === 404) {
               alert("Equipamento não encontrado.");
@@ -210,12 +220,21 @@
         formData.append("additionalFields", JSON.stringify(additionalFields));
 
         try {
+          const token = localStorage.getItem('token');
           const response = await fetch(API_URL, {
             method: "PUT",
+            headers: {
+              'Authorization': `Bearer ${token}`
+            },
             body: formData,
           });
 
           if (!response.ok) {
+            if (response.status === 401) {
+              alert("Sessão expirada. Por favor, faça login novamente.");
+              window.location.href = "login.html";
+              return;
+            }
             throw new Error("Erro ao atualizar equipamento.");
           }
 

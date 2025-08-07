@@ -496,7 +496,7 @@ document.addEventListener('DOMContentLoaded', () => {
         tr.innerHTML = `
             <td>${new Date(item.timestamp).toLocaleString()}</td>
             <td>${actionText}</td>
-            <td>${item.user?.name || item.user?.name}</td>
+            <td>${item.user_id || 'Sistema'}</td>
             <td>${item.Equipment?.serviceTag || ''}</td>
             <td>${changesHtml}</td>
         `;

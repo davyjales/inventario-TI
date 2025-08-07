@@ -6,6 +6,7 @@
   <title>Inventário T.I - Visteon</title>
   <link rel="stylesheet" href="/css/style.css" />
   <!-- Script de autenticação e modal -->
+   
   <script>
     const token = localStorage.getItem('token');
     if (!token) {
@@ -71,6 +72,12 @@
 
   <!-- Aba de Relatório (conteúdo original) -->
   <div id="equipment-report" class="report-tab active">
+    <div class="export-controls">
+      <button id="export-report-excel" class="btn btn-success">
+        <i class="fas fa-file-excel"></i> Exportar Relatório para Excel
+      </button>
+    </div>
+
     <div class="tabela-container">
       <table class="tabela-equipamentos">
         <thead>
@@ -155,7 +162,11 @@
       <input type="date" id="history-date-to">
       <button id="history-search-btn">Buscar</button>
     </div>
-
+    <div class="export-controls">
+      <button id="export-history-excel" class="btn btn-success">
+        <i class="fas fa-file-excel"></i> Exportar Histórico para Excel
+      </button>
+    </div>
     <div class="tabela-container">
       <table class="tabela-historico">
         <thead>
@@ -439,8 +450,8 @@
         <select id="categoria" name="categoria" required></select>
         <label for="nome">Service Tag (wmic bios get serialnumber):</label>
         <input type="text" id="nome" name="nome" required />
-        <label for="hostname">Hostname:</label>
-        <input type="text" id="hostname" name="hostname"/>
+        <label for="hostname" class="hidden">Hostname:</label>
+        <input type="text" class="hidden" id="hostname" name="hostname" />
         <label for="dono">User:</label>
         <input type="text" id="dono" name="dono" required />
         <label for="setor">Setor:</label>
@@ -514,7 +525,10 @@
 
   <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jwt-decode/build/jwt-decode.min.js"></script>
+  <script src="https://cdnjs.cloudflares/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="js/app.js"></script>
+  <script src="/js/exportExcel.js"></script>
+
 
 
   <script>
@@ -618,6 +632,7 @@
           tbody.innerHTML = '';
           users.forEach(user => {
             const tr = document.createElement('tr');
+            tr.setAttribute('data-user-id', user.id);
             tr.innerHTML = `
               <td>${user.nome}</td>
               <td>${user.user}</td>
@@ -631,8 +646,8 @@
                       data-user-id="${user.id}" data-field="inventariante" class="user-permission" />
               </td>
               <td class="centralizado">
-                <input type="checkbox" ${user.Authorization ? 'checked' : ''} 
-                      data-user-id="${user.id}" data-field="Authorization" class="user-permission" />
+                <input type="checkbox" ${user.autorizado ? 'checked' : ''} 
+                      data-user-id="${user.id}" data-field="autorizado" class="user-permission" />
               </td>
               <td class="centralizado">
                 <button class="action-btn btn-password" onclick="abrirModalSenha(${user.id}, '${user.nome}')">🔐</button>
@@ -654,7 +669,7 @@
           checkbox.addEventListener('change', function() {
             const userId = this.getAttribute('data-user-id');
             const field = this.getAttribute('data-field');
-            const value = this.checked ? 1 : 0;
+            const value = this.checked;
             
             updateUserPermission(userId, field, value);
           });
@@ -665,6 +680,8 @@
       async function updateUserPermission(userId, field, value) {
         try {
           const token = localStorage.getItem('token');
+          console.log('Enviando atualização de permissão:', { userId, field, value });
+          
           const response = await fetch(`http://localhost:3000/admin/update-permission`, {
             method: 'POST',
             headers: {
@@ -678,17 +695,29 @@
             })
           });
 
-          if (!response.ok) {
-            throw new Error('Falha ao atualizar permissão');
+          // Verifica se a resposta é JSON antes de tentar parsear
+          const contentType = response.headers.get('content-type');
+          if (!contentType || !contentType.includes('application/json')) {
+            throw new Error('Resposta do servidor não é JSON');
           }
+
+          const data = await response.json();
+          
+          if (!response.ok) {
+            throw new Error(data.message || 'Falha ao atualizar permissão');
+          }
+          
+          console.log('Permissão atualizada com sucesso:', data);
+          alert('Permissão atualizada com sucesso!');
         } catch (error) {
           console.error('Erro ao atualizar permissão:', error);
-          // Reverte a mudança visual em caso de erro
+          alert(`Erro ao atualizar permissão: ${error.message}`);
+          
+          // Reverte visualmente o checkbox
           const checkbox = document.querySelector(`.user-permission[data-user-id="${userId}"][data-field="${field}"]`);
           if (checkbox) {
             checkbox.checked = !checkbox.checked;
           }
-          alert('Erro ao atualizar permissão. Tente novamente.');
         }
       }
 
@@ -696,7 +725,7 @@
       async function toggleAdmin(id) {
         const checkbox = document.querySelector(`.user-permission[data-user-id="${id}"][data-field="admin"]`);
         if (checkbox) {
-          const value = checkbox.checked ? 1 : 0;
+          const value = checkbox.checked;
           await updateUserPermission(id, 'admin', value);
         }
       }
@@ -704,40 +733,42 @@
       async function toggleInventariante(id) {
         const checkbox = document.querySelector(`.user-permission[data-user-id="${id}"][data-field="inventariante"]`);
         if (checkbox) {
-          const value = checkbox.checked ? 1 : 0;
+          const value = checkbox.checked;
           await updateUserPermission(id, 'inventariante', value);
         }
       }
 
       async function toggleAutorizado(id) {
-        const checkbox = document.querySelector(`.user-permission[data-user-id="${id}"][data-field="Authorization"]`);
+        const checkbox = document.querySelector(`.user-permission[data-user-id="${id}"][data-field="autorizado"]`);
         if (checkbox) {
-          const value = checkbox.checked ? 1 : 0;
-          await updateUserPermission(id, 'Authorization', value);
+          const value = checkbox.checked;
+          await updateUserPermission(id, 'autorizado', value);
         }
       }
 
-      async function excluirUsuario(id) {
-        if (!confirm('Tem certeza que deseja excluir este usuário?')) return;
-        try {
-          const token = localStorage.getItem('token');
-          await fetch(`http://localhost:3000/admin/excluir/${id}`, {
-            method: 'DELETE',
-            headers: { Authorization: `Bearer ${token}` }
-          });
-          // Atualiza apenas a tabela em vez de recarregar a página
-          if (isAdmin) {
-            const tbody = document.getElementById('user-table-body');
-            const row = document.querySelector(`tr[data-user-id="${id}"]`);
-            if (row) {
-              tbody.removeChild(row);
-            }
+    async function excluirUsuario(id) {
+      if (!confirm('Tem certeza que deseja excluir este usuário?')) return;
+      try {
+        const token = localStorage.getItem('token');
+        await fetch(`http://localhost:3000/admin/excluir/${id}`, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        // Atualiza apenas a tabela em vez de recarregar a página
+        if (isAdmin) {
+          const tbody = document.getElementById('user-table-body');
+          const row = document.querySelector(`tr[data-user-id="${id}"]`);
+          if (row) {
+            tbody.removeChild(row);
           }
-        } catch (error) {
-          console.error('Erro ao excluir usuário:', error);
-          alert('Erro ao excluir usuário. Tente novamente.');
         }
+      } catch (error) {
+        console.error('Erro ao excluir usuário:', error);
+        alert('Erro ao excluir usuário. Tente novamente.');
       }
+    }
+    window.excluirUsuario = excluirUsuario;
+
 
       // Configura o link de logout
       const logoutLink = document.getElementById('logout-link');
@@ -750,8 +781,7 @@
       }
 
       // Configura o botão de logout
-
-    const logoutBtn = document.getElementById('logout-link');
+      const logoutBtn = document.getElementById('logout-link');
       logoutBtn?.addEventListener('click', e => {
         e.preventDefault();
         localStorage.removeItem('token');
@@ -834,8 +864,6 @@
     .catch(err => {
       console.error('Erro ao carregar status para o select:', err);
     });
-
-
   </script>
 
   <!-- Modal de senha -->
@@ -870,81 +898,77 @@
       });
     });
 
-
-
     // Função para atualizar a contagem de resultados
-function atualizarContagemResultados() {
-  const tabela = document.querySelector('.tabela-equipamentos');
-  const linhasVisiveis = tabela.querySelectorAll('tbody tr:not([style*="display: none"])').length;
-  const totalLinhas = tabela.querySelectorAll('tbody tr').length;
-  
-  document.getElementById('showing-results').textContent = linhasVisiveis;
-  document.getElementById('total-results').textContent = totalLinhas;
-  
-  // Atualiza também o texto alternativo quando não há resultados
-  if (linhasVisiveis === 0) {
-    document.querySelector('.results-info').textContent = 'Nenhum resultado encontrado';
-  } else {
-    document.querySelector('.results-info').textContent = 
-      `Mostrando ${linhasVisiveis} de ${totalLinhas} resultado${totalLinhas !== 1 ? 's' : ''}`;
-  }
-}
-
-// Função para filtrar a tabela (exemplo)
-function filtrarTabela() {
-  const filtro = document.getElementById('search-equipment').value.toLowerCase();
-  const coluna = document.getElementById('filter-mode').value;
-  const linhas = document.querySelectorAll('#equipamentos-body tr');
-  
-  linhas.forEach(linha => {
-    const conteudoCelula = linha.querySelector(`td[data-column="${coluna}"]`).textContent.toLowerCase();
-    if (conteudoCelula.includes(filtro)) {
-      linha.style.display = '';
-    } else {
-      linha.style.display = 'none';
+    function atualizarContagemResultados() {
+      const tabela = document.querySelector('.tabela-equipamentos');
+      const linhasVisiveis = tabela.querySelectorAll('tbody tr:not([style*="display: none"])').length;
+      const totalLinhas = tabela.querySelectorAll('tbody tr').length;
+      
+      document.getElementById('showing-results').textContent = linhasVisiveis;
+      document.getElementById('total-results').textContent = totalLinhas;
+      
+      // Atualiza também o texto alternativo quando não há resultados
+      if (linhasVisiveis === 0) {
+        document.querySelector('.results-info').textContent = 'Nenhum resultado encontrado';
+      } else {
+        document.querySelector('.results-info').textContent = 
+          `Mostrando ${linhasVisiveis} de ${totalLinhas} resultado${totalLinhas !== 1 ? 's' : ''}`;
+      }
     }
-  });
-  
-  atualizarContagemResultados();
-}
 
-// Função para filtrar por coluna (exemplo)
-function filtrarPorColuna(coluna, valor) {
-  const linhas = document.querySelectorAll('#equipamentos-body tr');
-  
-  linhas.forEach(linha => {
-    const conteudoCelula = linha.querySelector(`td[data-column="${coluna}"]`).textContent.toLowerCase();
-    if (conteudoCelula.includes(valor.toLowerCase())) {
-      linha.style.display = '';
-    } else {
-      linha.style.display = 'none';
+    // Função para filtrar a tabela (exemplo)
+    function filtrarTabela() {
+      const filtro = document.getElementById('search-equipment').value.toLowerCase();
+      const coluna = document.getElementById('filter-mode').value;
+      const linhas = document.querySelectorAll('#equipamentos-body tr');
+      
+      linhas.forEach(linha => {
+        const conteudoCelula = linha.querySelector(`td[data-column="${coluna}"]`).textContent.toLowerCase();
+        if (conteudoCelula.includes(filtro)) {
+          linha.style.display = '';
+        } else {
+          linha.style.display = 'none';
+        }
+      });
+      
+      atualizarContagemResultados();
     }
-  });
-  
-  atualizarContagemResultados();
-}
 
-// Event listeners para os filtros
-document.getElementById('search-equipment').addEventListener('input', filtrarTabela);
-document.getElementById('filter-mode').addEventListener('change', filtrarTabela);
+    // Função para filtrar por coluna (exemplo)
+    function filtrarPorColuna(coluna, valor) {
+      const linhas = document.querySelectorAll('#equipamentos-body tr');
+      
+      linhas.forEach(linha => {
+        const conteudoCelula = linha.querySelector(`td[data-column="${coluna}"]`).textContent.toLowerCase();
+        if (conteudoCelula.includes(valor.toLowerCase())) {
+          linha.style.display = '';
+        } else {
+          linha.style.display = 'none';
+        }
+      });
+      
+      atualizarContagemResultados();
+    }
 
-// Event listeners para filtros de coluna
-document.querySelectorAll('.column-filter').forEach(input => {
-  input.addEventListener('input', function() {
-    const coluna = this.getAttribute('data-column');
-    filtrarPorColuna(coluna, this.value);
-  });
-});
+    // Event listeners para os filtros
+    document.getElementById('search-equipment').addEventListener('input', filtrarTabela);
+    document.getElementById('filter-mode').addEventListener('change', filtrarTabela);
 
-// Chamada inicial para exibir a contagem quando a página carrega
-document.addEventListener('DOMContentLoaded', function() {
-  // Simulação de dados - substitua pelo seu código real de carregamento
-  setTimeout(() => {
-    atualizarContagemResultados();
-  }, 500);
-});
-</script>
+    // Event listeners para filtros de coluna
+    document.querySelectorAll('.column-filter').forEach(input => {
+      input.addEventListener('input', function() {
+        const coluna = this.getAttribute('data-column');
+        filtrarPorColuna(coluna, this.value);
+      });
+    });
 
-
+    // Chamada inicial para exibir a contagem quando a página carrega
+    document.addEventListener('DOMContentLoaded', function() {
+      // Simulação de dados - substitua pelo seu código real de carregamento
+      setTimeout(() => {
+        atualizarContagemResultados();
+      }, 500);
+    });
+  </script>
 </body>
 </html>
