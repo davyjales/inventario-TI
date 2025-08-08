@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Status - Inventário T.I - Visteon</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <style>
+    /* Estilos específicos para a página de status */
+    .status-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .status-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .status-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 30px 0;
+    }
+
+    .status-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 15px;
+      margin-bottom: 8px;
+      background-color: #f8f9fa;
+      border-radius: 6px;
+      border-left: 3px solid #b9610f;
+      transition: all 0.2s ease;
+    }
+
+    .status-item:hover {
+      background-color: #f1f1f1;
+    }
+
+    .status-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .status-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      padding: 5px;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+
+    .status-btn:hover {
+      background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    .edit-btn {
+      color: #b9610f;
+    }
+
+    .delete-btn {
+      color: #dc3545;
+    }
+
+    .status-form {
+      background-color: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.2s;
+    }
+
+    .btn-primary {
+      background-color: #b9610f;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: #a5560d;
+    }
+
+    .btn-secondary {
+      background-color: #6c757d;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background-color: #5a6268;
+    }
+
+    .btn-block {
+      display: block;
+      width: 100%;
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    .mt-3 {
+      margin-top: 15px;
+    }
+
+    /* Modal de edição */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s;
+    }
+
+    .modal.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-content {
+      background-color: white;
+      padding: 25px;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .modal-header {
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .modal-footer {
+      margin-top: 20px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    @media (max-width: 768px) {
+      .status-container {
+        padding: 15px;
+      }
+      
+      .status-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Inventário T.I - Visteon</h1>
+    <nav>
+      <ul class="nav-menu">
+        <li><a href="index.html" class="nav-link">Voltar ao Inventário</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <div class="status-container">
+      <div class="status-header">
+        <h2>Gerenciamento de Status</h2>
+      </div>
+
+      <ul id="status-lista" class="status-list"></ul>
+
+      <div id="admin-only-status" class="status-form">
+        <h3>Adicionar Novo Status</h3>
+        <form id="form-status">
+          <div class="form-group">
+            <input type="text" id="input-novo-status" class="form-control" 
+                   placeholder="Digite o nome do novo status" required />
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">
+            <i class="fas fa-plus"></i> Adicionar Status
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal de Edição -->
+    <div id="edit-status-modal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Editar Status</h3>
+        </div>
+        <div class="modal-body">
+          <input type="text" id="edit-status-input" class="form-control" placeholder="Nome do status" />
+        </div>
+        <div class="modal-footer">
+          <button id="cancel-edit-btn" class="btn btn-secondary">Cancelar</button>
+          <button id="save-edit-btn" class="btn btn-primary">Salvar</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const API_URL = 'http://localhost:3000/';
+    let currentEditId = null;
+
+    // Elementos do DOM
+    const statusLista = document.getElementById('status-lista');
+    const formStatus = document.getElementById('form-status');
+    const editModal = document.getElementById('edit-status-modal');
+    const editStatusInput = document.getElementById('edit-status-input');
+    const saveEditBtn = document.getElementById('save-edit-btn');
+    const cancelEditBtn = document.getElementById('cancel-edit-btn');
+
+    // Verificar autenticação
+    document.addEventListener('DOMContentLoaded', () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      // Verificar se usuário é admin/inventariante
+      try {
+        const user = JSON.parse(atob(token.split('.')[1]));
+        if (!user.admin && !user.inventariante) {
+          document.getElementById('admin-only-status').style.display = 'none';
+        }
+      } catch (error) {
+        console.error('Erro ao decodificar token:', error);
+      }
+
+      fetchStatus();
+    });
+
+    // Carregar lista de status
+    async function fetchStatus() {
+      try {
+        const res = await fetch(API_URL + 'status', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        
+        if (!res.ok) throw new Error('Erro ao carregar status');
+        
+        const statuses = await res.json();
+        renderStatus(statuses);
+      } catch (error) {
+        console.error('Erro:', error);
+        showAlert('Erro ao carregar status. Tente novamente.', 'error');
+      }
+    }
+
+    // Renderizar lista de status
+    function renderStatus(statuses) {
+      statusLista.innerHTML = '';
+      
+      if (statuses.length === 0) {
+        statusLista.innerHTML = '<li class="text-center">Nenhum status cadastrado</li>';
+        return;
+      }
+
+      statuses.forEach(status => {
+        const li = document.createElement('li');
+        li.className = 'status-item';
+        li.dataset.id = status.id;
+        
+        li.innerHTML = `
+          <span>${status.nome}</span>
+          <div class="status-actions">
+            <button class="status-btn edit-btn" title="Editar">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="status-btn delete-btn" title="Excluir">
+              <i class="fas fa-trash-alt"></i>
+            </button>
+          </div>
+        `;
+        
+        // Event listeners para os botões
+        li.querySelector('.edit-btn').addEventListener('click', () => openEditModal(status));
+        li.querySelector('.delete-btn').addEventListener('click', () => deleteStatus(status.id));
+        
+        statusLista.appendChild(li);
+      });
+    }
+
+    // Adicionar novo status
+    formStatus.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const novoStatus = document.getElementById('input-novo-status').value.trim();
+      
+      if (!novoStatus) {
+        showAlert('Digite um nome válido para o status.', 'error');
+        return;
+      }
+
+      try {
+        const res = await fetch(API_URL + 'status', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify({ nome: novoStatus })
+        });
+
+        if (res.ok) {
+          showAlert('Status adicionado com sucesso!', 'success');
+          document.getElementById('input-novo-status').value = '';
+          fetchStatus();
+        } else {
+          const data = await res.json();
+          showAlert(data.error || 'Erro ao adicionar status.', 'error');
+        }
+      } catch (error) {
+        console.error('Erro:', error);
+        showAlert('Erro de conexão ao adicionar status.', 'error');
+      }
+    });
+
+    // Abrir modal de edição
+    function openEditModal(status) {
+      currentEditId = status.id;
+      editStatusInput.value = status.nome;
+      editModal.classList.add('active');
+    }
+
+    // Fechar modal de edição
+    function closeEditModal() {
+      currentEditId = null;
+      editStatusInput.value = '';
+      editModal.classList.remove('active');
+    }
+
+    // Salvar edição do status
+    saveEditBtn.addEventListener('click', async () => {
+      const novoNome = editStatusInput.value.trim();
+      
+      if (!novoNome) {
+        showAlert('Digite um nome válido para o status.', 'error');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_URL}status/${currentEditId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify({ nome: novoNome })
+        });
+
+        if (res.ok) {
+          showAlert('Status atualizado com sucesso!', 'success');
+          closeEditModal();
+          fetchStatus();
+        } else {
+          const data = await res.json();
+          showAlert(data.error || 'Erro ao atualizar status.', 'error');
+        }
+      } catch (error) {
+        console.error('Erro:', error);
+        showAlert('Erro de conexão ao atualizar status.', 'error');
+      }
+    });
+
+    // Cancelar edição
+    cancelEditBtn.addEventListener('click', closeEditModal);
+
+    // Excluir status
+    async function deleteStatus(id) {
+      if (!confirm('Tem certeza que deseja excluir este status?\nEsta ação não pode ser desfeita.')) {
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_URL}status/${id}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+
+        if (res.ok) {
+          showAlert('Status excluído com sucesso!', 'success');
+          fetchStatus();
+        } else {
+          const data = await res.json();
+          showAlert(data.error || 'Erro ao excluir status.', 'error');
+        }
+      } catch (error) {
+        console.error('Erro:', error);
+        showAlert('Erro de conexão ao excluir status.', 'error');
+      }
+    }
+
+    // Mostrar alerta (substitui os alerts nativos)
+    function showAlert(message, type = 'info') {
+      const alert = document.createElement('div');
+      alert.className = `alert alert-${type}`;
+      alert.textContent = message;
+      
+      alert.style.position = 'fixed';
+      alert.style.top = '20px';
+      alert.style.right = '20px';
+      alert.style.padding = '15px';
+      alert.style.borderRadius = '4px';
+      alert.style.color = 'white';
+      alert.style.backgroundColor = type === 'error' ? '#dc3545' : 
+                                  type === 'success' ? '#28a745' : '#17a2b8';
+      alert.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
+      alert.style.zIndex = '1000';
+      alert.style.animation = 'fadeIn 0.3s';
+      
+      document.body.appendChild(alert);
+      
+      setTimeout(() => {
+        alert.style.animation = 'fadeOut 0.3s';
+        setTimeout(() => alert.remove(), 300);
+      }, 3000);
+    }
+
+    // Adicionar animações CSS dinamicamente
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes fadeOut {
+        from { opacity: 1; transform: translateY(0); }
+        to { opacity: 0; transform: translateY(-20px); }
+      }
+    `;
+    document.head.appendChild(style);
+  </script>
+</body>
+</html>

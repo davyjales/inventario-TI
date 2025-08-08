@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Detalhes do Equipamento</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    main {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 1rem;
+      background-color: rgba(255, 255, 255, 0.95);
+      border-radius: 8px;
+    }
+
+    .equipment-details {
+      background-color: #e9ecef;
+      padding: 1rem;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+    }
+
+    .actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .actions button,
+    .actions a,
+    #btn-remover-termo {
+      padding: 0.5rem 1.2rem;
+      border: none;
+      background-color: #e67e22;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .actions button:hover,
+    .actions a:hover,
+    #btn-remover-termo:hover {
+      background-color: #d35400;
+    }
+
+    form label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+
+    form input,
+    form textarea,
+    form select {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 0.25rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+
+    form button[type="submit"] {
+      margin-top: 1.5rem;
+      padding: 0.75rem 1.5rem;
+      background-color: #e67e22;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    form button[type="submit"]:hover {
+      background-color: #d35400;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    #qrcode-img {
+      max-width: 200px;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Detalhes do Equipamento</h1>
+  </header>
+
+  <main>
+    <section id="detalhes-equipamento" class="page-section active">
+      <div id="detalhes-container" class="equipment-details"></div>
+
+      <form id="form-editar" class="hidden" enctype="multipart/form-data">
+        <h3>Editar Equipamento</h3>
+
+        <label for="edit-categoria">Categoria:</label>
+        <input type="text" id="edit-categoria" name="categoria" />
+
+        <label for="edit-nome">Service Tag:</label>
+        <input type="text" id="edit-nome" name="nome" required />
+
+        <label for="edit-dono">User:</label>
+        <input type="text" id="edit-dono" name="dono" />
+
+        <label for="edit-setor">Setor:</label>
+        <input type="text" id="edit-setor" name="setor" />
+
+        <label for="edit-hostname">Hostname:</label>
+        <input type="text" id="edit-hostname" name="hostname" />
+
+        <label for="edit-descricao">Descrição:</label>
+        <textarea id="edit-descricao" name="descricao"></textarea>
+
+        <label for="edit-status">Status:</label>
+        <select id="edit-status" name="status">
+          <option value="disponivel">Disponível</option>
+          <option value="indisponivel">Indisponível</option>
+        </select>
+
+        <label for="edit-termo">Anexar novo termo (PDF):</label>
+        <input type="file" id="edit-termo" name="termo" accept=".pdf" />
+
+        <div id="termo-existente" class="hidden">
+          <p>
+            Termo atual: <a id="link-termo" href="#" target="_blank">Visualizar PDF</a>
+          </p>
+          <button type="button" id="btn-remover-termo">Remover termo</button>
+        </div>
+
+        <input type="hidden" id="remover-termo" name="removerTermo" value="false" />
+        <button type="submit">Salvar Alterações</button>
+      </form>
+
+      <div class="actions">
+        <button id="btn-editar" class="hidden">Editar</button>
+        <button id="btn-excluir" class="hidden">Excluir</button>
+        <button id="btn-voltar">Voltar</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const id = new URLSearchParams(window.location.search).get("id");
+    const API_URL = "http://localhost:3000/equipamentos/" + id;
+    const container = document.getElementById("detalhes-container");
+    const form = document.getElementById("form-editar");
+    const btnEditar = document.getElementById("btn-editar");
+    const btnExcluir = document.getElementById("btn-excluir");
+    const btnVoltar = document.getElementById("btn-voltar");
+
+    const termoDiv = document.getElementById("termo-existente");
+    const termoLink = document.getElementById("link-termo");
+    const btnRemoverTermo = document.getElementById("btn-remover-termo");
+    const inputRemoverTermo = document.getElementById("remover-termo");
+
+    let equipamento = null;
+ 
+    async function carregarDetalhes() {
+      const res = await fetch(API_URL);
+      equipamento = await res.json();
+
+      const nomeImagemQRCode = `${equipamento.categoria}_${equipamento.qrCode}.png`.replace(/\s/g, "_");
+      const caminhoQRCode = `http://localhost:3000/uploads/${nomeImagemQRCode}`;
+
+      container.innerHTML = `
+        <h3>${equipamento.nome}</h3>
+        <p><strong>Categoria:</strong> ${equipamento.categoria}</p>
+        <p><strong>User:</strong> ${equipamento.dono}</p>
+        <p><strong>Setor:</strong> ${equipamento.setor}</p>
+        <p><strong>Hostname:</strong> ${equipamento.hostname || "Não informado"}</p>
+        <p><strong>Descrição:</strong> ${equipamento.descricao}</p>
+        <p><strong>Status:</strong> ${equipamento.status === 'disponivel' ? 'Disponível' : 'Indisponível'}</p>
+        ${equipamento.termo ? `<p><strong>Termo:</strong> <a href="http://localhost:3000/uploads/${equipamento.termo}" target="_blank">Visualizar PDF</a></p>` : ""}
+        <p><strong>ID (QR Code):</strong> ${equipamento.qrCode}</p>
+        <p><strong>QR Code:</strong><br>
+          <img id="qrcode-img" src="${caminhoQRCode}" alt="QR Code"><br>
+          <a href="${caminhoQRCode}" download="${nomeImagemQRCode}">Baixar QR Code</a>
+          <button onclick="imprimirQRCode()">Imprimir QR Code</button>
+        </p>
+      `;
+
+      // Preenche os campos do formulário com os dados atuais
+      const editCategoriaInput = document.getElementById("edit-categoria");
+      const editNomeInput = document.getElementById("edit-nome");
+
+      // Hide category and service tag fields in edit form
+      editCategoriaInput.parentElement.style.display = 'none';
+      editNomeInput.parentElement.style.display = 'none';
+
+      editCategoriaInput.value = equipamento.categoria;
+      editCategoriaInput.readOnly = true; // Make category not editable
+
+      editNomeInput.value = equipamento.nome;
+      editNomeInput.readOnly = true; // Make service tag not editable
+
+      document.getElementById("edit-dono").value = equipamento.dono;
+      document.getElementById("edit-setor").value = equipamento.setor;
+      document.getElementById("edit-hostname").value = equipamento.hostname || "";
+      document.getElementById("edit-descricao").value = equipamento.descricao;
+      document.getElementById("edit-status").value = equipamento.status;
+
+      // Render additional fields in display
+      if (equipamento.additionalFields) {
+        let additionalHtml = '<div style="position: absolute; top: 20px; right: 20px; background: #f0f0f0; padding: 10px; border-radius: 8px; max-width: 300px;">';
+        additionalHtml += '<h4>Campos Adicionais</h4>';
+        for (const [key, value] of Object.entries(equipamento.additionalFields)) {
+          additionalHtml += `<p><strong>${key}:</strong> ${value}</p>`;
+        }
+        additionalHtml += '</div>';
+        container.style.position = 'relative';
+        container.innerHTML += additionalHtml;
+      }
+
+      // Render additional fields in edit form
+      const editForm = document.getElementById('form-editar');
+      // Remove existing additional fields inputs if any
+      const existingAdditionalFields = editForm.querySelectorAll('.edit-campo-adicional');
+      existingAdditionalFields.forEach(el => el.remove());
+
+      if (equipamento.additionalFields) {
+        for (const [key, value] of Object.entries(equipamento.additionalFields)) {
+          const div = document.createElement('div');
+          div.className = 'edit-campo-adicional';
+
+          const label = document.createElement('label');
+          label.setAttribute('for', `edit-campo-adicional-${key}`);
+          label.textContent = key;
+
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.id = `edit-campo-adicional-${key}`;
+          input.name = `campoAdicional_${key}`;
+          input.value = value;
+
+          // Make additional fields editable
+          input.readOnly = false;
+
+          div.appendChild(label);
+          div.appendChild(input);
+
+          // Insert before the submit button
+          const submitButton = editForm.querySelector('button[type="submit"]');
+          editForm.insertBefore(div, submitButton);
+        }
+      }
+
+      if (equipamento.termo) {
+        termoLink.href = `http://localhost:3000/uploads/${equipamento.termo}`;
+        termoDiv.classList.remove("hidden");
+      }
+    }
+
+    function imprimirQRCode() {
+      const img = document.getElementById('qrcode-img');
+      const janela = window.open('', '_blank');
+      janela.document.write(`
+        <html><head><title>Imprimir QR Code</title></head>
+        <body style="text-align:center;">
+          <img src="${img.src}" style="max-width: 300px;" />
+          <br><br>
+          <button onclick="window.print();">Imprimir</button>
+        </body></html>
+      `);
+      janela.document.close();
+    }
+
+    btnEditar.addEventListener("click", () => {
+      form.classList.toggle("hidden");
+    });
+
+    btnRemoverTermo.addEventListener("click", () => {
+      inputRemoverTermo.value = "true";
+      termoDiv.classList.add("hidden");
+    });
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+
+      // Append additional fields from edit inputs
+      const additionalFields = {};
+      const editForm = document.getElementById('form-editar');
+      const additionalInputs = editForm.querySelectorAll('.edit-campo-adicional input');
+      additionalInputs.forEach(input => {
+        const key = input.name.replace('campoAdicional_', '');
+        additionalFields[key] = input.value;
+      });
+      formData.append('additionalFields', JSON.stringify(additionalFields));
+
+      try {
+        const res = await fetch(API_URL, {
+          method: "PUT",
+          body: formData
+        });
+
+        if (res.ok) {
+          alert("Atualizado com sucesso!");
+          location.reload();
+        } else {
+          const erro = await res.json();
+          alert("Erro ao atualizar: " + (erro.error || "Erro interno"));
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Erro de conexão ao atualizar.");
+      }
+    });
+
+    btnExcluir.addEventListener("click", async () => {
+      if (confirm("Deseja realmente excluir este equipamento?")) {
+        const res = await fetch(API_URL, { method: "DELETE" });
+        if (res.ok) {
+          alert("Equipamento excluído.");
+          window.location.href = "index.html#consulta";
+        }
+      }
+    });
+
+    btnVoltar.addEventListener("click", () => {
+      window.location.href = "index.html#consulta";
+    });
+
+    carregarDetalhes();
+  </script>
+</body>
+</html>

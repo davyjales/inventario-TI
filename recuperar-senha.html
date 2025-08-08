@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Recuperar Senha</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      background-color: #202020;
+      font-family: Arial, sans-serif;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      animation: fadeIn 1s ease forwards;
+      opacity: 0;
+    }
+
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+      }
+    }
+
+    .recovery-container {
+      background-color: #2c2c2c;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      font-size: 1.5rem;
+      color: #fff;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: bold;
+    }
+
+    input[type="email"] {
+      width: 100%;
+      padding: 0.6rem;
+      background-color: #eaf6ff;
+      border: none;
+      border-radius: 4px;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+    }
+
+    button {
+      width: 100%;
+      background-color: #f39c12;
+      color: white;
+      border: none;
+      padding: 0.7rem;
+      font-size: 1rem;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      position: relative;
+    }
+
+    button:disabled {
+      background-color: #aaa;
+      cursor: wait;
+    }
+
+    button::before {
+      content: "📧 ";
+      position: relative;
+      left: 0;
+    }
+
+    .back-link {
+      margin-top: 1rem;
+      display: block;
+      text-align: center;
+      color: #00aaff;
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="recovery-container">
+    <h2>Recuperar Senha</h2>
+    <form onsubmit="return handleSubmit()" action="processar-recuperacao.php" method="POST">
+      <label for="email">Digite seu e-mail:</label>
+      <input type="email" name="email" id="email" required>
+      <button id="submitBtn">Enviar instruções</button>
+    </form>
+    <a class="back-link" href="login.html">← Voltar ao login</a>
+  </div>
+
+  <script>
+    function handleSubmit() {
+      const btn = document.getElementById("submitBtn");
+      btn.disabled = true;
+      btn.textContent = "Enviando...";
+      return true;
+    }
+  </script>
+</body>
+</html>
