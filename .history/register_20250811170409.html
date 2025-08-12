@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Registrar Conta</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #000000, #1a1a1a);
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .register-container {
+      display: flex;
+      background-color: #111;
+      border-radius: 10px;
+      overflow: hidden;
+      max-width: 800px;
+      width: 100%;
+      box-shadow: 0 0 20px rgba(255, 165, 0, 0.3);
+    }
+
+    .register-left {
+      flex: 1;
+      padding: 3rem;
+    }
+
+    .register-left h1 {
+      font-size: 2rem;
+      color: #ffa500;
+    }
+
+    .register-left .dot {
+      color: #ffa500;
+    }
+
+    .register-form label {
+      display: block;
+      margin-top: 1rem;
+      color: #ccc;
+      font-weight: bold;
+    }
+
+    .register-form input {
+      width: 100%;
+      padding: 0.8rem;
+      margin-top: 0.5rem;
+      border: none;
+      border-radius: 5px;
+      background-color: #222;
+      color: white;
+    }
+
+    .register-form button {
+      width: 100%;
+      padding: 0.8rem;
+      margin-top: 2rem;
+      background: linear-gradient(to right, #ff9900, #ff5e00);
+      border: none;
+      border-radius: 5px;
+      color: white;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .register-form button:hover {
+      background: linear-gradient(to right, #ff7700, #e65100);
+    }
+
+    .register-form .link-login {
+      display: block;
+      margin-top: 1rem;
+      text-align: center;
+      color: #ccc;
+      font-size: 0.9rem;
+    }
+
+    .register-form .link-login:hover {
+      text-decoration: underline;
+      color: #ffa500;
+    }
+  </style>
+</head>
+<body>
+  <div class="register-container">
+    <div class="register-left">
+      <h1>Crie sua conta<span class="dot">.</span></h1>
+      <form id="register-form" class="register-form">
+        <label for="nome">Nome Completo</label>
+        <input type="text" id="nome" name="nome" placeholder="Digite seu nome completo" required />
+
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" placeholder="Digite seu email" required />
+
+        <label for="user">User ID</label>
+        <input type="text" id="user" name="user" placeholder="Crie um user ID" required />
+
+        <label for="senha">Senha</label>
+        <input type="password" id="senha" name="senha" placeholder="Crie uma senha" required />
+
+        <button type="submit">Registrar</button>
+        <a href="login.html" class="link-login">Já tenho uma conta</a>
+      </form>
+    </div>
+  </div>
+
+  <script src="register.js"></script>
+</body>
+</html>

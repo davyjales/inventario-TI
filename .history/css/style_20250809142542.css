@@ -1,0 +1,865 @@
+/* Existing styles are preserved */
+
+/* Styles for additional fields in category creation */
+#campos-adicionais-container {
+  margin-top: 10px;
+}
+
+.campo-adicional-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+
+.campo-adicional-item input[type="text"] {
+  flex: 1;
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.campo-adicional-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+#btn-adicionar-campo {
+  background-color: #b9610f;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#btn-adicionar-campo:hover {
+  background-color: #a0500d;
+}
+
+.btn-remover-campo {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 2px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-remover-campo:hover {
+  background-color: #c0392b;
+}
+
+/* Styles for additional fields in equipment registration */
+#campos-adicionais-equipamento > div {
+  margin-bottom: 10px;
+}
+
+#campos-adicionais-equipamento label {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 4px;
+}
+
+#campos-adicionais-equipamento input[type="text"] {
+  width: 100%;
+  padding: 6px 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    position: relative;
+    z-index: 1;
+}
+
+.page-section {
+    display: none;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 25px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.page-section.active {
+    display: block;
+}
+
+/* === RESET === */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    background-image: url('../images/visteon-bg.jpg.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+    z-index: 0;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(230, 126, 34, 0.3);
+    z-index: -1;
+}
+
+/* === HEADER === */
+header {
+    background-color: #e67e22;
+    color: white;
+    padding: 1rem;
+    text-align: center;
+}
+
+.nav-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    background-color: transparent;
+}
+
+.nav-menu li {
+    margin: 0 1rem;
+}
+
+.nav-menu li a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.nav-menu li a.active,
+.nav-menu li a:hover {
+    background-color: #d35400;
+}
+
+/* === MAIN === */
+main {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 1rem;
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    position: relative;
+    z-index: 1;
+}
+
+.page-section {
+    display: none;
+}
+
+.page-section.active {
+    display: block;
+}
+
+/* === HOME === */
+#home h2 {
+    text-align: center;
+    color: black;
+}
+
+.home-functions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.home-functions button {
+    padding: 1rem 2rem;
+    font-size: 1rem;
+    cursor: pointer;
+    background-color: black;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    transition: background-color 0.3s ease;
+}
+
+.home-functions button:hover {
+    background-color: #333;
+}
+
+/* === EQUIPAMENTOS === */
+.equipment-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.equipment-list > div {
+    background-color: #fff;
+    padding: 1rem;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: transform 0.2s, background-color 0.2s;
+}
+
+.equipment-list > div:hover {
+    transform: translateY(-3px);
+    background-color: #f9f9f9;
+}
+
+.equipment-list h3 {
+    margin: 0 0 0.5rem;
+    font-size: 1.1rem;
+    color: #e67e22;
+}
+
+.equipment-list p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #444;
+}
+
+.equipment-details {
+    background-color: #fff;
+    padding: 1rem;
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.hidden {
+    display: none;
+}
+
+/* === FORMULÁRIOS === */
+form label {
+    display: block;
+    margin-top: 1rem;
+    font-weight: bold;
+    color: #333;
+}
+
+form input[type="text"],
+form textarea,
+form select,
+form input[type="file"] {
+    width: 100%;
+    padding: 0.5rem;
+    margin-top: 0.25rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    background-color: white;
+}
+
+form button[type="submit"] {
+    margin-top: 1.5rem;
+    padding: 0.75rem 1.5rem;
+    background-color: #e67e22;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+form button[type="submit"]:hover {
+    background-color: #d35400;
+}
+
+.termo-options {
+    display: flex;
+    gap: 2rem;
+    margin-top: 0.5rem;
+}
+
+#categoria-lista {
+    list-style: none;
+    padding: 0;
+    margin-top: 1rem;
+}
+
+#categoria-lista li {
+    background-color: #fff;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+#categoria-lista li span {
+    font-weight: bold;
+    color: #e67e22;
+}
+
+/* === TABELA DE USUÁRIOS === */
+.user-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 2rem;
+    background-color: #fff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.user-table thead {
+    background-color: #e67e22;
+    color: white;
+}
+
+.user-table thead th {
+    padding: 1rem;
+    text-align: left;
+    font-weight: bold;
+    border-bottom: 2px solid #d35400;
+}
+
+.user-table tbody td  {
+    padding: 0.75rem 0.75rem;
+    border-bottom: 1px solid #eee;
+    color: #333;
+}
+
+.user-table tbody tr:hover {
+    background-color: #f9f9f9;
+}
+
+.user-table td .action-btn .checkbox{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0.2rem;
+    padding: 0.75rem 0.75rem;
+    font-size: 0.85rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    color: white;
+    transition: all 0.3s ease;
+    min-width: 140px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-admin {
+    background-color: #3498db;
+}
+.btn-admin:hover {
+    background-color: #2980b9;
+}
+
+.btn-auth {
+    background-color: #27ae60;
+}
+.btn-auth:hover {
+    background-color: #1e8449;
+}
+
+/*.btn-delete {
+    background-color: #e74c3c;
+}
+.btn-delete:hover {
+    background-color: #c0392b;
+} */
+.btn-inventariante {
+  background-color: #f39c12;
+}
+.btn-inventariante:hover {
+  background-color: #d68910;
+}/*
+.btn-password {
+    background-color: #8e44ad;
+}*/
+
+.modal {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex; justify-content: center; align-items: center;
+  z-index: 999;
+}
+.modal-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+.modal-buttons {
+  margin-top: 1rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+.hidden {
+  display: none !important;
+}
+
+.centralizado {
+  text-align: center;
+  vertical-align: middle;
+}
+
+/* Increase row height and padding for equipment table */
+.tabela-equipamentos tbody tr {
+  height: 50px;
+}
+
+.tabela-equipamentos tbody td {
+  padding: 2px 5px;
+  vertical-align: middle;
+  font-size: 1rem;
+  cursor: default;
+}
+
+.tabela-equipamentos tbody td.service-tag-link {
+  color: #007bff;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+/* === NAVIGATION DROPDOWN MENU === */
+.nav-dropdown {
+  position: relative;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: #e67e22;
+  list-style: none;
+  padding: 0.5rem 0;
+  margin: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease;
+  border-radius: 0 0 6px 6px;
+  min-width: 180px;
+  z-index: 10;
+}
+
+.dropdown-menu li {
+  margin: 0;
+}
+
+.dropdown-menu li a {
+  display: block;
+  padding: 0.5rem 1rem;
+  color: white;
+  text-decoration: none;
+  font-weight: normal;
+  transition: background-color 0.3s ease;
+}
+
+.dropdown-menu li a:hover {
+  background-color: #d35400;
+}
+
+.nav-dropdown:hover .dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ===== ESTILOS DA ABA DE HISTÓRICO ===== */
+
+/* Controles de abas */
+.tab-buttons {
+  display: flex;
+  margin: 20px 0 15px 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.tab-btn {
+  padding: 10px 20px;
+  background: #f5f5f5;
+  border: none;
+  border-radius: 5px 5px 0 0;
+  cursor: pointer;
+  margin-right: 5px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.tab-btn:hover {
+  background: #e0e0e0;
+}
+
+.tab-btn.active {
+  background: #b9610f;
+  color: white;
+}
+
+/* Abas */
+.report-tab,
+.history-tab {
+  display: none;
+}
+
+.report-tab.active,
+.history-tab.active {
+  display: block;
+}
+
+/* Barra de pesquisa do histórico */
+.history-search {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.history-search input, 
+.history-search select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.history-search button {
+  padding: 8px 15px;
+  background: #b9610f;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.history-search button:hover {
+  background: #a3560d;
+}
+
+/* Tabela de histórico */
+.tabela-historico {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabela-historico th {
+  background-color: #b9610f;
+  color: white;
+  padding: 12px 15px;
+  text-align: left;
+  font-weight: 500;
+  position: sticky;
+  top: 0;
+}
+
+.tabela-historico td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #eee;
+  vertical-align: top;
+}
+
+.tabela-historico tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.tabela-historico tr:hover {
+  background-color: #f0f7ff;
+}
+
+/* Detalhes das alterações */
+.change-details {
+  font-size: 13px;
+}
+
+.change-details ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.change-details li {
+  margin-bottom: 3px;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .history-search {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .history-search input,
+  .history-search select,
+  .history-search button {
+    width: 100%;
+  }
+  
+  .tabela-historico {
+    display: block;
+    overflow-x: auto;
+  }
+  
+  .tab-buttons {
+    overflow-x: auto;
+    white-space: nowrap;
+    display: block;
+    padding-bottom: 5px;
+  }
+  
+  .tab-btn {
+    display: inline-block;
+    margin-bottom: 5px;
+  }
+}
+
+/* Estilos para listas editáveis */
+.editable-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  width: 100%; /* Garante que a lista ocupe toda a largura */
+}
+
+/* Estilo para os itens da lista */
+.editable-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  margin-bottom: 8px;
+  background-color: #f8f9fa;
+  position: relative; /* Necessário para o pseudo-elemento */
+  width: 100%; /* Ocupa toda a largura disponível */
+  box-sizing: border-box; /* Inclui padding na largura total */
+}
+
+/* Borda lateral usando pseudo-elemento */
+.editable-list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background-color: #b9610f;
+  border-radius: 3px 0 0 3px;
+}
+
+/* Estilo para as ações (ícones) */
+.editable-actions {
+  display: flex;
+  gap: 10px;
+  margin-left: 10px;
+}
+
+/* Estilo para o container principal */
+
+.editable-actions button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 5px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.editable-actions button:hover {
+  background-color: #f0f0f0;
+}
+
+.btn-edit {
+  color: #b9610f;
+}
+
+.btn-delete {
+  color: #dc3545;
+}
+
+/* Modal de edição */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 25px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.modal-input {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.btn-primary {
+  background-color: #b9610f;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-cancel {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-add-field {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.campo-adicional-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding: 8px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}
+
+.campo-adicional-item input[type="text"] {
+  flex-grow: 1;
+  padding: 6px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.campo-adicional-item .btn-remove-field {
+  color: #dc3545;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.export-controls {
+  margin: 15px 0;
+  text-align: right;
+}
+
+.export-controls .btn-success {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  font-size: 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.export-controls .btn-success:hover {
+  background-color: #218838;
+}
+
+
+#cadastro-equipamentos {
+  background: #fff;
+  border-radius: 12px;
+  padding: 25px 30px;
+  max-width: 650px;
+  margin: auto;
+  box-shadow: 0px 4px 15px rgba(0,0,0,0.08);
+}
+
+#cadastro-equipamentos h2 {
+  margin-bottom: 20px;
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+}
+
+.form-group-inline {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+label {
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+input[type="text"],
+textarea,
+select {
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 0.95rem;
+  transition: border-color 0.2s ease-in-out;
+}
+
+input[type="text"]:focus,
+textarea:focus,
+select:focus {
+  border-color: #ff7a00;
+  outline: none;
+}
+
+button {
+  background: #ff7a00;
+  color: #fff;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+}
+
+button:hover {
+  background: #e96d00;
+}
+
+.hidden {
+  display: none;
+}

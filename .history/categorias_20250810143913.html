@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cadastro de Categorias</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header>
+    <h1>Cadastro de Categorias</h1>
+  </header>
+
+  <main>
+    <section id="lista-categorias">
+      <button id="btn-nova-categoria">Nova Categoria</button>
+      <table>
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Recebe Termo</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="categorias-tbody">
+          <!-- Lista de categorias será inserida aqui -->
+        </tbody>
+      </table>
+    </section>
+
+    <section id="form-categoria" class="hidden">
+      <h2 id="form-titulo">Nova Categoria</h2>
+      <form id="categoria-form">
+        <label>
+          Nome da Categoria:
+          <input type="text" id="nome-categoria" name="nome" required />
+        </label>
+        <label>
+          Recebe Termo:
+          <input type="checkbox" id="recebe-termo" name="recebe_termo" />
+        </label>
+
+        <h3>Campos da Categoria</h3>
+        <div id="campos-container">
+          <!-- Campos dinâmicos serão adicionados aqui -->
+        </div>
+        <button type="button" id="btn-adicionar-campo">Adicionar Campo</button>
+
+        <div class="form-actions">
+          <button type="submit" id="btn-salvar">Salvar</button>
+          <button type="button" id="btn-cancelar">Cancelar</button>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <script src="js/cadastroCategorias.js"></script>
+  <script src="js/cadastroCategoriasTabs.js"></script>
+</body>
+</html>

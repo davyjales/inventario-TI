@@ -1,0 +1,35 @@
+.actions-container {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.btn-action {
+  background-color: #007bff;
+  border: none;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease;
+}
+
+.btn-action svg {
+  width: 16px;
+  height: 16px;
+}
+
+.btn-action:hover {
+  background-color: #0056b3;
+}
+
+.btn-action.delete-icon {
+  background-color: #dc3545;
+}
+
+.btn-action.delete-icon:hover {
+  background-color: #a71d2a;
+}

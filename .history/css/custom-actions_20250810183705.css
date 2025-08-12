@@ -1,0 +1,66 @@
+/* ===== ESTILOS ESPECÍFICOS PARA TABELA DE EQUIPAMENTOS ===== */
+.tabela-equipamentos {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 20px 0;
+}
+
+.tabela-equipamentos thead th {
+  background-color: #b9610f;
+  color: white;
+  padding: 12px 15px;
+  text-align: left;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.tabela-equipamentos tbody td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #eee;
+  vertical-align: middle;
+}
+
+.tabela-equipamentos tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.tabela-equipamentos tbody tr:hover {
+  background-color: #f0f7ff;
+}
+
+/* Garante que os botões de ação sempre sejam visíveis */
+.actions-cell {
+  white-space: nowrap;
+  text-align: center;
+}
+
+.btn-edit, .btn-delete {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2em;
+  margin: 0 5px;
+  padding: 5px;
+  visibility: visible !important;
+  display: inline-block !important;
+}
+
+/* Remove qualquer estilo de hover conflitante */
+#equipamentos-body tr:hover {
+  background-color: #f0f7ff !important;
+}
+
+/* Garante que os filtros não afetem o layout */
+.column-filter {
+  width: 100%;
+  padding: 5px 8px;
+  margin-top: 5px;
+  box-sizing: border-box;
+}
+
+/* Remove qualquer display:none residual */
+#equipamentos-body tr {
+  display: table-row !important;
+}
