@@ -7,7 +7,7 @@ module.exports = {
 
       let query = `
         SELECT eh.id, eh.equipment_id, eh.action, eh.changed_fields, eh.user_id, eh.timestamp,
-               e.nome AS equipment_name,
+               e.nome AS equipment_name, e.dono AS equipment_user,
                u.nome AS admin_name
         FROM equipment_history eh
         LEFT JOIN equipamentos e ON eh.equipment_id = e.id
@@ -79,16 +79,6 @@ module.exports = {
           const currentSnapshot = snapshots[record.id] || {};
           const prevSnapshot = i < historico.length - 1 ? snapshots[historico[i + 1].id] : {};
 
-          // Add full snapshot to record for frontend modal
-          record.full_snapshot = currentSnapshot;
-
-          // Add dono (user) from snapshot to record
-          record.dono = currentSnapshot.dono || null;
-
-          // Rename user_id to admin_id for clarity
-          record.admin_id = record.user_id;
-          delete record.user_id;
-
           // Compute diff with de and para
           const enrichedChanges = {};
           for (const key of Object.keys(currentSnapshot)) {
@@ -103,26 +93,18 @@ module.exports = {
           // Enrich special fields like status_id and cargo
           if (enrichedChanges['status_id']) {
             const change = enrichedChanges['status_id'];
-            if ((typeof change.de === 'number' || typeof change.de === 'string') &&
-                (typeof change.para === 'number' || typeof change.para === 'string')) {
-              const [[statusDe]] = await db.query(
-                'SELECT nome FROM status_equipamentos WHERE id = ?',
-                [change.de]
-              );
-              const [[statusPara]] = await db.query(
-                'SELECT nome FROM status_equipamentos WHERE id = ?',
-                [change.para]
-              );
-              enrichedChanges['Status'] = {
-                de: statusDe ? statusDe.nome : change.de,
-                para: statusPara ? statusPara.nome : change.para
-              };
-            } else {
-              enrichedChanges['Status'] = {
-                de: change.de,
-                para: change.para
-              };
-            }
+            const [[statusDe]] = await db.query(
+              'SELECT nome FROM status_equipamentos WHERE id = ?',
+              [change.de]
+            );
+            const [[statusPara]] = await db.query(
+              'SELECT nome FROM status_equipamentos WHERE id = ?',
+              [change.para]
+            );
+            enrichedChanges['Status'] = {
+              de: statusDe ? statusDe.nome : change.de,
+              para: statusPara ? statusPara.nome : change.para
+            };
             delete enrichedChanges['status_id'];
           }
 

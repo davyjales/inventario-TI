@@ -79,9 +79,6 @@ module.exports = {
           const currentSnapshot = snapshots[record.id] || {};
           const prevSnapshot = i < historico.length - 1 ? snapshots[historico[i + 1].id] : {};
 
-          // Add full snapshot to record for frontend modal
-          record.full_snapshot = currentSnapshot;
-
           // Add dono (user) from snapshot to record
           record.dono = currentSnapshot.dono || null;
 

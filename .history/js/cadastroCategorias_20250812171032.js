@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
     div.classList.add("campo-item");
 
     div.innerHTML = `
-      <input type="text" class="campo-nome" placeholder="Nome do campo" value="${campo.nome || ''}" required />
+      <input type="text" class="campo-nome" placeholder="Nome do campo" value="${campo.nome_campo || ''}" required />
       <select class="campo-tipo">
         <option value="texto" ${campo.tipo === "texto" ? "selected" : ""}>Texto</option>
         <option value="numero" ${campo.tipo === "numero" ? "selected" : ""}>Número</option>

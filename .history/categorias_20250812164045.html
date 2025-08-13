@@ -125,21 +125,9 @@
       background-color: #f8f8f8;
       color: #555;
       font-weight: 600;
-      border-bottom: 2px solid #e0e0e0;
+      text-align: left;
       padding: 12px 15px;
-    }
-    th.categoria, td.categoria {
-      text-align: left;
-      padding-left: 150px;
-    }
-    th.recebe-termo, td.recebe-termo {
-      text-align: left;
-      padding-left: 70px;
-    }
-    th.acoes, td.acoes {
-      text-align: right;
-      padding-left: 150px;
-      white-space: nowrap;
+      border-bottom: 2px solid #e0e0e0;
     }
     td {
       padding: 12px 15px;
@@ -334,46 +322,6 @@
         border-bottom-color: #eee;
       }
     }
-
-    /* Added styles for status-like buttons */
-    .status-actions {
-      display: flex;
-      gap: 10px;
-    }
-
-    .status-btn {
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-size: 16px;
-      padding: 5px;
-      border-radius: 4px;
-      transition: all 0.2s;
-      font-family: "Font Awesome 6 Free";
-      font-weight: 900;
-    }
-
-    .status-btn:hover {
-      background-color: rgba(0, 0, 0, 0.05);
-    }
-
-    .edit-btn {
-      color: #b9610f;
-      background-color: #f5e6d3;
-    }
-
-    .edit-btn:hover {
-      background-color: #e6cfa8;
-    }
-
-    .delete-btn {
-      color: #dc3545;
-      background-color: #f8d7da;
-    }
-
-    .delete-btn:hover {
-      background-color: #e4a1a8;
-    }
   </style>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -406,9 +354,9 @@
         <table>
           <thead>
             <tr>
-              <th style="text-align: left; padding-left: 130px;">Categoria</th>
-              <th style="text-align: left; padding-left: 40px;">Recebe Termo</th>
-              <th style="text-align: right; padding-right: 160px;">Ações</th>
+              <th>Categoria</th>
+              <th>Recebe Termo</th>
+              <th style="text-align: right;">Ações</th>
             </tr>
           </thead>
           <tbody id="categorias-tbody">
@@ -456,10 +404,10 @@
           </div>
 
           <div class="form-actions">
-            <button type="button" id="btn-cancelar" class="btn btn-primary" style="min-width: 120px; height: 38px; margin-right: 10px; background-color: #e67e22; border-color: #e67e22; vertical-align: middle; margin-top: 23px;">
+            <button type="button" id="btn-cancelar" class="btn btn-outline">
               <i class="fas fa-times"></i> Cancelar
             </button>
-            <button type="submit" id="btn-salvar" class="btn btn-primary" style="min-width: 120px; height: 38px; vertical-align: middle;">
+            <button type="submit" id="btn-salvar" class="btn btn-primary">
               <i class="fas fa-save"></i> Salvar
             </button>
           </div>

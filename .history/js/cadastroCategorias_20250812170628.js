@@ -3,8 +3,8 @@
 document.addEventListener("DOMContentLoaded", () => {
   const listaCategoriasTbody = document.getElementById("categorias-tbody");
   const btnNovaCategoria = document.getElementById("btn-nova-categoria");
-  const formCategoriaSection = document.getElementById("tab-form");
-  const listaCategoriasSection = document.getElementById("tab-lista");
+  const formCategoriaSection = document.getElementById("form-categoria");
+  const listaCategoriasSection = document.getElementById("lista-categorias");
   const categoriaForm = document.getElementById("categoria-form");
   const nomeCategoriaInput = document.getElementById("nome-categoria");
   const recebeTermoCheckbox = document.getElementById("recebe-termo");
@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
     div.classList.add("campo-item");
 
     div.innerHTML = `
-      <input type="text" class="campo-nome" placeholder="Nome do campo" value="${campo.nome || ''}" required />
+      <input type="text" class="campo-nome" placeholder="Nome do campo" value="${campo.nome_campo || ''}" required />
       <select class="campo-tipo">
         <option value="texto" ${campo.tipo === "texto" ? "selected" : ""}>Texto</option>
         <option value="numero" ${campo.tipo === "numero" ? "selected" : ""}>Número</option>
@@ -136,12 +136,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     mostrarFormulario(true);
-
-    // Trigger click on form tab button to activate it
-    const formTabButton = document.querySelector('.tab-button[data-tab="tab-form"]');
-    if (formTabButton) {
-      formTabButton.click();
-    }
   }
 
   // Mostrar ou esconder formulário

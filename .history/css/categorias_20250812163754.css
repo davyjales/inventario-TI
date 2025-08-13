@@ -1,0 +1,436 @@
+/* Estilos gerais */
+body {
+  font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  background-color: #f5f7fa;
+  margin: 0;
+  padding: 0;
+  color: #333;
+}
+
+/* Cabeçalho */
+header {
+  background-color: #e67e22;
+  color: white;
+  padding: 1rem;
+  text-align: center;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 600;
+}
+
+/* Navegação */
+nav {
+  display: flex;
+  justify-content: center;
+  background-color: #e67e22;
+  border-bottom: 2px solid #e67e22;
+  padding: 10px 0;
+  gap: 10px;
+}
+
+nav a {
+  text-decoration: none;
+  color: #fcf9f6;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+nav a:hover,
+nav a.active {
+  background-color: #e67e22;
+  color: white;
+}
+
+/* Área principal */
+main {
+  max-width: 1000px;
+  margin: 30px auto;
+  padding: 0;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  overflow: hidden;
+}
+
+/* Título da seção */
+.section-title {
+  padding: 15px 20px;
+  margin: 0;
+  background-color: #f8f8f8;
+  border-bottom: 1px solid #eaeaea;
+  font-size: 1.2rem;
+  color: #555;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  margin: 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.tab-button {
+  flex: 1;
+  padding: 12px 20px;
+  cursor: pointer;
+  background-color: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  font-weight: 600;
+  color: #666;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.tab-button.active {
+  color: #e67e22;
+  border-bottom-color: #e67e22;
+  background-color: rgba(230, 126, 34, 0.05);
+}
+
+.tab-button:hover:not(.active) {
+  color: #333;
+  background-color: #f5f5f5;
+}
+
+/* Conteúdo das abas */
+.tab-content {
+  display: none;
+  padding: 20px;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* Tabela */
+.table-container {
+  overflow-x: auto;
+  margin-top: 15px;
+}
+
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+th {
+  background-color: #f8f8f8;
+  color: #555;
+  font-weight: 600;
+  text-align: left;
+  padding: 12px 15px;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #f0f0f0;
+  vertical-align: middle;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+tr:hover {
+  background-color: #f9f9f9;
+}
+
+tr:nth-child(even) {
+  background-color: #fcfcfc;
+}
+
+tr:hover {
+  background-color: #f5f5f5;
+}
+
+/* Botões de ação na tabela - ESTILO NOVO IGUAL AO DE STATUS */
+.actions-cell {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.btn-action {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background-color: transparent;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 5px;
+}
+
+.btn-action:hover {
+  transform: scale(1.1);
+}
+
+.edit-btn {
+  color: #e67e22;
+}
+
+.edit-btn:hover {
+  background-color: rgba(230, 126, 34, 0.1);
+}
+
+.delete-btn {
+  color: #e74c3c;
+}
+
+.delete-btn:hover {
+  background-color: rgba(231, 76, 60, 0.1);
+}
+
+/* Botão de nova categoria */
+.add-button-container {
+  text-align: right;
+  margin-top: 20px;
+  padding: 0 20px 20px;
+}
+
+.btn-add {
+  padding: 10px 20px;
+  background-color: #e67e22;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-add:hover {
+  background-color: #d35400;
+  box-shadow: 0 2px 8px rgba(230, 126, 34, 0.3);
+}
+
+/* Formulário */
+.form-container {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.form-header {
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.form-header h2 {
+  margin: 0;
+  color: #333;
+}
+
+form label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #555;
+}
+
+form input[type="text"],
+form input[type="checkbox"],
+form textarea,
+form select {
+  width: 100%;
+  padding: 10px 12px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  transition: border 0.3s ease;
+}
+
+form input[type="text"]:focus,
+form textarea:focus,
+form select:focus {
+  border-color: #e67e22;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(230, 126, 34, 0.2);
+}
+
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.checkbox-container input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 25px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+}
+
+.form-section {
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.form-section h3 {
+  margin-top: 0;
+  color: #444;
+}
+
+/* Botões genéricos */
+.btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.btn i {
+  font-size: 0.9em;
+}
+
+.btn-primary {
+  background-color: #e67e22;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #d35400;
+  transform: translateY(-1px);
+}
+
+.btn-outline {
+  background-color: transparent;
+  border: 1px solid #ddd;
+  color: #666;
+}
+
+.btn-outline:hover {
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  nav {
+    flex-wrap: wrap;
+    padding: 8px;
+  }
+  
+  nav a {
+    padding: 6px 12px;
+    font-size: 0.9rem;
+  }
+  
+  .tabs {
+    flex-direction: column;
+  }
+  
+  .tab-button {
+    text-align: left;
+    border-bottom: 1px solid #e67e22;
+    border-left: 3px solid transparent;
+  }
+  
+  .tab-button.active {
+    border-left-color: #e67e22;
+    border-bottom-color: #eee;
+  }
+}
+
+/* ... (mantenha todos os estilos anteriores) ... */
+
+/* Estilos específicos para a tabela de categorias */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #495057;
+}
+
+.actions-header {
+  text-align: right;
+  width: 120px;
+}
+
+.actions-cell {
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* Botões de ação - estilo igual ao da tela de status */
+.btn-action {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background-color: transparent;
+  color: #6c757d;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 5px;
+}
+
+.btn-action:hover {
+  background-color: #f8f9fa;
+  transform: scale(1.1);
+}
+
+.edit-btn {
+  color: #e67e22;
+}
+
+.edit-btn:hover {
+  background-color: rgba(230, 126, 34, 0.1);
+}
+
+.delete-btn {
+  color: #e74c3c;
+}
+
+.delete-btn:hover {
+  background-color: rgba(231, 76, 60, 0.1);
+}
+
+/* ... (mantenha o restante dos estilos) ... */

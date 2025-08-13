@@ -124,11 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <td>${item.action}</td>
         <td>${item.admin_name || ''}</td>
         <td>${item.dono || ''}</td>
-        <td>
-          <span class="equipment-name" style="color: #b9610f; text-decoration: underline; cursor: pointer;" data-modal-id="modal-${item.id}">
-            ${typeof item.equipment_name === 'string' ? item.equipment_name : 'N/A'}
-          </span>
-        </td>
+        <td>${typeof item.equipment_name === 'string' ? item.equipment_name : 'N/A'}</td>
         <td>
           ${toggleButton}
           ${changesDiv}

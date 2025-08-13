@@ -58,17 +58,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const pageData = filteredData.slice((page - 1) * rowsPerPage, page * rowsPerPage);
 
-    // Remove dynamic header row creation to avoid duplicate headers
-    // const headerRow = document.createElement('tr');
-    // headerRow.innerHTML = `
-    //   <th>Data/Hora</th>
-    //   <th>Ação</th>
-    //   <th>Admin</th>
-    //   <th>User</th>
-    //   <th>Equipamento</th>
-    //   <th>Alterações</th>
-    // `;
-    // historyTableBody.appendChild(headerRow);
+    // Add table header with Admin and User columns
+    const headerRow = document.createElement('tr');
+    headerRow.innerHTML = `
+      <th>Data/Hora</th>
+      <th>Ação</th>
+      <th>Admin</th>
+      <th>User</th>
+      <th>Equipamento</th>
+      <th>Alterações</th>
+    `;
+    historyTableBody.appendChild(headerRow);
 
     pageData.forEach(item => {
       console.log('Rendering history item:', item);
@@ -124,11 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <td>${item.action}</td>
         <td>${item.admin_name || ''}</td>
         <td>${item.dono || ''}</td>
-        <td>
-          <span class="equipment-name" style="color: #b9610f; text-decoration: underline; cursor: pointer;" data-modal-id="modal-${item.id}">
-            ${typeof item.equipment_name === 'string' ? item.equipment_name : 'N/A'}
-          </span>
-        </td>
+        <td>${typeof item.equipment_name === 'string' ? item.equipment_name : 'N/A'}</td>
         <td>
           ${toggleButton}
           ${changesDiv}
@@ -137,18 +133,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
       historyTableBody.appendChild(tr);
 
-      // Remove existing modal with same id if any to avoid duplicates
-      const existingModal = document.getElementById(modalId);
-      if (existingModal) {
-        existingModal.remove();
-      }
-
       // Append modal to body
       document.body.insertAdjacentHTML('beforeend', modalHtml);
 
       // Populate modal body with full snapshot from changed_fields
       const modal = document.getElementById(modalId);
-      if (!modal) return;
       const modalBody = modal.querySelector('.modal-body');
       try {
         const snapshot = item.full_snapshot;
@@ -185,17 +174,13 @@ document.addEventListener('DOMContentLoaded', () => {
       const equipmentNameSpan = tr.querySelector('.equipment-name');
       const closeBtn = modal.querySelector('.close');
 
-      if (equipmentNameSpan) {
-        equipmentNameSpan.addEventListener('click', () => {
-          modal.style.display = 'block';
-        });
-      }
+      equipmentNameSpan.addEventListener('click', () => {
+        modal.style.display = 'block';
+      });
 
-      if (closeBtn) {
-        closeBtn.addEventListener('click', () => {
-          modal.style.display = 'none';
-        });
-      }
+      closeBtn.addEventListener('click', () => {
+        modal.style.display = 'none';
+      });
 
       window.addEventListener('click', (event) => {
         if (event.target === modal) {
@@ -203,6 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       });
     });
+  }
 
     currentPageSpan.textContent = String(page);
     totalPagesSpan.textContent = String(Math.ceil(filteredData.length / rowsPerPage));
