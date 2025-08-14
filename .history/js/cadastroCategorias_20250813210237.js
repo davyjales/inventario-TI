@@ -128,6 +128,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
       const campos = await res.json();
       console.log("Campos loaded:", campos); // Debugging line to check the structure
+      console.log("Campos loaded:", campos); // Debugging line to check the structure
       camposContainer.innerHTML = "";
       campos.forEach(campo => {
         camposContainer.appendChild(criarCampoInput(campo));

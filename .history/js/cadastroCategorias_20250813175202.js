@@ -128,6 +128,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
       const campos = await res.json();
       console.log("Campos loaded:", campos); // Debugging line to check the structure
+      console.log("Campos loaded:", campos); // Debugging line to check the structure
       camposContainer.innerHTML = "";
       campos.forEach(campo => {
         camposContainer.appendChild(criarCampoInput(campo));
@@ -211,16 +212,13 @@ document.addEventListener("DOMContentLoaded", () => {
 const campos = [];
 console.log("Capturing additional fields...");
     camposContainer.querySelectorAll(".campo-item").forEach(div => {
-      const nome_campo = div.querySelector(".campo-nome")?.value?.trim();
-      const tipoElement = div.querySelector(".campo-tipo");
-      const tipo = tipoElement ? tipoElement.value : "texto";
-      const obrigatorioElement = div.querySelector(".campo-obrigatorio");
-      const obrigatorio = obrigatorioElement ? obrigatorioElement.checked : false;
-      const conteudo_unicoElement = div.querySelector(".campo-unico");
-      const conteudo_unico = conteudo_unicoElement ? conteudo_unicoElement.checked : false;
+      const nome_campo = div.querySelector(".campo-nome").value.trim();
+      const tipo = div.querySelector(".campo-tipo").value;
+      const obrigatorio = div.querySelector(".campo-obrigatorio").checked;
+      const conteudo_unico = div.querySelector(".campo-unico").checked;
 
       if (nome_campo) {
-        campos.push({ nome_exibicao: nome_campo, tipo, obrigatorio, conteudo_unico });
+        campos.push({ nome_exibicao, tipo, obrigatorio, conteudo_unico });
       }
     });
 

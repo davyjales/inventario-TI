@@ -47,7 +47,6 @@ module.exports = {
   // Criar nova categoria com campos
   async criarCategoria(req, res) {
     const { nome, campos, recebe_termo } = req.body; // campos = [{ nome_exibicao, tipo, obrigatorio, conteudo_unico }, ...]
-    console.log("Payload received for creating category:", req.body);
 
     if (!nome) {
       return res.status(400).json({ error: 'Nome da categoria é obrigatório' });
@@ -88,7 +87,6 @@ module.exports = {
   async atualizarCategoria(req, res) {
     const { id } = req.params;
     const { nome, campos, recebe_termo } = req.body;
-    console.log("Payload received for updating category:", req.body);
 
     let connection;
     try {
@@ -160,4 +158,3 @@ module.exports = {
     }
   }
 };
-

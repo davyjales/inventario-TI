@@ -88,7 +88,6 @@ module.exports = {
   async atualizarCategoria(req, res) {
     const { id } = req.params;
     const { nome, campos, recebe_termo } = req.body;
-    console.log("Payload received for updating category:", req.body);
 
     let connection;
     try {
@@ -160,4 +159,3 @@ module.exports = {
     }
   }
 };
-
