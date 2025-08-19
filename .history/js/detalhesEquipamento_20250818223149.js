@@ -141,18 +141,3 @@ function printQRCodeForZebra() {
             alert('Erro ao copiar código QR. Por favor, copie manualmente: ' + zebraString);
         });
 }
-
-function printQRCodeForZebra() {
-    const qrString = equipment.qrCode;
-    const zebraString = `^XA^FO50,50^BQN,2,10^FDLA,${qrString}^FS^XZ`;
-    
-    // Copy to clipboard for Zebra printer
-    navigator.clipboard.writeText(zebraString)
-        .then(() => {
-            alert('Código QR copiado para área de transferência no formato Zebra!');
-        })
-        .catch(err => {
-            console.error('Erro ao copiar:', err);
-            alert('Erro ao copiar código QR. Por favor, copie manualmente: ' + zebraString);
-        });
-}
