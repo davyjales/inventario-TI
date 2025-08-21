@@ -111,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Trata campos adicionais individualmente
                 return Object.entries(value).map(([campoId, change]) => {
                   const nomeCampo = additionalFieldsMap.get(Number(campoId)) || `Campo ${campoId}`;
-                return `<div>👉 <strong>${nomeCampo}</strong>: de <em>${change.de !== undefined ? change.de : 'N/A'}</em> para <em>${change.para !== undefined ? change.para : 'N/A'}</em></div>`;
+                return `<div>👉 <strong>${nomeCampo}</strong>: de <em>${change.de ?? 'N/A'}</em> para <em>${change.para ?? 'N/A'}</em></div>`;
                 }).join('');
               } else if (key.startsWith('campo_')) {
                 const campoId = key.split('_')[1];
@@ -175,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const snapshot = item.full_snapshot;
         function renderSnapshot(obj, parentKey = '') {
           if (typeof obj === 'object' && obj !== null) {
-            if (parentKey === 'Adicionais') {
+            if (parentKey === 'Campos Adicionais') {
               return Object.entries(obj).map(([campoId, v]) => {
                 const nomeCampo = additionalFieldsMap.get(Number(campoId)) || `Campo ${campoId}`;
                 return `<li><strong>${nomeCampo}</strong>: ${v}</li>`;
@@ -187,7 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
               let displayKey = k;
               if (k === 'categoria_nome') displayKey = 'Categoria';
               else if (k === 'status_nome') displayKey = 'Status';
-              else if (k === 'additionalFields') displayKey = 'Adicionais';
+              else if (k === 'additionalFields') displayKey = 'Campos Adicionais';
               return `<li><strong>${displayKey}</strong>: ${renderSnapshot(v, displayKey)}</li>`;
             }).join('') + '</ul>';
           }

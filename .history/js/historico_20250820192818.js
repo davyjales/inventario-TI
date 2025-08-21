@@ -175,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const snapshot = item.full_snapshot;
         function renderSnapshot(obj, parentKey = '') {
           if (typeof obj === 'object' && obj !== null) {
-            if (parentKey === 'Adicionais') {
+            if (parentKey === 'Campos Adicionais') {
               return Object.entries(obj).map(([campoId, v]) => {
                 const nomeCampo = additionalFieldsMap.get(Number(campoId)) || `Campo ${campoId}`;
                 return `<li><strong>${nomeCampo}</strong>: ${v}</li>`;

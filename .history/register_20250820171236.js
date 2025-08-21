@@ -26,7 +26,7 @@ document.getElementById('register-form').addEventListener('submit', async (e) =>
       throw new Error(data.error || 'Erro ao registrar usuário.');
     }
 
-    alert('Usuário registrado com sucesso! Aguarde a autorização de um administrador.');
+    alert('Usuário registrado com sucesso!');
     window.location.href = 'login.html';
   } catch (err) {
     alert(err.message);

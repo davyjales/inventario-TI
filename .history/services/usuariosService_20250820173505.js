@@ -59,7 +59,7 @@ module.exports = {
 
   async listarUsuarios(req, res) {
     try {
-      const [users] = await db.query('SELECT id, nome, email, user, admin, inventariante, autorizado FROM usuarios');
+      const [users] = await db.query('SELECT id, user, admin, inventariante, autorizado FROM usuarios');
       res.json(users);
     } catch (err) {
       console.error('Erro ao listar usuários:', err);

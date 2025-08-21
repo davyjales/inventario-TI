@@ -22,30 +22,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function loadMappings() {
     try {
-      const [catRes, statusRes, camposRes] = await Promise.all([
+      const [catRes, statusRes, cargoRes, camposRes] = await Promise.all([
         fetch('/api/categorias'),
         fetch('/api/status'),
         fetch('/api/campos-adicionais')
       ]);
-      if (!catRes.ok || !statusRes.ok || !camposRes.ok) throw new Error('Erro ao carregar mapeamentos');
+      if (!catRes.ok || !statusRes.ok || !cargoRes.ok || !camposRes.ok) throw new Error('Erro ao carregar mapeamentos');
       const [categories, statuses, campos] = await Promise.all([
-        catRes.json(), statusRes.json(), camposRes.json()
+        catRes.json(), statusRes.json(), cargoRes.json(), camposRes.json()
       ]);
       categories.forEach(cat => categoriesMap.set(cat.id, cat.nome));
       statuses.forEach(st => statusesMap.set(st.id, st.nome));
-      
-      // Processar campos adicionais corretamente
-      if (Array.isArray(campos)) {
-        campos.forEach(categoria => {
-          if (categoria.campos && Array.isArray(categoria.campos)) {
-            categoria.campos.forEach(campo => {
-              if (campo.id && campo.nome_exibicao) {
-                additionalFieldsMap.set(Number(campo.id), campo.nome_exibicao);
-              }
-            });
-          }
-        });
-      }
+      campos.forEach(c => additionalFieldsMap.set(c.id, c.nome_exibicao));
     } catch (err) {
       console.error('Erro ao carregar mapeamentos:', err);
     }
@@ -111,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Trata campos adicionais individualmente
                 return Object.entries(value).map(([campoId, change]) => {
                   const nomeCampo = additionalFieldsMap.get(Number(campoId)) || `Campo ${campoId}`;
-                return `<div>👉 <strong>${nomeCampo}</strong>: de <em>${change.de !== undefined ? change.de : 'N/A'}</em> para <em>${change.para !== undefined ? change.para : 'N/A'}</em></div>`;
+                  return `<div>👉 <strong>${nomeCampo}</strong>: de <em>${change.de ?? ''}</em> para <em>${change.para ?? ''}</em></div>`;
                 }).join('');
               } else if (key.startsWith('campo_')) {
                 const campoId = key.split('_')[1];
@@ -175,7 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const snapshot = item.full_snapshot;
         function renderSnapshot(obj, parentKey = '') {
           if (typeof obj === 'object' && obj !== null) {
-            if (parentKey === 'Adicionais') {
+            if (parentKey === 'Campos Adicionais') {
               return Object.entries(obj).map(([campoId, v]) => {
                 const nomeCampo = additionalFieldsMap.get(Number(campoId)) || `Campo ${campoId}`;
                 return `<li><strong>${nomeCampo}</strong>: ${v}</li>`;
@@ -187,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
               let displayKey = k;
               if (k === 'categoria_nome') displayKey = 'Categoria';
               else if (k === 'status_nome') displayKey = 'Status';
-              else if (k === 'additionalFields') displayKey = 'Adicionais';
+              else if (k === 'additionalFields') displayKey = 'Campos Adicionais';
               return `<li><strong>${displayKey}</strong>: ${renderSnapshot(v, displayKey)}</li>`;
             }).join('') + '</ul>';
           }

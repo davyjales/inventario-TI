@@ -187,7 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
               let displayKey = k;
               if (k === 'categoria_nome') displayKey = 'Categoria';
               else if (k === 'status_nome') displayKey = 'Status';
-              else if (k === 'additionalFields') displayKey = 'Adicionais';
+              else if (k === 'additionalFields') displayKey = '';
               return `<li><strong>${displayKey}</strong>: ${renderSnapshot(v, displayKey)}</li>`;
             }).join('') + '</ul>';
           }

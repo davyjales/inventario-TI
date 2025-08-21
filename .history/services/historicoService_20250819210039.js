@@ -125,7 +125,6 @@ module.exports = {
         }
       }
 
-      console.log('Changed Fields:', historico); // Log the entire history object
       res.json(historico);
     } catch (err) {
       console.error('Erro ao listar histórico:', err);

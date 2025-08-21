@@ -175,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const snapshot = item.full_snapshot;
         function renderSnapshot(obj, parentKey = '') {
           if (typeof obj === 'object' && obj !== null) {
-            if (parentKey === 'Adicionais') {
+            if (parentKey === '') {
               return Object.entries(obj).map(([campoId, v]) => {
                 const nomeCampo = additionalFieldsMap.get(Number(campoId)) || `Campo ${campoId}`;
                 return `<li><strong>${nomeCampo}</strong>: ${v}</li>`;
@@ -187,7 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
               let displayKey = k;
               if (k === 'categoria_nome') displayKey = 'Categoria';
               else if (k === 'status_nome') displayKey = 'Status';
-              else if (k === 'additionalFields') displayKey = 'Adicionais';
+              else if (k === 'additionalFields') displayKey = '';
               return `<li><strong>${displayKey}</strong>: ${renderSnapshot(v, displayKey)}</li>`;
             }).join('') + '</ul>';
           }

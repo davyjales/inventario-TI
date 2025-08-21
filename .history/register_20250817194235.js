@@ -12,7 +12,7 @@ document.getElementById('register-form').addEventListener('submit', async (e) =>
   }
 
   try {
-    const res = await fetch('http://localhost:3000/api/usuarios/register', {
+    const res = await fetch('http://localhost:3000/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -26,7 +26,7 @@ document.getElementById('register-form').addEventListener('submit', async (e) =>
       throw new Error(data.error || 'Erro ao registrar usuário.');
     }
 
-    alert('Usuário registrado com sucesso! Aguarde a autorização de um administrador.');
+    alert('Usuário registrado com sucesso!');
     window.location.href = 'login.html';
   } catch (err) {
     alert(err.message);

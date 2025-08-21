@@ -32,7 +32,7 @@ module.exports = {
         params.push('%' + adminUserFilter + '%');
       }
 
-      if (actionFilter && ['create', 'update', 'delete'].includes(actionFilter)) {
+      if (actionFilter && (actionFilter === 'create' || actionFilter === 'update' || actionFilter === 'delete')) {
         conditions.push(`eh.action = ?`);
         params.push(actionFilter);
       }
@@ -55,7 +55,7 @@ module.exports = {
 
       const [historico] = await db.query(query, params);
 
-      // Monta snapshots cumulativos
+      // Build full snapshots cumulatively for all history records
       const snapshots = {};
       for (let i = historico.length - 1; i >= 0; i--) {
         const record = historico[i];
@@ -73,7 +73,7 @@ module.exports = {
         }
       }
 
-      // Campos que não queremos mostrar no diff
+      // Campos técnicos que não precisamos mostrar no diff
       const ignoreKeys = ['id', 'categoria_id', 'status_id', 'status_nome', 'user_id'];
 
       for (let i = 0; i < historico.length; i++) {
@@ -82,31 +82,30 @@ module.exports = {
           const currentSnapshot = snapshots[record.id] || {};
           const prevSnapshot = i < historico.length - 1 ? snapshots[historico[i + 1].id] : {};
 
-          // Snapshot completo (pra modal do front)
+          // Add full snapshot to record for frontend modal
           record.full_snapshot = currentSnapshot;
 
-          // Dono do equipamento (vem do snapshot)
+          // Add dono (user) from snapshot to record
           record.dono = currentSnapshot.dono || null;
 
-          // Renomeia user_id → admin_id
+          // Rename user_id to admin_id for clarity
           record.admin_id = record.user_id;
           delete record.user_id;
 
-          // Monta diffs
+          // Compute diff com de/para
           const enrichedChanges = {};
           for (const key of Object.keys(currentSnapshot)) {
             if (ignoreKeys.includes(key)) continue;
 
             if (JSON.stringify(currentSnapshot[key]) !== JSON.stringify(prevSnapshot[key])) {
               enrichedChanges[key] = {
-                campo: key, // Add the field name
                 de: prevSnapshot[key] !== undefined ? prevSnapshot[key] : 'Não informado',
-                para: currentSnapshot[key] !== undefined ? currentSnapshot[key] : 'Não informado'
+                para: currentSnapshot[key]
               };
             }
           }
 
-          // Traduções
+          // Traduções especiais
           if (enrichedChanges['status']) {
             enrichedChanges['Status'] = enrichedChanges['status'];
             delete enrichedChanges['status'];
@@ -117,15 +116,76 @@ module.exports = {
             delete enrichedChanges['cargo'];
           }
 
-          // Agora, qualquer campo adicional será retornado como "campo_12", "campo_13" etc.
-          // O frontend mapeia isso via additionalFieldsMap → Nome Exibição
+
+          // Handle additional fields and others as before
+          for (const [field, change] of Object.entries(enrichedChanges)) {
+            if (field === 'Status' || field === 'Cargo') continue;
+
+            if (field === 'categoria') {
+              const [rows] = await db.query(
+                `
+                SELECT cca.nome_exibicao,
+                      (SELECT valor FROM equipamento_campos_adicionais 
+                        WHERE equipamento_id = ? AND campo_id = cca.id AND id = ?) AS valor_de,
+                      (SELECT valor FROM equipamento_campos_adicionais 
+                        WHERE equipamento_id = ? AND campo_id = cca.id AND id = ?) AS valor_para
+                FROM categoria_campos_adicionais cca
+                WHERE cca.id IN (?, ?)
+                LIMIT 1
+                `,
+                [
+                  record.equipment_id, change.de,
+                  record.equipment_id, change.para,
+                  change.de, change.para
+                ]
+              );
+
+              if (rows.length > 0) {
+                enrichedChanges[rows[0].nome_exibicao] = {
+                  de: rows[0].valor_de,
+                  para: rows[0].valor_para
+                };
+                delete enrichedChanges['categoria'];
+              } else {
+                enrichedChanges['Categoria'] = { de: change.de, para: change.para };
+              }
+            } else {
+              const [extraField] = await db.query(
+                `SELECT nome_exibicao 
+                FROM categoria_campos_adicionais 
+                WHERE id = ? LIMIT 1`,
+                [field]
+              );
+
+              if (extraField.length > 0) {
+                const [[valorDe]] = await db.query(
+                  `SELECT valor FROM equipamento_campos_adicionais 
+                  WHERE equipamento_id = ? AND campo_id = ? AND id = ?`,
+                  [record.equipment_id, field, change.de]
+                );
+
+                const [[valorPara]] = await db.query(
+                  `SELECT valor FROM equipamento_campos_adicionais 
+                  WHERE equipamento_id = ? AND campo_id = ? AND id = ?`,
+                  [record.equipment_id, field, change.para]
+                );
+
+                enrichedChanges[extraField[0].nome_exibicao] = {
+                  de: valorDe ? valorDe.valor : change.de,
+                  para: valorPara ? valorPara.valor : change.para
+                };
+                delete enrichedChanges[field];
+              }
+            }
+          }
+
           record.changed_fields = JSON.stringify(enrichedChanges);
         } catch (e) {
           console.error('Erro ao enriquecer changed_fields:', e);
         }
       }
 
-      console.log('Changed Fields:', historico); // Log the entire history object
+
       res.json(historico);
     } catch (err) {
       console.error('Erro ao listar histórico:', err);

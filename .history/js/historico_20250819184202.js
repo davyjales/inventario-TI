@@ -18,34 +18,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let categoriesMap = new Map();
   let statusesMap = new Map();
-  let additionalFieldsMap = new Map();
+  let cargosMap = new Map();
 
   async function loadMappings() {
     try {
-      const [catRes, statusRes, camposRes] = await Promise.all([
+      const [catRes, statusRes, cargoRes] = await Promise.all([
         fetch('/api/categorias'),
         fetch('/api/status'),
-        fetch('/api/campos-adicionais')
+        fetch('/api/cargos')
       ]);
-      if (!catRes.ok || !statusRes.ok || !camposRes.ok) throw new Error('Erro ao carregar mapeamentos');
-      const [categories, statuses, campos] = await Promise.all([
-        catRes.json(), statusRes.json(), camposRes.json()
-      ]);
+      if (!catRes.ok || !statusRes.ok || !cargoRes.ok) throw new Error('Erro ao carregar mapeamentos');
+      const [categories, statuses, cargos] = await Promise.all([catRes.json(), statusRes.json(), cargoRes.json()]);
       categories.forEach(cat => categoriesMap.set(cat.id, cat.nome));
       statuses.forEach(st => statusesMap.set(st.id, st.nome));
-      
-      // Processar campos adicionais corretamente
-      if (Array.isArray(campos)) {
-        campos.forEach(categoria => {
-          if (categoria.campos && Array.isArray(categoria.campos)) {
-            categoria.campos.forEach(campo => {
-              if (campo.id && campo.nome_exibicao) {
-                additionalFieldsMap.set(Number(campo.id), campo.nome_exibicao);
-              }
-            });
-          }
-        });
-      }
+      cargos.forEach(cg => cargosMap.set(cg.id, cg.nome));
     } catch (err) {
       console.error('Erro ao carregar mapeamentos:', err);
     }
@@ -54,10 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function mapValue(key, value) {
     if (key === 'categoria_id') return categoriesMap.get(Number(value)) || value;
     if (key === 'status_id') return statusesMap.get(Number(value)) || value;
-    if (key.startsWith('campo_')) {
-      const campoId = key.split('_')[1];
-      return additionalFieldsMap.get(Number(campoId)) || key;
-    }
+    if (key === 'cargo') return cargosMap.get(Number(value)) || value;
     return value;
   }
 
@@ -75,7 +58,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const pageData = filteredData.slice((page - 1) * rowsPerPage, page * rowsPerPage);
 
+    // Remove dynamic header row creation to avoid duplicate headers
+    // const headerRow = document.createElement('tr');
+    // headerRow.innerHTML = `
+    //   <th>Data/Hora</th>
+    //   <th>Ação</th>
+    //   <th>Admin</th>
+    //   <th>User</th>
+    //   <th>Equipamento</th>
+    //   <th>Alterações</th>
+    // `;
+    // historyTableBody.appendChild(headerRow);
+
     pageData.forEach(item => {
+      console.log('Rendering history item:', item);
       const tr = document.createElement('tr');
 
       function formatValue(value, parentKey = '') {
@@ -90,48 +86,31 @@ document.addEventListener('DOMContentLoaded', () => {
         return String(mapValue(parentKey, value));
       }
 
-      const keyLabels = {
-        status_id: 'Status',
-        cargo: 'Cargo'
-      };
+const keyLabels = {
+  status_id: 'Status',
+  cargo: 'Cargo',
+  status_nome: 'Status Nome' // Add this to handle the duplicate
+};
 
       let changesText = item.changed_fields || '';
       if (item.action === 'update') {
         try {
           const changesObj = JSON.parse(changesText);
-
-          // ignora campos técnicos
-          const ignoreKeys = ['id', 'categoria_id', 'status_id', 'status_nome'];
-
-          changesText = Object.entries(changesObj)
-            .filter(([key]) => !ignoreKeys.includes(key))
-            .map(([key, value]) => {
-              let label;
-              if (key === 'additionalFields') {
-                // Trata campos adicionais individualmente
-                return Object.entries(value).map(([campoId, change]) => {
-                  const nomeCampo = additionalFieldsMap.get(Number(campoId)) || `Campo ${campoId}`;
-                return `<div>👉 <strong>${nomeCampo}</strong>: de <em>${change.de !== undefined ? change.de : 'N/A'}</em> para <em>${change.para !== undefined ? change.para : 'N/A'}</em></div>`;
-                }).join('');
-              } else if (key.startsWith('campo_')) {
-                const campoId = key.split('_')[1];
-                label = additionalFieldsMap.get(Number(campoId)) || `Campo ${campoId}`;
-                return `<strong>${label}</strong>: ${formatValue(value, key)}`;
-              } else {
-                label = keyLabels[key] || key;
-                return `<strong>${label}</strong>: ${formatValue(value, key)}`;
-              }
-            })
-            .join('<br>');
+          changesText = Object.entries(changesObj).map(([key, value]) => {
+            const label = keyLabels[key] || key;
+            return `<strong>${label}</strong>: ${formatValue(value, key)}`;
+          }).join('<br>');
         } catch {
           changesText = item.changed_fields || '';
         }
       }
 
+      // Create toggle button and hidden div for changes
       const changesId = `changes-${item.id}`;
       const toggleButton = (item.action === 'update') ? `<button class="toggle-changes-btn" data-target="${changesId}">Mostrar Alterações</button>` : '';
       const changesDiv = `<div id="${changesId}" class="changes-details" style="display:none; margin-top: 5px;">${changesText}</div>`;
 
+      // Create modal for full snapshot
       const modalId = `modal-${item.id}`;
       const modalHtml = `
         <div id="${modalId}" class="modal" style="display:none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6);">
@@ -161,13 +140,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
       historyTableBody.appendChild(tr);
 
+      // Remove existing modal with same id if any to avoid duplicates
       const existingModal = document.getElementById(modalId);
       if (existingModal) {
         existingModal.remove();
       }
 
+      // Append modal to body
       document.body.insertAdjacentHTML('beforeend', modalHtml);
 
+      // Populate modal body with full snapshot from changed_fields
       const modal = document.getElementById(modalId);
       if (!modal) return;
       const modalBody = modal.querySelector('.modal-body');
@@ -175,19 +157,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const snapshot = item.full_snapshot;
         function renderSnapshot(obj, parentKey = '') {
           if (typeof obj === 'object' && obj !== null) {
-            if (parentKey === 'Adicionais') {
-              return Object.entries(obj).map(([campoId, v]) => {
-                const nomeCampo = additionalFieldsMap.get(Number(campoId)) || `Campo ${campoId}`;
-                return `<li><strong>${nomeCampo}</strong>: ${v}</li>`;
-              }).join('');
+            if (parentKey === 'Campos Adicionais') {
+              // Render additionalFields inline as string
+              return Object.values(obj).join(', ');
             }
             return '<ul>' + Object.entries(obj).map(([k, v]) => {
+              // Filter out unwanted keys and null values
               if (v === null) return '';
-              if (['categoria_id', 'status_id', 'id'].includes(k)) return '';
+              if (k === 'categoria_id') return '';
+              if (k === 'status_id') return '';
+              if (k === 'id') return '';
+
+              // Rename keys for display
               let displayKey = k;
               if (k === 'categoria_nome') displayKey = 'Categoria';
               else if (k === 'status_nome') displayKey = 'Status';
-              else if (k === 'additionalFields') displayKey = 'Adicionais';
+              else if (k === 'additionalFields') displayKey = 'Campos Adicionais';
+
               return `<li><strong>${displayKey}</strong>: ${renderSnapshot(v, displayKey)}</li>`;
             }).join('') + '</ul>';
           }
@@ -198,6 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
         modalBody.innerHTML = 'Detalhes indisponíveis.';
       }
 
+      // Event listeners for modal open/close
       const equipmentNameSpan = tr.querySelector('.equipment-name');
       const closeBtn = modal.querySelector('.close');
 
@@ -228,6 +215,7 @@ document.addEventListener('DOMContentLoaded', () => {
     prevPageBtn.disabled = page <= 1;
     nextPageBtn.disabled = page >= Math.ceil(filteredData.length / rowsPerPage);
 
+    // Add event listeners for toggle buttons
     document.querySelectorAll('.toggle-changes-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const targetId = btn.getAttribute('data-target');
@@ -254,13 +242,17 @@ document.addEventListener('DOMContentLoaded', () => {
     if (filters.endDate) params.append('endDate', filters.endDate);
 
     try {
+      console.log('Fetching history with filters:', filters);
       const res = await fetch('/api/historico?' + params.toString(), {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
       });
+      console.log('Fetch response:', res);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
+      console.log('History data received:', data); // Log the received data
+      console.log('Filtered Data:', filteredData); // Log the filtered data
       historyData = data || [];
       filteredData = [...historyData];
       currentPage = 1;
@@ -297,6 +289,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // Initial load: load mappings then fetch history
   loadMappings().then(() => {
     fetchHistory();
   });

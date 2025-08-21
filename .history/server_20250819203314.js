@@ -23,7 +23,6 @@ app.use('/api/historico', require('./routes/historico'));
 app.use('/api/qrcode', require('./routes/qrcode'));
 app.use('/api/qrcode-string', require('./routes/qrcode-string'));
 app.use('/admin', require('./routes/admin'));
-app.use("/api/campos-adicionais", camposAdicionaisRoutes);
 
 // Rota de registro
 app.post('/register', async (req, res) => {

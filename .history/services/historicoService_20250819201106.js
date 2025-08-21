@@ -99,9 +99,8 @@ module.exports = {
 
             if (JSON.stringify(currentSnapshot[key]) !== JSON.stringify(prevSnapshot[key])) {
               enrichedChanges[key] = {
-                campo: key, // Add the field name
                 de: prevSnapshot[key] !== undefined ? prevSnapshot[key] : 'Não informado',
-                para: currentSnapshot[key] !== undefined ? currentSnapshot[key] : 'Não informado'
+                para: currentSnapshot[key]
               };
             }
           }
@@ -125,7 +124,6 @@ module.exports = {
         }
       }
 
-      console.log('Changed Fields:', historico); // Log the entire history object
       res.json(historico);
     } catch (err) {
       console.error('Erro ao listar histórico:', err);
