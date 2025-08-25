@@ -90,11 +90,7 @@ module.exports = {
         }
       }
 
-      // ---------- monta diffs ---------- 
-      // Add current additional fields to the record
-      for (const record of historico) {
-        record.current_additionalFields = camposPorEquipamento[record.equipment_id] || {};
-      }
+      // ---------- monta diffs ----------
       const ignoreKeys = ['id', 'categoria_id', 'status_id', 'status_nome', 'user_id'];
 
       for (let i = 0; i < historico.length; i++) {

@@ -39,8 +39,8 @@ document.addEventListener('DOMContentLoaded', () => {
         campos.forEach(categoria => {
           if (categoria.campos && Array.isArray(categoria.campos)) {
             categoria.campos.forEach(campo => {
-              if (campo.nome_campo) {
-                additionalFieldsMap.set(Number(campo.nome_campo), campo.valor || `Campo ${campo.nome_campo}`);
+              if (campo.id && campo.nome_exibicao) {
+                additionalFieldsMap.set(Number(campo.id), campo.nome_exibicao);
               }
             });
           }
@@ -108,25 +108,14 @@ document.addEventListener('DOMContentLoaded', () => {
           .map(([key, value]) => {
             let label;
             if (key === 'additionalFields') {
-              // snapshot salvo no histórico
-              const snapshotFields = item.full_snapshot?.additionalFields || {};
-              // valores atuais (precisa vir do backend no objeto item!)
-              const currentFields = item.current_additionalFields || {};
-
-              return Object.entries({ ...snapshotFields, ...currentFields })
-                .map(([campoId]) => {
-                  const oldVal = snapshotFields[campoId] ?? '';
-                  const newVal = currentFields[campoId] ?? '';
-                  if (oldVal !== newVal) {
-                    const nomeCampo = additionalFieldsMap.get(Number(campoId)) || `Campo ${campoId}`;
-                    return `<div>👉 <strong>${nomeCampo}</strong>: de <em>${oldVal || 'N/A'}</em> para <em>${newVal || 'N/A'}</em></div>`;
-                  }
-                  return '';
-                })
-                .filter(Boolean)
-                .join('');
-            }
-             else {
+              // Trata apenas campos adicionais que realmente mudaram
+              return Object.entries(value)
+                .filter(([campoId, change]) => change.de !== change.para)
+                .map(([campoId, change]) => {
+                  const nomeCampo = additionalFieldsMap.get(Number(campoId)) || `Campo ${campoId}`;
+                  return `<div>👉 <strong>${nomeCampo}</strong>: de <em>${change.de ?? 'N/A'}</em> para <em>${change.para ?? 'N/A'}</em></div>`;
+                }).join('');
+            } else {
               label = keyLabels[key] || key;
               return `<strong>${label}</strong>: ${formatValue(value, key)}`;
             }

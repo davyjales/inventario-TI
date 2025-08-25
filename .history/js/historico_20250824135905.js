@@ -36,20 +36,17 @@ document.addEventListener('DOMContentLoaded', () => {
       
       // Processar campos adicionais corretamente
       if (Array.isArray(campos)) {
-        campos.forEach(categoria => {
-          if (categoria.campos && Array.isArray(categoria.campos)) {
-            categoria.campos.forEach(campo => {
-              if (campo.nome_campo) {
-                additionalFieldsMap.set(Number(campo.nome_campo), campo.valor || `Campo ${campo.nome_campo}`);
-              }
-            });
+        campos.forEach(campo => {
+          if (campo.nome_campo) {
+            // nome_campo está vindo como ID em string
+            additionalFieldsMap.set(Number(campo.nome_campo), campo.valor || `Campo ${campo.nome_campo}`);
           }
         });
+            }
+          } catch (err) {
+            console.error('Erro ao carregar mapeamentos:', err);
+          }
       }
-    } catch (err) {
-      console.error('Erro ao carregar mapeamentos:', err);
-    }
-  }
 
   function mapValue(key, value) {
     if (key === 'categoria_id') return categoriesMap.get(Number(value)) || value;

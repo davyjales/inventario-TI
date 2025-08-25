@@ -8,7 +8,6 @@ module.exports = {
       let query = `
         SELECT eh.id, eh.equipment_id, eh.action, eh.changed_fields, eh.user_id, eh.timestamp,
                e.nome AS equipment_name,
-               e.dono AS equipment_owner,
                u.nome AS admin_name
         FROM equipment_history eh
         LEFT JOIN equipamentos e ON eh.equipment_id = e.id
@@ -56,23 +55,7 @@ module.exports = {
 
       const [historico] = await db.query(query, params);
 
-      // ---------- pega os valores atuais de campos adicionais ----------
-      const [camposAdicionais] = await db.query(`SELECT equipamento_id, campo_id, valor, nome_campo FROM equipamento_campos_adicionais`);
-      console.log('Campos Adicionais:', camposAdicionais);
-
-      // Agrupa por equipamento
-      const camposPorEquipamento = {};
-      for (const c of camposAdicionais) {
-        if (!camposPorEquipamento[c.equipamento_id]) {
-          camposPorEquipamento[c.equipamento_id] = {};
-        }
-        camposPorEquipamento[c.equipamento_id][`campo_${c.campo_id}`] = {
-          valor: c.valor,
-          nome: c.nome_campo
-        };
-      }
-
-      // ---------- snapshots históricos ----------
+      // Monta snapshots cumulativos
       const snapshots = {};
       for (let i = historico.length - 1; i >= 0; i--) {
         const record = historico[i];
@@ -90,11 +73,7 @@ module.exports = {
         }
       }
 
-      // ---------- monta diffs ---------- 
-      // Add current additional fields to the record
-      for (const record of historico) {
-        record.current_additionalFields = camposPorEquipamento[record.equipment_id] || {};
-      }
+      // Campos que não queremos mostrar no diff
       const ignoreKeys = ['id', 'categoria_id', 'status_id', 'status_nome', 'user_id'];
 
       for (let i = 0; i < historico.length; i++) {
@@ -103,11 +82,11 @@ module.exports = {
           const currentSnapshot = snapshots[record.id] || {};
           const prevSnapshot = i < historico.length - 1 ? snapshots[historico[i + 1].id] : {};
 
-          // Snapshot completo
+          // Snapshot completo (pra modal do front)
           record.full_snapshot = currentSnapshot;
 
-          // Dono do equipamento
-          record.dono = record.equipment_owner || currentSnapshot.dono || null;
+          // Dono do equipamento (vem do snapshot)
+          record.dono = currentSnapshot.dono || null;
 
           // Renomeia user_id → admin_id
           record.admin_id = record.user_id;
@@ -115,51 +94,46 @@ module.exports = {
 
           // Monta diffs
           const enrichedChanges = {};
-
           for (const key of Object.keys(currentSnapshot)) {
             if (ignoreKeys.includes(key)) continue;
 
             const prevValue = prevSnapshot[key];
-            let currValue = currentSnapshot[key]; // valor padrão
-            let nomeCampo = key;
+            const currValue = currentSnapshot[key];
 
-            // Se for campo adicional → força pegar valor atual do banco
-            if (key.startsWith("campo_")) {
-              const eqCampos = camposPorEquipamento[record.equipment_id] || {};
-              const campo = eqCampos[key];
-              if (campo) {
-                currValue = campo.valor || 'N/A'; // usa SEMPRE o valor atual do banco
-                nomeCampo = campo.nome;
-              } else {
-                currValue = 'Não informado';
-                nomeCampo = `Campo adicional ${key.split("_")[1]}`;
-              }
-            }
-
-            // Se for nome/dono → pega do banco
-            if (key === 'nome') currValue = record.equipment_name;
-            if (key === 'dono') currValue = record.equipment_owner;
-
-            // Só mostra se houve mudança
             if (JSON.stringify(prevValue) !== JSON.stringify(currValue)) {
+              let nomeCampo = key; // valor padrão
+
+              // 👉 Se for campo adicional (ex: "campo_12")
+              if (key.startsWith("campo_")) {
+                const campoId = key.split("_")[1];
+                nomeCampo = `Campo adicional ${campoId}`;
+                // O frontend pode trocar esse nome pelo de exibição via additionalFieldsMap
+              }
+
               enrichedChanges[key] = {
                 campo: nomeCampo,
                 de: prevValue !== undefined ? prevValue : 'Não informado',
-                para: currValue
+                para: currValue !== undefined ? currValue : 'Não informado'
               };
             }
           }
 
-          record.changed_fields = JSON.stringify(enrichedChanges);
-        } catch (e) {
-          console.log('Current Snapshot:', currentSnapshot);
-          console.log('Previous Snapshot:', prevSnapshot);
-          console.log('Campo:', campo);
-          console.log('Current Value:', currValue);
-          console.error('Erro ao enriquecer changed_fields:', e);
-        }
-      }
+          // Traduções
+          if (enrichedChanges['status']) {
+            enrichedChanges['Status'] = enrichedChanges['status'];
+            delete enrichedChanges['status'];
+          }
 
+          if (enrichedChanges['cargo']) {
+            enrichedChanges['Cargo'] = enrichedChanges['cargo'];
+            delete enrichedChanges['cargo'];
+          }
+
+          // Agora, qualquer campo adicional será retornado como "campo_12", "campo_13" etc.
+          // O frontend mapeia isso via additionalFieldsMap → Nome Exibição
+          record.changed_fields = JSON.stringify(enrichedChanges);
+
+      console.log('Changed Fields:', historico); // Log the entire history object
       res.json(historico);
     } catch (err) {
       console.error('Erro ao listar histórico:', err);

@@ -57,8 +57,10 @@ module.exports = {
       const [historico] = await db.query(query, params);
 
       // ---------- pega os valores atuais de campos adicionais ----------
-      const [camposAdicionais] = await db.query(`SELECT equipamento_id, campo_id, valor, nome_campo FROM equipamento_campos_adicionais`);
-      console.log('Campos Adicionais:', camposAdicionais);
+      const [camposAdicionais] = await db.query(
+        `SELECT equipamento_id, campo_id, valor, nome_campo 
+         FROM equipamento_campos_adicionais`
+      );
 
       // Agrupa por equipamento
       const camposPorEquipamento = {};
@@ -90,11 +92,7 @@ module.exports = {
         }
       }
 
-      // ---------- monta diffs ---------- 
-      // Add current additional fields to the record
-      for (const record of historico) {
-        record.current_additionalFields = camposPorEquipamento[record.equipment_id] || {};
-      }
+      // ---------- monta diffs ----------
       const ignoreKeys = ['id', 'categoria_id', 'status_id', 'status_nome', 'user_id'];
 
       for (let i = 0; i < historico.length; i++) {
@@ -152,11 +150,11 @@ module.exports = {
 
           record.changed_fields = JSON.stringify(enrichedChanges);
         } catch (e) {
-          console.log('Current Snapshot:', currentSnapshot);
-          console.log('Previous Snapshot:', prevSnapshot);
-          console.log('Campo:', campo);
-          console.log('Current Value:', currValue);
-          console.error('Erro ao enriquecer changed_fields:', e);
+console.log('Current Snapshot:', currentSnapshot);
+console.log('Previous Snapshot:', prevSnapshot);
+console.log('Campo:', campo);
+console.log('Current Value:', currValue);
+console.error('Erro ao enriquecer changed_fields:', e);
         }
       }
 

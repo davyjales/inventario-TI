@@ -57,8 +57,10 @@ module.exports = {
       const [historico] = await db.query(query, params);
 
       // ---------- pega os valores atuais de campos adicionais ----------
-      const [camposAdicionais] = await db.query(`SELECT equipamento_id, campo_id, valor, nome_campo FROM equipamento_campos_adicionais`);
-      console.log('Campos Adicionais:', camposAdicionais);
+      const [camposAdicionais] = await db.query(
+        `SELECT equipamento_id, campo_id, valor, nome_campo 
+         FROM equipamento_campos_adicionais`
+      );
 
       // Agrupa por equipamento
       const camposPorEquipamento = {};
@@ -90,11 +92,7 @@ module.exports = {
         }
       }
 
-      // ---------- monta diffs ---------- 
-      // Add current additional fields to the record
-      for (const record of historico) {
-        record.current_additionalFields = camposPorEquipamento[record.equipment_id] || {};
-      }
+      // ---------- monta diffs ----------
       const ignoreKeys = ['id', 'categoria_id', 'status_id', 'status_nome', 'user_id'];
 
       for (let i = 0; i < historico.length; i++) {
@@ -120,18 +118,17 @@ module.exports = {
             if (ignoreKeys.includes(key)) continue;
 
             const prevValue = prevSnapshot[key];
-            let currValue = currentSnapshot[key]; // valor padrão
+            let currValue = currentSnapshot[key]; // fallback padrão
             let nomeCampo = key;
 
-            // Se for campo adicional → força pegar valor atual do banco
+            // Se for campo adicional → busca valor atual do banco
             if (key.startsWith("campo_")) {
               const eqCampos = camposPorEquipamento[record.equipment_id] || {};
               const campo = eqCampos[key];
               if (campo) {
-                currValue = campo.valor || 'N/A'; // usa SEMPRE o valor atual do banco
-                nomeCampo = campo.nome;
+                currValue = campo.valor; // usa valor real atual
+                nomeCampo = campo.nome; // nome real
               } else {
-                currValue = 'Não informado';
                 nomeCampo = `Campo adicional ${key.split("_")[1]}`;
               }
             }
@@ -140,22 +137,17 @@ module.exports = {
             if (key === 'nome') currValue = record.equipment_name;
             if (key === 'dono') currValue = record.equipment_owner;
 
-            // Só mostra se houve mudança
             if (JSON.stringify(prevValue) !== JSON.stringify(currValue)) {
               enrichedChanges[key] = {
                 campo: nomeCampo,
                 de: prevValue !== undefined ? prevValue : 'Não informado',
-                para: currValue
+                para: currValue !== undefined ? currValue : 'Não informado'
               };
             }
           }
 
           record.changed_fields = JSON.stringify(enrichedChanges);
         } catch (e) {
-          console.log('Current Snapshot:', currentSnapshot);
-          console.log('Previous Snapshot:', prevSnapshot);
-          console.log('Campo:', campo);
-          console.log('Current Value:', currValue);
           console.error('Erro ao enriquecer changed_fields:', e);
         }
       }

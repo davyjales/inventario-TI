@@ -39,8 +39,8 @@ document.addEventListener('DOMContentLoaded', () => {
         campos.forEach(categoria => {
           if (categoria.campos && Array.isArray(categoria.campos)) {
             categoria.campos.forEach(campo => {
-              if (campo.nome_campo) {
-                additionalFieldsMap.set(Number(campo.nome_campo), campo.valor || `Campo ${campo.nome_campo}`);
+              if (campo.id && campo.nome_exibicao) {
+                additionalFieldsMap.set(Number(campo.id), campo.nome_exibicao);
               }
             });
           }
