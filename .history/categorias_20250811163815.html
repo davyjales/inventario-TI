@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>V-CONTROL</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    /* Header styles */
+    header {
+      background-color: #e67e22;
+      color: white;
+      padding: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.5rem;
+      flex-grow: 1;
+    }
+    header nav button {
+      background-color: transparent;
+      border: 1px solid white;
+      color: white;
+      padding: 8px 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background-color 0.3s ease;
+    }
+    header nav button:hover {
+      background-color: white;
+      color: #e67e22;
+    }
+
+    /* Tabs styles */
+    .tabs {
+      display: flex;
+      border-bottom: 2px solid #e67e22;
+      margin-bottom: 20px;
+      gap: 10px;
+    }
+    .tab-button {
+      padding: 10px 20px;
+      cursor: pointer;
+      background-color: #f5f5f5;
+      border: none;
+      border-radius: 6px 6px 0 0;
+      font-weight: 600;
+      color: #333;
+      transition: background-color 0.3s ease;
+    }
+    .tab-button.active {
+      background-color: #e67e22;
+      color: white;
+      font-weight: 700;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Table styles */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+    th {
+      background-color: #e67e22;
+      color: white;
+      font-weight: 600;
+    }
+    tr:hover {
+      background-color: #f9f9f9;
+    }
+
+    /* Form styles */
+    form label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: bold;
+      color: #333;
+    }
+    form input[type="text"],
+    form textarea,
+    form select,
+    form input[type="checkbox"] {
+      margin-top: 0.25rem;
+      padding: 8px 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    form button {
+      margin-top: 1.5rem;
+      padding: 10px 20px;
+      background-color: #e67e22;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      transition: background-color 0.3s ease;
+    }
+    form button:hover {
+      background-color: #d35400;
+    }
+    .form-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    /* Button styles */
+    #btn-nova-categoria {
+      background-color: #e67e22;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      margin-bottom: 15px;
+      transition: background-color 0.3s ease;
+    }
+    #btn-nova-categoria:hover {
+      background-color: #d35400;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>V-CONTROL</h1>
+    <nav>
+      <ul class="nav-menu">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="categorias.html" class="active">Categorias</a></li>
+        <li><a href="cadastroEquipamentos.html">Equipamentos</a></li>
+        <li><a href="status.html">Status</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <div class="tabs">
+      <button class="tab-button active" data-tab="tab-lista">Lista de Categorias</button>
+      <button class="tab-button" data-tab="tab-form">Cadastro / Edição</button>
+    </div>
+
+    <section id="tab-lista" class="tab-content active">
+      <table>
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Recebe Termo</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="categorias-tbody">
+          <!-- Lista de categorias será inserida aqui -->
+        </tbody>
+      </table>
+      <div style="text-align: right; margin-top: 10px;">
+        <button id="btn-nova-categoria" style="display: inline-block;">Nova Categoria</button>
+      </div>
+    </section>
+
+    <section id="tab-form" class="tab-content">
+      <h2 id="form-titulo">Nova Categoria</h2>
+      <form id="categoria-form">
+        <label>
+          Nome da Categoria:
+          <input type="text" id="nome-categoria" name="nome" required />
+        </label>
+        <label>
+          Recebe Termo:
+          <input type="checkbox" id="recebe-termo" name="recebe_termo" />
+        </label>
+
+        <h3>Campos da Categoria</h3>
+        <div id="campos-container">
+          <!-- Campos dinâmicos serão adicionados aqui -->
+        </div>
+        <button type="button" id="btn-adicionar-campo" style="margin-top: 10px; margin-bottom: 20px;">Adicionar Campo</button>
+
+        <div class="form-actions">
+          <button type="submit" id="btn-salvar">Salvar</button>
+          <button type="button" id="btn-cancelar">Cancelar</button>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <script src="js/cadastroCategorias.js"></script>
+  <script src="js/cadastroCategoriasTabs.js"></script>
+  <script>
+    // Navigation buttons
+    document.getElementById('btn-home').addEventListener('click', () => {
+      window.location.href = 'index.html';
+    });
+    document.getElementById('btn-cadastro-equip').addEventListener('click', () => {
+      window.location.href = 'cadastroEquipamentos.html';
+    });
+    document.getElementById('btn-status').addEventListener('click', () => {
+      window.location.href = 'status.html';
+    });
+  </script>
+</body>
+</html>

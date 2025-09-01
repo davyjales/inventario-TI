@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>V-CONTROL</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8f3ef;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Cabeçalho */
+    header {
+      background-color: #e67e22;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.8rem;
+    }
+
+    /* Navegação */
+    nav {
+      display: flex;
+      justify-content: center;
+      background-color: #fff;
+      border-bottom: 2px solid #e67e22;
+      padding: 10px 0;
+      gap: 10px;
+    }
+    nav a {
+      text-decoration: none;
+      color: #e67e22;
+      font-weight: 600;
+      padding: 8px 16px;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+    }
+    nav a:hover,
+    nav a.active {
+      background-color: #e67e22;
+      color: white;
+    }
+
+    /* Área principal */
+    main {
+      max-width: 900px;
+      margin: 20px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 5px;
+      margin-bottom: 20px;
+    }
+    .tab-button {
+      flex: 1;
+      padding: 10px;
+      cursor: pointer;
+      background-color: #f5f5f5;
+      border: none;
+      border-radius: 6px 6px 0 0;
+      font-weight: 600;
+      transition: background-color 0.3s ease;
+    }
+    .tab-button.active {
+      background-color: #e67e22;
+      color: white;
+    }
+
+    /* Tabela */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 12px 15px;
+      text-align: center;
+      border-bottom: 1px solid #eee;
+    }
+    th {
+      background-color: #e67e22;
+      color: white;
+    }
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+
+    /* Botões */
+    .btn {
+      padding: 8px 14px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background-color 0.3s ease;
+    }
+    .btn-primary {
+      background-color: #e67e22;
+      color: white;
+    }
+    .btn-primary:hover {
+      background-color: #cf6f18;
+    }
+    .btn-danger {
+      background-color: #e74c3c;
+      color: white;
+    }
+    .btn-danger:hover {
+      background-color: #c0392b;
+    }
+
+    /* Formulário */
+    form label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+    form input[type="text"],
+    form input[type="checkbox"],
+    form textarea,
+    form select {
+      margin-top: 0.25rem;
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .form-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>V-CONTROL</h1>
+  </header>
+
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="categorias.html" class="active">Categorias</a>
+    <a href="cadastroEquipamentos.html">Equipamentos</a>
+    <a href="status.html">Status</a>
+  </nav>
+
+  <main>
+    <div class="tabs">
+      <button class="tab-button active" data-tab="tab-lista">Lista de Categorias</button>
+      <button class="tab-button" data-tab="tab-form">Cadastro / Edição</button>
+    </div>
+
+    <section id="tab-lista" class="tab-content active">
+      <table>
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Recebe Termo</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="categorias-tbody">
+          <!-- Dados aqui -->
+        </tbody>
+      </table>
+      <div style="text-align: right; margin-top: 10px;">
+        <button id="btn-nova-categoria" class="btn btn-primary">Nova Categoria</button>
+      </div>
+    </section>
+
+    <section id="tab-form" class="tab-content">
+      <h2 id="form-titulo">Nova Categoria</h2>
+      <form id="categoria-form">
+        <label>
+          Nome da Categoria:
+          <input type="text" id="nome-categoria" name="nome" required />
+        </label>
+        <label style="display:flex; align-items:center; gap:8px;">
+          Recebe Termo:
+          <input type="checkbox" id="recebe-termo" name="recebe_termo" />
+        </label>
+
+        <h3>Campos da Categoria</h3>
+        <div id="campos-container"></div>
+        <button type="button" id="btn-adicionar-campo" class="btn btn-primary" style="margin-top:10px;">Adicionar Campo</button>
+
+        <div class="form-actions">
+          <button type="submit" id="btn-salvar" class="btn btn-primary">Salvar</button>
+          <button type="button" id="btn-cancelar" class="btn btn-danger">Cancelar</button>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <script src="js/cadastroCategorias.js"></script>
+  <script src="js/cadastroCategoriasTabs.js"></script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+.status-actions {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+
+.status-btn {
+  border: none;
+  background: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.status-btn.edit-btn {
+  color: #0d6efd;
+}
+
+.status-btn.delete-btn {
+  color: #dc3545;
+}
+
+.status-btn:hover {
+  opacity: 0.8;
+}

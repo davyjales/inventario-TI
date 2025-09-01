@@ -1,0 +1,42 @@
+/* Custom styles for edit modal additional fields and cancel button */
+
+#edit-additional-fields-container {
+  margin-top: 15px;
+}
+
+#edit-additional-fields-container .form-group {
+  margin-bottom: 12px;
+}
+
+#edit-additional-fields-container label {
+  font-weight: 600;
+  margin-bottom: 4px;
+  display: block;
+}
+
+#edit-additional-fields-container input[type="text"] {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+}
+
+#cancel-edit {
+  padding: 10px 20px;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  font-size: 1rem;
+  margin-left: 10px;
+  display: inline-block;
+  opacity: 1;
+}
+
+#cancel-edit:hover {
+  background-color: #5a6268;
+}

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>V-CONTROL - Categorias</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/categorias.css" />
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <i class="fas fa-boxes"></i>
+      <h1>V-CONTROL</h1>
+    </div>
+    <div class="user-menu">
+      <span>Olá, Admin</span>
+      <img src="https://ui-avatars.com/api/?name=Admin&background=3498db&color=fff" alt="Usuário" />
+    </div>
+  </header>
+
+  <nav>
+    <ul>
+      <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+      <li><a href="categorias.html" class="active"><i class="fas fa-tags"></i> Categorias</a></li>
+      <li><a href="cadastroEquipamentos.html"><i class="fas fa-laptop"></i> Equipamentos</a></li>
+      <li><a href="status.html"><i class="fas fa-chart-bar"></i> Status</a></li>
+    </ul>
+  </nav>
+
+  <div class="breadcrumbs">
+    <a href="index.html">Home</a> / <span>Categorias</span>
+  </div>
+
+  <main>
+    <div class="page-header">
+      <h2 class="page-title">Gerenciamento de Categorias</h2>
+      <button id="btn-nova-categoria" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Nova Categoria
+      </button>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Lista de Categorias</h3>
+        <div class="search-box">
+          <input type="text" class="form-control" placeholder="Pesquisar categorias..." style="max-width: 250px;" />
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="tabs">
+          <button class="tab-button active" data-tab="tab-lista">Todas as Categorias</button>
+          <button class="tab-button" data-tab="tab-form">Cadastrar Nova</button>
+        </div>
+
+        <section id="tab-lista" class="tab-content active">
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>Recebe Termo</th>
+                  <th style="width: 120px;">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="categorias-tbody">
+                <tr>
+                  <td>Isoão</td>
+                  <td><span class="badge badge-no">Não</span></td>
+                  <td>
+                    <button class="btn btn-outline btn-sm btn-icon" title="Editar">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-outline btn-sm btn-icon" title="Excluir">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Icese2</td>
+                  <td><span class="badge badge-no">Não</span></td>
+                  <td>
+                    <button class="btn btn-outline btn-sm btn-icon" title="Editar">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-outline btn-sm btn-icon" title="Excluir">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Iscatardo</td>
+                  <td><span class="badge badge-no">Não</span></td>
+                  <td>
+                    <button class="btn btn-outline btn-sm btn-icon" title="Editar">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-outline btn-sm btn-icon" title="Excluir">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="tab-form" class="tab-content">
+          <h3 id="form-titulo">Nova Categoria</h3>
+          <form id="categoria-form">
+            <div class="form-group">
+              <label for="nome-categoria" class="form-label">Nome da Categoria</label>
+              <input type="text" id="nome-categoria" name="nome" class="form-control" required placeholder="Ex: Eletrônicos, Móveis, Equipamentos" />
+            </div>
+
+            <div class="form-group">
+              <div class="form-check">
+                <input type="checkbox" id="recebe-termo" name="recebe_termo" class="form-check-input" />
+                <label for="recebe-termo" class="form-label">Recebe Termo de Responsabilidade</label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Campos da Categoria</label>
+              <div class="dynamic-fields" id="campos-container">
+                <!-- Campos serão adicionados aqui dinamicamente -->
+                <div class="field-item">
+                  <input type="text" class="form-control" placeholder="Nome do campo" />
+                  <div class="field-actions">
+                    <button type="button" class="btn btn-danger btn-sm btn-icon">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <button type="button" id="btn-adicionar-campo" class="btn btn-secondary">
+                <i class="fas fa-plus"></i> Adicionar Campo
+              </button>
+            </div>
+
+            <div class="form-actions">
+              <button type="button" id="btn-cancelar" class="btn btn-outline">
+                <i class="fas fa-times"></i> Cancelar
+              </button>
+              <button type="submit" id="btn-salvar" class="btn btn-primary">
+                <i class="fas fa-save"></i> Salvar Categoria
+              </button>
+            </div>
+          </form>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Tabs functionality
+    document.querySelectorAll('.tab-button').forEach(button => {
+      button.addEventListener('click', () => {
+        const tabId = button.getAttribute('data-tab');
+        
+        // Remove active class from all tabs and buttons
+        document.querySelectorAll('.tab-button').forEach(btn => {
+          btn.classList.remove('active');
+        });
+        document.querySelectorAll('.tab-content').forEach(tab => {
+          tab.classList.remove('active');
+        });
+        
+        // Add active class to clicked tab and button
+        button.classList.add('active');
+        document.getElementById(tabId).classList.add('active');
+      });
+    });
+
+    // Switch to form tab when "Nova Categoria" is clicked
+    document.getElementById('btn-nova-categoria').addEventListener('click', () => {
+      document.querySelector('[data-tab="tab-form"]').click();
+    });
+
+    // Add new field
+    document.getElementById('btn-adicionar-campo').addEventListener('click', () => {
+      const container = document.getElementById('campos-container');
+      const fieldItem = document.createElement('div');
+      fieldItem.className = 'field-item';
+      fieldItem.innerHTML = `
+        <input type="text" class="form-control" placeholder="Nome do campo" />
+        <div class="field-actions">
+          <button type="button" class="btn btn-danger btn-sm btn-icon">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      `;
+      container.appendChild(fieldItem);
+      
+      // Add event listener to delete button
+      fieldItem.querySelector('button').addEventListener('click', () => {
+        container.removeChild(fieldItem);
+      });
+    });
+
+    // Sample delete functionality for existing fields
+    document.querySelectorAll('.field-actions button').forEach(button => {
+      button.addEventListener('click', (e) => {
+        e.target.closest('.field-item').remove();
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Inventário T.I - Visteon</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <!-- Script de autenticação movido para app.js -->
+</head>
+
+<body>
+  <header>
+    <h1>V-CONTROL</h1>
+      <nav>
+        <ul class="nav-menu">
+        <li><a href="#home" class="nav-link active">Home</a></li>
+        <li><a href="#consulta" class="nav-link">Relatório</a></li>
+        <li class="nav-dropdown">
+          <a href="#cadastro-equipamentos" class="nav-link">Cadastro</a>
+      <ul class="dropdown-menu">
+        <li><a href="#cadastro-equipamentos" class="nav-link submenu-link">Equipamentos</a></li>
+        <li><a href="#categorias" class="nav-link submenu-link">Categorias</a></li>
+        <li><a href="status.html">Status</a></li>
+      </ul>
+    </li>
+        <li id="admin-link" style="display: none;"><a href="#admin" class="nav-link">Administração</a></li>
+        <li><a href="#" id="logout-link"><img src="logout.png" style="width: 23px;" ></a></li>
+        </ul>
+      </nav>
+  </header>
+
+  <main>
+    <section id="home" class="page-section active">
+      <h2>Bem-vindo ao Sistema de Inventário</h2>
+      <div class="home-functions">
+        <button id="btn-cadastrar">Cadastrar Novo Equipamento</button>
+        <button id="btn-consultar">Consultar Equipamentos</button>
+      </div>
+    </section>
+
+    <section id="consulta" class="page-section">
+  <div class="report-header">
+    <h2>Relatório de Equipamentos</h2>
+    <div class="search-container">
+      <div class="filter-controls">
+        <label for="filter-mode">Filtrar por:</label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Controles de abas -->
+  <div class="tab-buttons">
+    <button class="tab-btn active" data-tab="equipment-report">Relatório</button>
+    <button class="tab-btn" data-tab="equipment-history">Histórico</button>
+  </div>
+
+  <!-- Aba de Relatório (conteúdo original) -->
+  <div id="equipment-report" class="report-tab active">
+    <div class="export-controls">
+      <button id="export-report-excel" class="btn btn-success">
+        <i class="fas fa-file-excel"></i> Exportar Relatório para Excel
+      </button>
+    </div>
+
+    <div class="tabela-container">
+      <table class="tabela-equipamentos">
+        <thead>
+          <tr>
+            <th>
+              <div class="th-content">
+                Service Tag
+                <input type="text" class="column-filter" data-column="nome" placeholder="Filtrar..." />
+              </div>
+            </th>
+            <th>
+              <div class="th-content">
+                (QR Code)
+                <input type="text" class="column-filter" data-column="qrCode" placeholder="Filtrar..." />
+              </div>
+            </th>
+            <th>
+              <div class="th-content">
+                Usuário
+                <input type="text" class="column-filter" data-column="dono" placeholder="Filtrar..." />
+              </div>
+            </th>
+            <th>
+              <div class="th-content">
+                Setor
+                <input type="text" class="column-filter" data-column="setor" placeholder="Filtrar..." />
+              </div>
+            </th>
+            <th>
+              <div class="th-content">
+                Hostname
+                <input type="text" class="column-filter" data-column="hostname" placeholder="Filtrar..." />
+              </div>
+            </th>
+            <th>
+              <div class="th-content">
+                Categoria
+                <input type="text" class="column-filter" data-column="categoria" placeholder="Filtrar..." />
+              </div>
+            </th>
+            <th>
+              <div class="th-content">
+                Status
+                <input type="text" class="column-filter" data-column="status" placeholder="Filtrar..." />
+              </div>
+            </th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="equipamentos-body">
+          <!-- Conteúdo será preenchido via JavaScript -->
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-footer">
+      <div class="pagination-controls">
+        <button class="pagination-btn" id="prev-page">◀ Anterior</button>
+        <span class="page-info">Página <span id="current-page">1</span> de <span id="total-pages">1</span></span>
+        <button class="pagination-btn" id="next-page">Próxima ▶</button>
+      </div>
+      <div class="results-info">
+        Mostrando <span id="showing-results">0</span> de <span id="total-results">0</span> resultados
+      </div>
+    </div>
+
+    <div id="equipment-details" class="equipment-details hidden"></div>
+    <button id="btn-voltar-consulta" class="btn-voltar hidden">Voltar à lista</button>
+  </div>
+
+  <!-- Nova aba de Histórico -->
+  <div id="equipment-history" class="history-tab">
+    <div class="history-search">
+      <input type="text" id="history-search" placeholder="Buscar por Service Tag ou QR Code">
+      <input type="text" id="history-user" placeholder="Filtrar por usuário">
+      <select id="history-action">
+        <option value="">Todas ações</option>
+        <option value="create">Criação</option>
+        <option value="update">Atualização</option>
+      </select>
+      <input type="date" id="history-date-from">
+      <input type="date" id="history-date-to">
+      <button id="history-search-btn">Buscar</button>
+    </div>
+    <div class="export-controls">
+      <button id="export-history-excel" class="btn btn-success">
+        <i class="fas fa-file-excel"></i> Exportar Histórico para Excel
+      </button>
+    </div>
+    <div class="tabela-container">
+      <table class="tabela-historico">
+        <thead>
+          <tr>
+            <th>Data/Hora</th>
+            <th>Ação</th>
+            <th>Usuário</th>
+            <th>Equipamento</th>
+            <th>Alterações</th>
+          </tr>
+        </thead>
+        <tbody id="history-body">
+          <!-- Conteúdo será preenchido via JavaScript -->
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-footer">
+      <div class="pagination-controls">
+        <button class="pagination-btn" id="history-prev">◀ Anterior</button>
+        <span class="page-info">Página <span id="history-current-page">1</span> de <span id="history-total-pages">1</span></span>
+        <button class="pagination-btn" id="history-next">Próxima ▶</button>
+      </div>
+      <div class="results-info">
+        Mostrando <span id="history-showing-results">0</span> de <span id="history-total-results">0</span> resultados
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Estilos Gerais */
+  .page-section {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 25px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  .report-header {
+    margin-bottom: 25px;
+  }
+
+  .report-header h2 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+    font-size: 1.8rem;
+    font-weight: 600;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 10px;
+  }
+
+  /* Barra de Pesquisa */
+  .search-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .filter-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .filter-controls label {
+    font-weight: 500;
+    color: #555;
+  }
+
+  .filter-select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background-color: #fff;
+    font-size: 14px;
+    min-width: 150px;
+  }
+
+  .search-box {
+    position: relative;
+    flex-grow: 1;
+  }
+
+  .search-input {
+    width: 100%;
+    padding: 10px 15px 10px 35px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.3s;
+  }
+
+  .search-input:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #777;
+  }
+
+  /* Tabela */
+  .tabela-container {
+    max-height: 500px;
+    overflow-y: auto;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  }
+
+  .tabela-equipamentos {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: fixed;
+  }
+
+  .tabela-equipamentos th {
+    background-color: #b9610f;
+    color: white;
+    padding: 12px 15px;
+    text-align: left;
+    font-weight: 500;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .tabela-equipamentos td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
+  }
+
+  .tabela-equipamentos tr:last-child td {
+    border-bottom: none;
+  }
+
+  .tabela-equipamentos tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+
+  .tabela-equipamentos tr:hover {
+    background-color: #f0f7ff;
+  }
+
+  .th-content {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .column-filter {
+    width: 100%;
+    padding: 5px 8px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    font-size: 12px;
+  }
+
+  .column-filter::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  /* Rodapé da Tabela */
+  .table-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 20px;
+  }
+
+  .pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .pagination-btn {
+    padding: 8px 15px;
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+  }
+
+  .pagination-btn:hover {
+    background-color: #e9ecef;
+    border-color: #ccc;
+  }
+
+  .pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .page-info {
+    font-size: 14px;
+    color: #555;
+  }
+
+  .results-info {
+    font-size: 14px;
+    color: #666;
+  }
+
+  /* Detalhes do Equipamento */
+  .equipment-details {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #3498db;
+  }
+
+  .btn-voltar {
+    margin-top: 15px;
+    padding: 10px 20px;
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .btn-voltar:hover {
+    background-color: #5a6268;
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  /* Responsividade */
+  @media (max-width: 768px) {
+    .search-container {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    
+    .filter-controls {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    
+    .table-footer {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 10px;
+    }
+    
+    .pagination-controls {
+      justify-content: center;
+    }
+  }
+</style>
+
+    <section id="cadastro-equipamentos" class="page-section">
+      <h2>Cadastramento de Equipamentos</h2>
+      <form id="form-cadastro" enctype="multipart/form-data">
+        
+        <!-- Seleção de Categoria -->
+        <div class="form-group">
+          <label for="categoria">Categoria:</label>
+          <select id="categoria" name="categoria" required></select>
+        </div>
+
+        <!-- Campos fixos (aparecem só depois de escolher categoria) -->
+        <div id="campos-fixos" class="hidden">
+          <div class="form-group">
+            <label for="setor">Setor:</label>
+            <input type="text" id="setor" name="setor" required />
+          </div>
+
+          <div class="form-group">
+            <label for="cargo">Cargo:</label>
+            <input type="text" id="cargo" name="cargo" required />
+          </div>
+
+          <div class="form-group">
+            <label for="dono">User:</label>
+            <input type="text" id="dono" name="dono" />
+          </div>
+        </div>
+
+        <!-- Campos adicionais dinâmicos -->
+        <div id="campos-adicionais-equipamento" class="hidden"></div>
+
+        <!-- Status -->
+        <div id="status-container" class="hidden">
+          <div class="form-group">
+            <label for="status">Status:</label>
+            <select id="status" name="status" required></select>
+          </div>
+
+          <!-- Existe termo -->
+          <div class="form-group-inline">
+            <label>Existe termo?</label>
+            <label><input type="radio" name="existeTermo" value="sim" /> Sim</label>
+            <label><input type="radio" name="existeTermo" value="nao" checked /> Não</label>
+          </div>
+
+          <!-- Upload termo -->
+          <div id="upload-termo-container" style="display:none;">
+            <label for="termo">Anexar termo (PDF):</label>
+            <input type="file" id="termo" name="termo" accept=".pdf" />
+          </div>
+        </div>
+
+        <!-- Botão -->
+        <div class="form-group hidden" id="botao-cadastrar">
+          <button type="submit">Cadastrar</button>
+        </div>
+      </form>
+    </section>
+
+
+      <section id="categorias" class="page-section">
+        <h2>Categorias</h2>
+        <ul id="categoria-lista"></ul>
+        <div id="admin-only-categorias">
+          <form id="form-categoria">
+            <input type="text" id="input-nova-categoria" placeholder="Adicionar nova categoria" aria-label="Nome da nova categoria" />
+            <div style="margin-top: 10px;">
+              <input type="checkbox" id="checkbox-campos-adicionais" aria-describedby="label-campos-adicionais" />
+              <label for="checkbox-campos-adicionais" id="label-campos-adicionais">Esta categoria terá campos adicionais?</label>
+            </div>
+            <div id="campos-adicionais-container" style="margin-top: 10px; display: none;">
+              <div class="campo-adicional-item" style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
+                <input type="text" class="input-nome-campo" placeholder="Nome do campo adicional" aria-label="Nome do campo adicional" />
+                <input type="checkbox" class="input-conteudo-unico" id="conteudo-unico-0" />
+                <label for="conteudo-unico-0">Conteúdo único?</label>
+              </div>
+              <button type="button" id="btn-adicionar-campo" aria-label="Adicionar novo campo adicional" style="background-color: #b9610f; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">+</button>
+            </div>
+            <button type="submit" style="margin-top: 10px;">Adicionar Categoria</button>
+          </form>
+        </div>
+      </section>
+
+    <section id="admin" class="page-section" style="display: none;">
+      <h2>Administração</h2>
+      <h2>Administração de Usuários</h2>
+      <table id="user-table" class="user-table">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>User</th>
+            <th>Email</th>
+            <th>Admin</th>
+            <th>Inventariante</th>
+            <th>Autorizado</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="user-table-body"></tbody>
+      </table>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jwt-decode/build/jwt-decode.min.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.18.5/package/xlsx.full.min.js"></script>
+  <script src="js/app.js"></script>
+  <script src="/js/exportExcel.js"></script>
+
+
+
+  <script>
+    fetch('/api/status')
+      .then(response => response.json())
+      .then(statuses => {
+        const statusLista = document.getElementById('status-lista');
+        statuses.forEach(status => {
+          const li = document.createElement('li');
+          li.textContent = status.nome; // <- aqui é `nome`!
+          statusLista.appendChild(li);
+        });
+      })
+      .catch(err => {
+        console.error('Erro ao buscar status:', err);
+      });
+  </script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const radios = document.getElementsByName('existeTermo');
+      const container = document.getElementById('upload-termo-container');
+
+      radios.forEach(radio => {
+        radio.addEventListener('change', () => {
+          container.style.display = (radio.value === 'sim' && radio.checked) ? 'block' : 'none';
+        });
+      });
+
+      document.getElementById('cancelar-senha').addEventListener('click', () => {
+        document.getElementById('modal-senha').classList.add('hidden');
+      });
+
+      document.getElementById('confirmar-senha').addEventListener('click', async () => {
+        const novaSenha = document.getElementById('nova-senha').value;
+        if (novaSenha.length < 6) return alert('A senha deve ter no mínimo 6 caracteres.');
+
+        const token = localStorage.getItem('token');
+        try {
+          const res = await fetch(`http://localhost:3000/admin/alterar-senha/${idUsuarioAlterandoSenha}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ novaSenha })
+          });
+
+          const data = await res.json();
+          if (res.ok) {
+            alert('Senha atualizada com sucesso!');
+            document.getElementById('modal-senha').classList.add('hidden');
+          } else {
+            alert(data.erro || 'Erro ao atualizar senha.');
+          }
+        } catch {
+          alert('Erro de conexão.');
+        }
+      });
+
+      const token = localStorage.getItem('token');
+      let decoded;
+      try {
+        decoded = jwt_decode(token);
+      } catch {
+        localStorage.removeItem('token');
+        return window.location.href = 'login.html';
+      }
+
+      const isAdmin = decoded.admin;
+      const isInventariante = decoded.inventariante;
+
+      if (isAdmin) {
+        document.getElementById('admin-link').style.display = 'inline-block';
+        document.getElementById('admin').style.display = 'block';
+      }
+
+      if (!isAdmin && !isInventariante) {
+        document.getElementById('form-categoria')?.remove();
+        document.getElementById('cadastro')?.remove();
+        document.querySelector('a[href="#cadastro"]')?.remove();
+        document.getElementById('btn-cadastrar')?.remove();
+      }
+
+      // Redirecionamento dos botões da home
+      document.getElementById('btn-cadastrar')?.addEventListener('click', () => {
+        document.querySelector('a[href="#cadastro-equipamentos"]')?.click();
+      });
+
+      document.getElementById('btn-consultar')?.addEventListener('click', () => {
+        document.querySelector('.nav-link[href="#consulta"]')?.click();
+      });
+
+      if (isAdmin) {
+        fetch('http://localhost:3000/admin/users', {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        .then(res => res.json())
+        .then(users => {
+          const tbody = document.getElementById('user-table-body');
+          tbody.innerHTML = '';
+          users.forEach(user => {
+            const tr = document.createElement('tr');
+            tr.setAttribute('data-user-id', user.id);
+            tr.innerHTML = `
+              <td>${user.nome}</td>
+              <td>${user.user}</td>
+              <td>${user.email}</td>
+              <td class="centralizado"> 
+                <input type="checkbox" ${user.admin ? 'checked' : ''} 
+                      data-user-id="${user.id}" data-field="admin" class="user-permission" />
+              </td>
+              <td class="centralizado">
+                <input type="checkbox" ${user.inventariante ? 'checked' : ''} 
+                      data-user-id="${user.id}" data-field="inventariante" class="user-permission" />
+              </td>
+              <td class="centralizado">
+                <input type="checkbox" ${user.autorizado ? 'checked' : ''} 
+                      data-user-id="${user.id}" data-field="autorizado" class="user-permission" />
+              </td>
+              <td class="centralizado">
+                <button class="action-btn btn-password" onclick="abrirModalSenha(${user.id}, '${user.nome}')">🔐</button>
+                <button class="action-btn btn-delete" onclick="excluirUsuario(${user.id})">🗑️</button>
+              </td>
+            `;
+            tbody.appendChild(tr);
+          });
+
+          // Configurar eventos dos checkboxes após criar a tabela
+          setupPermissionCheckboxes();
+        })
+        .catch(console.error);
+      }
+
+      // Configura os eventos dos checkboxes de permissão
+      function setupPermissionCheckboxes() {
+        document.querySelectorAll('.user-permission').forEach(checkbox => {
+          checkbox.addEventListener('change', function() {
+            const userId = this.getAttribute('data-user-id');
+            const field = this.getAttribute('data-field');
+            const value = this.checked;
+            
+            updateUserPermission(userId, field, value);
+          });
+        });
+      }
+
+      // Função para atualizar permissão do usuário
+      async function updateUserPermission(userId, field, value) {
+        try {
+          const token = localStorage.getItem('token');
+          console.log('Enviando atualização de permissão:', { userId, field, value });
+          
+          const response = await fetch(`http://localhost:3000/admin/update-permission`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              userId,
+              field,
+              value
+            })
+          });
+
+          // Verifica se a resposta é JSON antes de tentar parsear
+          const contentType = response.headers.get('content-type');
+          if (!contentType || !contentType.includes('application/json')) {
+            throw new Error('Resposta do servidor não é JSON');
+          }
+
+          const data = await response.json();
+          
+          if (!response.ok) {
+            throw new Error(data.message || 'Falha ao atualizar permissão');
+          }
+          
+          console.log('Permissão atualizada com sucesso:', data);
+          alert('Permissão atualizada com sucesso!');
+        } catch (error) {
+          console.error('Erro ao atualizar permissão:', error);
+          alert(`Erro ao atualizar permissão: ${error.message}`);
+          
+          // Reverte visualmente o checkbox
+          const checkbox = document.querySelector(`.user-permission[data-user-id="${userId}"][data-field="${field}"]`);
+          if (checkbox) {
+            checkbox.checked = !checkbox.checked;
+          }
+        }
+      }
+
+      // Funções de administração atualizadas
+      async function toggleAdmin(id) {
+        const checkbox = document.querySelector(`.user-permission[data-user-id="${id}"][data-field="admin"]`);
+        if (checkbox) {
+          const value = checkbox.checked;
+          await updateUserPermission(id, 'admin', value);
+        }
+      }
+
+      async function toggleInventariante(id) {
+        const checkbox = document.querySelector(`.user-permission[data-user-id="${id}"][data-field="inventariante"]`);
+        if (checkbox) {
+          const value = checkbox.checked;
+          await updateUserPermission(id, 'inventariante', value);
+        }
+      }
+
+      async function toggleAutorizado(id) {
+        const checkbox = document.querySelector(`.user-permission[data-user-id="${id}"][data-field="autorizado"]`);
+        if (checkbox) {
+          const value = checkbox.checked;
+          await updateUserPermission(id, 'autorizado', value);
+        }
+      }
+
+    async function excluirUsuario(id) {
+      if (!confirm('Tem certeza que deseja excluir este usuário?')) return;
+      try {
+        const token = localStorage.getItem('token');
+        await fetch(`http://localhost:3000/admin/excluir/${id}`, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        // Atualiza apenas a tabela em vez de recarregar a página
+        if (isAdmin) {
+          const tbody = document.getElementById('user-table-body');
+          const row = document.querySelector(`tr[data-user-id="${id}"]`);
+          if (row) {
+            tbody.removeChild(row);
+          }
+        }
+      } catch (error) {
+        console.error('Erro ao excluir usuário:', error);
+        alert('Erro ao excluir usuário. Tente novamente.');
+      }
+    }
+    window.excluirUsuario = excluirUsuario;
+
+
+      // Configura o link de logout
+      const logoutLink = document.getElementById('logout-link');
+      if (logoutLink) {
+        logoutLink.addEventListener('click', (e) => {
+          e.preventDefault();
+          localStorage.removeItem('token');
+          window.location.href = 'login.html';
+        });
+      }
+
+      // Configura o botão de logout
+      const logoutBtn = document.getElementById('logout-link');
+      logoutBtn?.addEventListener('click', e => {
+        e.preventDefault();
+        localStorage.removeItem('token');
+        window.location.href = 'login.html';
+      });
+    });
+
+    const formStatus = document.getElementById('form-status');
+    if (formStatus) {
+      formStatus.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const novoStatus = document.getElementById('input-novo-status')?.value.trim();
+        if (!novoStatus) return alert('Digite um status válido.');
+
+        try {
+          const token = localStorage.getItem('token');  // move o token para dentro do try para garantir que ele exista
+          await fetch('/api/status', {
+            method: 'POST',
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ nome: novoStatus })
+          });
+
+          alert('Status adicionado com sucesso!');
+          document.getElementById('input-novo-status').value = '';
+          location.reload(); // recarrega a lista de status
+        } catch (error) {
+          console.error('Erro ao adicionar status:', error);
+          alert('Erro ao adicionar status.');
+        }
+      });
+    } else {
+      console.warn('⚠️ Elemento #form-status não encontrado no DOM.');
+    }
+
+  </script>
+
+  <!-- Script para navegação por abas -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const links = document.querySelectorAll(".nav-link");
+      const sections = document.querySelectorAll(".page-section");
+
+      links.forEach(link => {
+        link.addEventListener("click", e => {
+          // Allow normal navigation for status.html link
+          if (link.id === 'status-submenu-link') {
+            return; // do not preventDefault or tab logic
+          }
+          e.preventDefault();
+          const target = link.getAttribute("href").substring(1);
+          links.forEach(l => l.classList.remove("active"));
+          link.classList.add("active");
+          sections.forEach(section => {
+            section.classList.remove("active");
+            section.style.display = "none";
+          });
+          const targetSection = document.getElementById(target);
+          if (targetSection) {
+            targetSection.classList.add("active");
+            targetSection.style.display = "block";
+          }
+        });
+      });
+
+      sections.forEach(section => {
+        if (!section.classList.contains("active")) {
+          section.style.display = "none";
+        }
+      });
+    });
+
+    fetch('/api/status')
+    .then(res => res.json())
+    .then(statuses => {
+      const statusSelect = document.getElementById('status');
+      statuses.forEach(status => {
+        const option = document.createElement('option');
+        option.value = status.nome;
+        option.textContent = status.nome;
+        statusSelect.appendChild(option);
+      });
+    })
+    .catch(err => {
+      console.error('Erro ao carregar status para o select:', err);
+    });
+  </script>
+
+  <!-- Modal de senha -->
+  <div id="modal-senha" class="modal hidden">
+    <div class="modal-content">
+      <h3 id="modal-title">Alterar Senha</h3>
+      <input type="password" id="nova-senha" placeholder="Nova senha" />
+      <div class="modal-buttons">
+        <button id="confirmar-senha" class="btn-auth">Confirmar</button>
+        <button id="cancelar-senha" class="btn-delete">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  fetch('/api/equipamentos')
+    .then(res => res.json())
+    .then(equipamentos => {
+      const tbody = document.getElementById('equipamentos-body');
+      equipamentos.forEach(eq => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${eq.nome}</td>
+        <td>${eq.qrCode}</td>
+        <td>${eq.dono}</td>
+        <td>${eq.setor}</td>
+        <td>${eq.hostname}</td>
+        <td>${eq.categoria}</td>
+        <td>${eq.status}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+    });
+
+    // Função para atualizar a contagem de resultados
+    function atualizarContagemResultados() {
+      const tabela = document.querySelector('.tabela-equipamentos');
+      const linhasVisiveis = tabela.querySelectorAll('tbody tr:not([style*="display: none"])').length;
+      const totalLinhas = tabela.querySelectorAll('tbody tr').length;
+      
+      document.getElementById('showing-results').textContent = linhasVisiveis;
+      document.getElementById('total-results').textContent = totalLinhas;
+      
+      // Atualiza também o texto alternativo quando não há resultados
+      if (linhasVisiveis === 0) {
+        document.querySelector('.results-info').textContent = 'Nenhum resultado encontrado';
+      } else {
+        document.querySelector('.results-info').textContent = 
+          `Mostrando ${linhasVisiveis} de ${totalLinhas} resultado${totalLinhas !== 1 ? 's' : ''}`;
+      }
+    }
+
+    // Função para filtrar a tabela (exemplo)
+    function filtrarTabela() {
+      const filtro = document.getElementById('search-equipment').value.toLowerCase();
+      const coluna = document.getElementById('filter-mode').value;
+      const linhas = document.querySelectorAll('#equipamentos-body tr');
+      
+      linhas.forEach(linha => {
+        const conteudoCelula = linha.querySelector(`td[data-column="${coluna}"]`).textContent.toLowerCase();
+        if (conteudoCelula.includes(filtro)) {
+          linha.style.display = '';
+        } else {
+          linha.style.display = 'none';
+        }
+      });
+      
+      atualizarContagemResultados();
+    }
+
+    // Função para filtrar por coluna (exemplo)
+    function filtrarPorColuna(coluna, valor) {
+      const linhas = document.querySelectorAll('#equipamentos-body tr');
+      
+      linhas.forEach(linha => {
+        const conteudoCelula = linha.querySelector(`td[data-column="${coluna}"]`).textContent.toLowerCase();
+        if (conteudoCelula.includes(valor.toLowerCase())) {
+          linha.style.display = '';
+        } else {
+          linha.style.display = 'none';
+        }
+      });
+      
+      atualizarContagemResultados();
+    }
+
+    // Event listeners para os filtros
+    document.getElementById('search-equipment').addEventListener('input', filtrarTabela);
+    document.getElementById('filter-mode').addEventListener('change', filtrarTabela);
+
+    // Event listeners para filtros de coluna
+    document.querySelectorAll('.column-filter').forEach(input => {
+      input.addEventListener('input', function() {
+        const coluna = this.getAttribute('data-column');
+        filtrarPorColuna(coluna, this.value);
+      });
+    });
+
+    // Chamada inicial para exibir a contagem quando a página carrega
+    document.addEventListener('DOMContentLoaded', function() {
+      // Simulação de dados - substitua pelo seu código real de carregamento
+      setTimeout(() => {
+        atualizarContagemResultados();
+      }, 500);
+    });
+  </script>
+</body>
+</html>

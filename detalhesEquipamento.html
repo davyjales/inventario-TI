@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V-CONTROL</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom-actions.css">
+    <style>
+        .equipment-details {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .detail-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+        }
+
+        .detail-section h3 {
+            color: #b9610f;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+        }
+
+        .field-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .field-item {
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 5px;
+        }
+
+        .field-label {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .field-value {
+            color: #666;
+        }
+
+        .qr-section {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .qr-code {
+            max-width: 200px;
+            margin: 20px auto;
+        }
+
+        .print-controls {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .btn-print {
+            background: #b9610f;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .btn-print:hover {
+            background: #a0500e;
+        }
+
+        .btn-back {
+            background: #6c757d;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        .btn-back:hover {
+            background: #5a6268;
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .qr-section, .qr-section * {
+                visibility: visible;
+            }
+            .qr-section {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+            }
+            .qr-code {
+                max-width: 100%;
+                max-height: 100%;
+            }
+            .print-controls, .btn-back {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Detalhes do Equipamento</h1>
+        <button class="btn-back" onclick="window.close()">← Voltar</button>
+    </header>
+
+    <main class="equipment-details">
+        <div id="termo-container" class="hidden">
+            <button id="btn-ver-termo" class="btn-print">Ver Termo</button>
+        </div>
+        <div id="equipment-details-container">
+            <!-- Equipment details will be loaded here -->
+        </div>
+
+        <div class="qr-section">
+            <h3>QR Code do Equipamento</h3>
+            <div id="qr-code-container" class="qr-code"></div>
+        <div class="print-controls">
+            <button class="btn-print" onclick="printQRCode()">Imprimir QR Code</button>
+            <button class="btn-print" onclick="printQRCodeForZebra()">Imprimir (Zebra)</button>
+        </div>
+        </div>
+    </main>
+
+    <script src="js/detalhesEquipamento.js"></script>
+</body>
+</html>

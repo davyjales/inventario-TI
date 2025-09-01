@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Inventário T.I - Visteon</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/custom-actions.css" />
+  <script>
+    // Autenticação básica via token
+    const token = localStorage.getItem('token');
+    if (!token) {
+      window.location.href = 'login.html';
+    }
+
+    let idUsuarioAlterandoSenha = null;
+
+    function abrirModalSenha(id, nome) {
+      idUsuarioAlterandoSenha = id;
+      const title = document.getElementById('modal-title');
+      const input = document.getElementById('nova-senha');
+      const modal = document.getElementById('modal-senha');
+      if (title) title.innerText = `Alterar senha de ${nome}`;
+      if (input) input.value = '';
+      if (modal) modal.classList.remove('hidden');
+    }
+    window.abrirModalSenha = abrirModalSenha;
+  </script>
+</head>
+
+<body>
+  <header>
+    <h1>V.INV</h1>
+    <nav>
+      <ul class="nav-menu">
+        <li><a href="#home" class="nav-link active">Home</a></li>
+        <li><a href="#consulta" class="nav-link">Relatório</a></li>
+        <li class="nav-dropdown">
+          <a href="cadastroEquipamentos.html">Cadastro</a>
+          <ul class="dropdown-menu">
+            <li><a href="cadastroEquipamentos.html">Equipamentos</a></li>
+            <li><a href="categorias.html">Categorias</a></li>
+            <!-- adiciona id para não quebrar a lógica de abas -->
+            <li><a id="status-submenu-link" href="status.html">Status</a></li>
+          </ul>
+        </li>
+        <li id="admin-link" style="display: none;"><a href="#admin" class="nav-link">Administração</a></li>
+        <li><a href="#" id="logout-link"><img src="logout.png" style="width: 23px;"></a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section id="home" class="page-section active">
+      <h2>Bem-vindo ao Sistema de Inventário</h2>
+      <div class="home-functions">
+        <button id="btn-cadastrar">Cadastrar Novo Equipamento</button>
+        <button id="btn-consultar">Consultar Equipamentos</button>
+      </div>
+    </section>
+
+    <section id="consulta" class="page-section">
+      <div class="report-header">
+        <h2>Relatório de Equipamentos</h2>
+
+
+      <div class="tab-buttons">
+        <button class="tab-btn active" data-tab="equipment-report">Relatório</button>
+        <button class="tab-btn" data-tab="equipment-history">Histórico</button>
+      </div>
+
+      <div id="equipment-report" class="report-tab active">
+        <div class="export-controls">
+          <button id="export-report-excel" class="btn btn-success">
+            <i class="fas fa-file-excel"></i> Exportar Relatório para Excel
+          </button>
+        </div>
+
+      <div class="tabela-container">
+        <table class="tabela-equipamentos">
+          <thead>
+            <tr>
+              <th>
+                <div class="th-content">
+                  Service Tag
+                  <input type="text" class="column-filter" data-column="nome" placeholder="Filtrar..." />
+                </div>
+              </th>
+              <th>
+                <div class="th-content">
+                  (QR Code)
+                  <input type="text" class="column-filter" data-column="qrCode" placeholder="Filtrar..." />
+                </div>
+              </th>
+              <th>
+                <div class="th-content">
+                  Usuário
+                  <input type="text" class="column-filter" data-column="dono" placeholder="Filtrar..." />
+                </div>
+              </th>
+              <th>
+                <div class="th-content">
+                  Setor
+                  <input type="text" class="column-filter" data-column="setor" placeholder="Filtrar..." />
+                </div>
+              </th>
+              <th>
+                <div class="th-content">
+                  Cargo
+                  <input type="text" class="column-filter" data-column="cargo" placeholder="Filtrar..." />
+                </div>
+              </th>
+              <th>
+                <div class="th-content">
+                  Categoria
+                  <input type="text" class="column-filter" data-column="categoria" placeholder="Filtrar..." />
+                </div>
+              </th>
+              <th>
+                <div class="th-content">
+                  Status
+                  <input type="text" class="column-filter" data-column="status" placeholder="Filtrar..." />
+                </div>
+              </th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="equipamentos-body">
+            <!-- preenchido via JS -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-footer">
+        <div class="pagination-controls">
+          <button class="pagination-btn" id="prev-page" disabled>◀ Anterior</button>
+          <span class="page-info">Página <span id="current-page">1</span> de <span id="total-pages">1</span></span>
+          <button class="pagination-btn" id="next-page" disabled>Próxima ▶</button>
+        </div>
+        <div class="results-info">
+          Mostrando <span id="showing-results">0</span> de <span id="total-results">0</span> resultados
+        </div>
+
+      <div id="equipment-history" class="history-tab">
+        <div class="history-search">
+          <input type="text" id="history-search" placeholder="Buscar por Service Tag ou QR Code">
+          <input type="text" id="history-user" placeholder="Filtrar por usuário">
+          <select id="history-action">
+            <option value="">Todas ações</option>
+            <option value="create">Criação</option>
+            <option value="update">Atualização</option>
+          </select>
+          <input type="date" id="history-date-from">
+          <input type="date" id="history-date-to">
+          <button id="history-search-btn">Buscar</button>
+        </div>
+        <div class="export-controls">
+          <button id="export-history-excel" class="btn btn-success">
+            <i class="fas fa-file-excel"></i> Exportar Histórico para Excel
+          </button>
+        </div>
+        <div class="tabela-container">
+          <table class="tabela-historico">
+            <thead>
+              <tr>
+                <th>Data/Hora</th>
+                <th>Ação</th>
+                <th>Usuário</th>
+                <th>Equipamento</th>
+                <th>Alterações</th>
+              </tr>
+            </thead>
+            <tbody id="history-body">
+              <!-- preenchido via JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <div class="table-footer">
+          <div class="pagination-controls">
+            <button class="pagination-btn" id="history-prev">◀ Anterior</button>
+            <span class="page-info">Página <span id="history-current-page">1</span> de <span id="history-total-pages">1</span></span>
+            <button class="pagination-btn" id="history-next">Próxima ▶</button>
+          </div>
+          <div class="results-info">
+            Mostrando <span id="history-showing-results">0</span> de <span id="history-total-results">0</span> resultados
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <style>
+      /* Estilos Gerais e Tabela (inalterados do seu original) */
+      .page-section { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 1200px; margin: 20px auto; padding: 25px; background-color: #fff; border-radius: 10px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); }
+      .report-header { margin-bottom: 25px; }
+      .report-header h2 { color: #2c3e50; margin-bottom: 20px; font-size: 1.8rem; font-weight: 600; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; }
+      .search-container { display: flex; flex-wrap: wrap; gap: 15px; align-items: center; margin-bottom: 20px; }
+      .filter-controls { display: flex; align-items: center; gap: 10px; }
+      .filter-controls label { font-weight: 500; color: #555; }
+      .filter-select { padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; background-color: #fff; font-size: 14px; min-width: 150px; }
+      .search-box { position: relative; flex-grow: 1; }
+      .search-input { width: 100%; padding: 10px 15px 10px 35px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; transition: border-color 0.3s; }
+      .search-input:focus { outline: none; border-color: #3498db; box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2); }
+      .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #777; }
+
+      .tabela-container { max-height: 500px; overflow-y: auto; border: 1px solid #e0e0e0; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05); }
+      .tabela-equipamentos { width: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; }
+      .tabela-equipamentos th { background-color: #b9610f; color: white; padding: 12px 15px; text-align: left; font-weight: 500; position: sticky; top: 0; z-index: 10; }
+      .tabela-equipamentos td { padding: 12px 15px; border-bottom: 1px solid #eee; vertical-align: middle; }
+      .tabela-equipamentos tr:last-child td { border-bottom: none; }
+      .tabela-equipamentos tr:nth-child(even) { background-color: #f9f9f9; }
+      .tabela-equipamentos tr:hover { background-color: #f0f7ff; }
+      .th-content { display: flex; flex-direction: column; gap: 5px; }
+      .column-filter { width: 100%; padding: 5px 8px; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 4px; background-color: rgba(255, 255, 255, 0.2); color: white; font-size: 12px; }
+      .column-filter::placeholder { color: rgba(255, 255, 255, 0.7); }
+
+      .table-footer { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-top: 20px; }
+      .pagination-controls { display: flex; align-items: center; gap: 10px; }
+      .pagination-btn { padding: 8px 15px; background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; font-size: 14px; transition: all 0.2s; }
+      .pagination-btn:hover { background-color: #e9ecef; border-color: #ccc; }
+      .pagination-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+      .page-info { font-size: 14px; color: #555; }
+      .results-info { font-size: 14px; color: #666; }
+
+      .equipment-details { margin-top: 30px; padding: 20px; background-color: #f8f9fa; border-radius: 8px; border-left: 4px solid #3498db; }
+      .btn-voltar { margin-top: 15px; padding: 10px 20px; background-color: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer; transition: background-color 0.2s; }
+      .btn-voltar:hover { background-color: #5a6268; }
+      .hidden { display: none; }
+
+      @media (max-width: 768px) {
+        .search-container { flex-direction: column; align-items: stretch; }
+        .filter-controls { flex-direction: column; align-items: stretch; }
+        .table-footer { flex-direction: column; align-items: stretch; gap: 10px; }
+        .pagination-controls { justify-content: center; }
+      }
+    </style>
+
+    <section id="cadastro-equipamentos" class="page-section">
+      <h2>Cadastramento de Equipamentos</h2>
+      <form id="form-cadastro" enctype="multipart/form-data">
+        <div class="form-group">
+          <label for="categoria">Categoria:</label>
+          <select id="categoria" name="categoria" required></select>
+        </div>
+
+        <div id="campos-fixos" class="hidden">
+          <div class="form-group">
+            <label for="setor">Setor:</label>
+            <input type="text" id="setor" name="setor" required />
+          </div>
+
+          <div class="form-group">
+            <label for="cargo">Cargo:</label>
+            <input type="text" id="cargo" name="cargo" required />
+          </div>
+
+          <div class="form-group">
+            <label for="dono">User:</label>
+            <input type="text" id="dono" name="dono" />
+          </div>
+        </div>
+
+        <div id="campos-adicionais-equipamento" class="hidden"></div>
+
+        <div id="status-container" class="hidden">
+          <div class="form-group">
+            <label for="status">Status:</label>
+            <select id="status" name="status" required></select>
+          </div>
+
+          <div class="form-group-inline">
+            <label>Existe termo?</label>
+            <label><input type="radio" name="existeTermo" value="sim" /> Sim</label>
+            <label><input type="radio" name="existeTermo" value="nao" checked /> Não</label>
+          </div>
+
+          <div id="upload-termo-container" style="display:none;">
+            <label for="termo">Anexar termo (PDF):</label>
+            <input type="file" id="termo" name="termo" accept=".pdf" />
+          </div>
+        </div>
+
+        <div class="form-group hidden" id="botao-cadastrar">
+          <button type="submit">Cadastrar</button>
+        </div>
+      </form>
+    </section>
+
+    <section id="categorias" class="page-section">
+      <h2>Categorias</h2>
+      <ul id="categoria-lista"></ul>
+      <div id="admin-only-categorias">
+        <form id="form-categoria">
+          <input type="text" id="input-nova-categoria" placeholder="Adicionar nova categoria" aria-label="Nome da nova categoria" />
+          <div style="margin-top: 10px;">
+            <input type="checkbox" id="checkbox-campos-adicionais" aria-describedby="label-campos-adicionais" />
+            <label for="checkbox-campos-adicionais" id="label-campos-adicionais">Esta categoria terá campos adicionais?</label>
+          </div>
+          <div id="campos-adicionais-container" style="margin-top: 10px; display: none;">
+            <div class="campo-adicional-item" style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
+              <input type="text" class="input-nome-campo" placeholder="Nome do campo adicional" aria-label="Nome do campo adicional" />
+              <input type="checkbox" class="input-conteudo-unico" id="conteudo-unico-0" />
+              <label for="conteudo-unico-0">Conteúdo único?</label>
+            </div>
+            <button type="button" id="btn-adicionar-campo" aria-label="Adicionar novo campo adicional" style="background-color: #b9610f; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">+</button>
+          </div>
+          <button type="submit" style="margin-top: 10px;">Adicionar Categoria</button>
+        </form>
+      </div>
+    </section>
+
+    <section id="admin" class="page-section" style="display: none;">
+      <h2>Administração</h2>
+      <h2>Administração de Usuários</h2>
+      <table id="user-table" class="user-table">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>User</th>
+            <th>Email</th>
+            <th>Admin</th>
+            <th>Inventariante</th>
+            <th>Autorizado</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="user-table-body"></tbody>
+      </table>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jwt-decode/build/jwt-decode.min.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.18.5/package/xlsx.full.min.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/equipamentosReport.js"></script>
+  <script src="/js/exportExcel.js"></script>
+
+      
+      <script>
+        document.addEventListener('DOMContentLoaded', () => {
+          // Upload de termo (radios)
+          const radios = document.getElementsByName('existeTermo');
+          const termoContainer = document.getElementById('upload-termo-container');
+          Array.from(radios || []).forEach(function(radio) {
+            radio.addEventListener('change', function() {
+              if (!termoContainer) return;
+              termoContainer.style.display = (this.value === 'sim' && this.checked) ? 'block' : 'none';
+            });
+          });
+
+      // Modal de senha
+      const cancelarSenhaBtn = document.getElementById('cancelar-senha');
+      const confirmarSenhaBtn = document.getElementById('confirmar-senha');
+      const modalSenha = document.getElementById('modal-senha');
+
+      cancelarSenhaBtn?.addEventListener('click', () => {
+        modalSenha?.classList.add('hidden');
+      });
+
+      confirmarSenhaBtn?.addEventListener('click', async () => {
+        const input = document.getElementById('nova-senha');
+        const novaSenha = (input && 'value' in input) ? input.value : '';
+        if (!novaSenha || novaSenha.length < 6) return alert('A senha deve ter no mínimo 6 caracteres.');
+
+        try {
+          const token = localStorage.getItem('token');
+          const res = await fetch(`http://localhost:3000/admin/alterar-senha/${idUsuarioAlterandoSenha}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ novaSenha })
+          });
+
+          const ct = res.headers.get('content-type') || '';
+          const data = ct.includes('application/json') ? await res.json() : {};
+
+          if (res.ok) {
+            alert('Senha atualizada com sucesso!');
+            modalSenha?.classList.add('hidden');
+          } else {
+            alert((data && (data.erro || data.message)) || 'Erro ao atualizar senha.');
+          }
+        } catch {
+          alert('Erro de conexão.');
+        }
+      });
+
+      // Decodifica token e configura visibilidade
+      const token = localStorage.getItem('token');
+      let isAdmin = false;
+      let isInventariante = false;
+      try {
+        const decoded = jwt_decode(token);
+        isAdmin = !!decoded?.admin;
+        isInventariante = !!decoded?.inventariante;
+      } catch {
+        localStorage.removeItem('token');
+        return (window.location.href = 'login.html');
+      }
+
+      if (isAdmin) {
+        const adminLink = document.getElementById('admin-link');
+        const adminSection = document.getElementById('admin');
+        if (adminLink) adminLink.style.display = 'inline-block';
+        if (adminSection) adminSection.style.display = 'block';
+      }
+
+      if (!isAdmin && !isInventariante) {
+        document.getElementById('form-categoria')?.remove();
+        document.getElementById('cadastro')?.remove();
+        document.querySelector('a[href="#cadastro"]')?.remove();
+        document.getElementById('btn-cadastrar')?.remove();
+      }
+
+      // Botões da home
+      document.getElementById('btn-cadastrar')?.addEventListener('click', () => {
+        document.querySelector('a[href="#cadastro-equipamentos"]')?.click();
+      });
+      document.getElementById('btn-consultar')?.addEventListener('click', () => {
+        document.querySelector('.nav-link[href="#consulta"]')?.click();
+      });
+
+      // Logout
+      const logoutLink = document.getElementById('logout-link');
+      logoutLink?.addEventListener('click', (e) => {
+        e.preventDefault();
+        localStorage.removeItem('token');
+        window.location.href = 'login.html';
+      });
+
+      // Navegação (abas) — permite navegação normal para status.html
+      const links = document.querySelectorAll('.nav-link');
+      const sections = document.querySelectorAll('.page-section');
+      links.forEach(link => {
+        link.addEventListener('click', e => {
+          if (link.id === 'status-submenu-link') return; // não interfere no link de status.html
+          e.preventDefault();
+          const target = link.getAttribute('href')?.substring(1);
+          links.forEach(l => l.classList.remove('active'));
+          link.classList.add('active');
+          sections.forEach(section => {
+            section.classList.remove('active');
+            section.style.display = 'none';
+          });
+          if (target) {
+            const targetSection = document.getElementById(target);
+            if (targetSection) {
+              targetSection.classList.add('active');
+              targetSection.style.display = 'block';
+            }
+          }
+        });
+      });
+      sections.forEach(section => {
+        if (!section.classList.contains('active')) {
+          section.style.display = 'none';
+        }
+      });
+
+      // Preenche select de status (robusto)
+      fetch('/api/status')
+        .then(async res => {
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const ct = res.headers.get('content-type') || '';
+          if (!ct.includes('application/json')) throw new Error('Resposta não é JSON');
+          return res.json();
+        })
+        .then(statuses => {
+          const statusSelect = document.getElementById('status');
+          if (!statusSelect) return;
+          statuses.forEach(status => {
+            const option = document.createElement('option');
+            option.value = status?.nome ?? '';
+            option.textContent = status?.nome ?? '';
+            statusSelect.appendChild(option);
+          });
+        })
+        .catch(err => console.error('Erro ao carregar status para o select:', err));
+
+      // Funções de atualização/contagem e filtros
+      const tabela = document.querySelector('.tabela-equipamentos');
+      const resultsInfo = document.querySelector('.results-info');
+      const showing = document.getElementById('showing-results');
+      const total = document.getElementById('total-results');
+      const searchInput = document.getElementById('search-equipment');
+      const filterMode = document.getElementById('filter-mode');
+
+      // Admin: carregar usuários com robustez
+      if (isAdmin) {
+        fetch('http://localhost:3000/admin/users', {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+          .then(async res => {
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const ct = res.headers.get('content-type') || '';
+            if (!ct.includes('application/json')) throw new Error('Resposta não é JSON');
+            return res.json();
+          })
+          .then(users => {
+            const tbody = document.getElementById('user-table-body');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            (users || []).forEach(user => {
+              const tr = document.createElement('tr');
+              tr.setAttribute('data-user-id', user.id);
+              tr.innerHTML = `
+                <td>${user?.nome ?? ''}</td>
+                <td>${user?.user ?? ''}</td>
+                <td>${user?.email ?? ''}</td>
+                <td class="centralizado">
+                  <input type="checkbox" ${user?.admin ? 'checked' : ''}
+                         data-user-id="${user.id}" data-field="admin" class="user-permission" />
+                </td>
+                <td class="centralizado">
+                  <input type="checkbox" ${user?.inventariante ? 'checked' : ''}
+                         data-user-id="${user.id}" data-field="inventariante" class="user-permission" />
+                </td>
+                <td class="centralizado">
+                  <input type="checkbox" ${user?.autorizado ? 'checked' : ''}
+                         data-user-id="${user.id}" data-field="autorizado" class="user-permission" />
+                </td>
+                <td class="centralizado">
+                  <button class="action-btn btn-password" onclick="abrirModalSenha(${user.id}, '${(user?.nome ?? '').replace(/'/g, "\\'")}')">🔐</button>
+                  <button class="action-btn btn-delete" onclick="excluirUsuario(${user.id})">🗑️</button>
+                </td>
+              `;
+              tbody.appendChild(tr);
+            });
+            setupPermissionCheckboxes();
+          })
+          .catch(err => {
+            console.warn('Admin/users indisponível ou retornou conteúdo não-JSON:', err);
+          });
+      }
+
+      function setupPermissionCheckboxes() {
+        document.querySelectorAll('.user-permission').forEach(checkbox => {
+          checkbox.addEventListener('change', function () {
+            const userId = this.getAttribute('data-user-id');
+            const field = this.getAttribute('data-field');
+            const value = this.checked;
+            updateUserPermission(userId, field, value);
+          });
+        });
+      }
+
+      async function updateUserPermission(userId, field, value) {
+        try {
+          const token = localStorage.getItem('token');
+          const response = await fetch(`http://localhost:3000/admin/update-permission`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ userId, field, value })
+          });
+
+          const ct = response.headers.get('content-type') || '';
+          if (!ct.includes('application/json')) throw new Error('Resposta do servidor não é JSON');
+          const data = await response.json();
+
+          if (!response.ok) throw new Error(data?.message || 'Falha ao atualizar permissão');
+
+          alert('Permissão atualizada com sucesso!');
+        } catch (error) {
+          console.error('Erro ao atualizar permissão:', error);
+          alert(`Erro ao atualizar permissão: ${error?.message || error}`);
+          const checkbox = document.querySelector(`.user-permission[data-user-id="${userId}"][data-field="${field}"]`);
+          if (checkbox) checkbox.checked = !checkbox.checked;
+        }
+      }
+
+      async function excluirUsuario(id) {
+        if (!confirm('Tem certeza que deseja excluir este usuário?')) return;
+        try {
+          const token = localStorage.getItem('token');
+          await fetch(`http://localhost:3000/admin/excluir/${id}`, {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          const row = document.querySelector(`tr[data-user-id="${id}"]`);
+          row?.parentElement?.removeChild(row);
+        } catch (error) {
+          console.error('Erro ao excluir usuário:', error);
+          alert('Erro ao excluir usuário. Tente novamente.');
+        }
+      }
+      window.excluirUsuario = excluirUsuario;
+    });
+  </script>
+
+  <!-- Modal de senha -->
+  <div id="modal-senha" class="modal hidden">
+    <div class="modal-content">
+      <h3 id="modal-title">Alterar Senha</h3>
+      <input type="password" id="nova-senha" placeholder="Nova senha" />
+      <div class="modal-buttons">
+        <button id="confirmar-senha" class="btn-auth">Confirmar</button>
+        <button id="cancelar-senha" class="btn-delete">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de edição de equipamento -->
+  <div id="edit-equipment-modal" class="modal hidden">
+    <div class="modal-content">
+      <h3>Editar Equipamento</h3>
+      <form id="edit-equipment-form">
+        <input type="hidden" id="edit-equipment-id" name="id" />
+        <div class="form-group">
+          <label for="edit-categoria">Categoria:</label>
+          <select id="edit-categoria" name="categoria_id" required></select>
+        </div>
+        <div class="form-group">
+          <label for="edit-nome">Nome:</label>
+          <input type="text" id="edit-nome" name="nome" required />
+        </div>
+        <div class="form-group">
+          <label for="edit-dono">Usuário:</label>
+          <input type="text" id="edit-dono" name="dono" />
+        </div>
+        <div class="form-group">
+          <label for="edit-setor">Setor:</label>
+          <input type="text" id="edit-setor" name="setor" />
+        </div>
+        <div class="form-group">
+          <label for="edit-cargo">Cargo:</label>
+          <input type="text" id="edit-cargo" name="cargo" />
+        </div>
+        <div class="form-group">
+          <label for="edit-descricao">Descrição:</label>
+          <textarea id="edit-descricao" name="descricao"></textarea>
+        </div>
+        <div id="edit-additional-fields-container"></div>
+        <div class="form-group">
+          <label for="edit-status">Status:</label>
+          <select id="edit-status" name="status_id" required></select>
+        </div>
+        <div class="modal-buttons">
+          <button type="submit" class="btn-auth">Salvar</button>
+          <button type="button" id="cancel-edit" class="btn-delete">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

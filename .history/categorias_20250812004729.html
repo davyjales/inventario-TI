@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>V-CONTROL</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    body {
+      font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background-color: #f5f7fa;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+
+    /* Cabeçalho - mantido conforme o print */
+    header {
+      background-color: #e67e22;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.8rem;
+      font-weight: 600;
+    }
+
+    /* Navegação - mantida conforme o print */
+    nav {
+      display: flex;
+      justify-content: center;
+      background-color: #e67e22;
+      border-bottom: 2px solid #e67e22;
+      padding: 10px 0;
+      gap: 10px;
+    }
+    nav a {
+      text-decoration: none;
+      color: #fcf9f6;
+      font-weight: 600;
+      padding: 8px 16px;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+    }
+    nav a:hover,
+    nav a.active {
+      background-color: #e67e22;
+      color: white;
+    }
+
+    /* Área principal */
+    main {
+      max-width: 1000px;
+      margin: 30px auto;
+      padding: 0;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+
+    /* Título da seção */
+    .section-title {
+      padding: 15px 20px;
+      margin: 0;
+      background-color: #f8f8f8;
+      border-bottom: 1px solid #eaeaea;
+      font-size: 1.2rem;
+      color: #555;
+    }
+
+    /* Tabs - design aprimorado */
+    .tabs {
+      display: flex;
+      margin: 0;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    .tab-button {
+      flex: 1;
+      padding: 12px 20px;
+      cursor: pointer;
+      background-color: transparent;
+      border: none;
+      border-bottom: 3px solid transparent;
+      font-weight: 600;
+      color: #666;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    .tab-button.active {
+      color: #e67e22;
+      border-bottom-color: #e67e22;
+      background-color: rgba(230, 126, 34, 0.05);
+    }
+    .tab-button:hover:not(.active) {
+      color: #333;
+      background-color: #f5f5f5;
+    }
+
+    /* Conteúdo das abas */
+    .tab-content {
+      display: none;
+      padding: 20px;
+    }
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Tabela - design profissional */
+    .table-container {
+      overflow-x: auto;
+      margin-top: 15px;
+    }
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    th {
+      background-color: #f8f8f8;
+      color: #555;
+      font-weight: 600;
+      text-align: left;
+      padding: 12px 15px;
+      border-bottom: 2px solid #e0e0e0;
+    }
+    td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #f0f0f0;
+      vertical-align: middle;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    tr:hover {
+      background-color: #f9f9f9;
+    }
+    tr:nth-child(even) {
+      background-color: #fcfcfc;
+    }
+    tr:hover {
+      background-color: #f5f5f5;
+    }
+
+    /* Botões de ação na tabela */
+    .action-buttons {
+      display: flex;
+      gap: 8px;
+    }
+    .btn {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 0.85rem;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .btn i {
+      font-size: 0.9em;
+    }
+    .btn-primary {
+      background-color: #e67e22;
+      color: white;
+    }
+    .btn-primary:hover {
+      background-color: #d35400;
+      transform: translateY(-1px);
+    }
+    .btn-outline {
+      background-color: transparent;
+      border: 1px solid #ddd;
+      color: #666;
+    }
+    .btn-outline:hover {
+      background-color: #f5f5f5;
+      color: #333;
+    }
+    .btn-danger {
+      background-color: #e74c3c;
+      color: white;
+    }
+    .btn-danger:hover {
+      background-color: #c0392b;
+    }
+
+    /* Botão de nova categoria */
+    .btn-add {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #e67e22;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-add:hover {
+      background-color: #d35400;
+      box-shadow: 0 2px 8px rgba(230, 126, 34, 0.3);
+    }
+
+    /* Formulário */
+    .form-container {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .form-header {
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #eee;
+    }
+    .form-header h2 {
+      margin: 0;
+      color: #333;
+    }
+    form label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: #555;
+    }
+    form input[type="text"],
+    form input[type="checkbox"],
+    form textarea,
+    form select {
+      width: 100%;
+      padding: 10px 12px;
+      margin-bottom: 15px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 0.95rem;
+      transition: border 0.3s ease;
+    }
+    form input[type="text"]:focus,
+    form textarea:focus,
+    form select:focus {
+      border-color: #e67e22;
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(230, 126, 34, 0.2);
+    }
+    .checkbox-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    .checkbox-container input[type="checkbox"] {
+      width: auto;
+      margin: 0;
+    }
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 25px;
+      padding-top: 15px;
+      border-top: 1px solid #eee;
+    }
+    .form-section {
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .form-section h3 {
+      margin-top: 0;
+      color: #444;
+    }
+
+    /* Campos dinâmicos */
+    .field-item {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+      align-items: center;
+    }
+    .field-item input {
+      flex: 1;
+    }
+    .field-item button {
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+
+    /* Responsividade */
+    @media (max-width: 768px) {
+      nav {
+        flex-wrap: wrap;
+        padding: 8px;
+      }
+      nav a {
+        padding: 6px 12px;
+        font-size: 0.9rem;
+      }
+      .tabs {
+        flex-direction: column;
+      }
+      .tab-button {
+        text-align: left;
+        border-bottom: 1px solid #e67e22;
+        border-left: 3px solid transparent;
+      }
+      .tab-button.active {
+        border-left-color: #e67e22;
+        border-bottom-color: #eee;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+  <header>
+    <h1>V-CONTROL</h1>
+  </header>
+
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="categorias.html" class="active">Categorias</a>
+    <a href="cadastroEquipamentos.html">Equipamentos</a>
+    <a href="status.html">Status</a>
+  </nav>
+
+  <main>
+    <h2 class="section-title">Cadastramento de Equipamentos</h2>
+    
+    <div class="tabs">
+      <button class="tab-button active" data-tab="tab-lista">
+        <i class="fas fa-list"></i> Lista de Categorias
+      </button>
+      <button class="tab-button" data-tab="tab-form">
+        <i class="fas fa-edit"></i> Cadastro / Edição
+      </button>
+    </div>
+
+    <section id="tab-lista" class="tab-content active">
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Categoria</th>
+              <th>Recebe Termo</th>
+              <th style="text-align: right;">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="categorias-tbody">
+            <!-- Exemplo de dados - serão substituídos pelo JavaScript -->
+            <tr>
+              <td>Notebooks</td>
+              <td><i class="fas fa-check" style="color: #27ae60;"></i></td>
+              <td>
+                <div class="action-buttons" style="justify-content: flex-end;">
+                  <button class="btn btn-outline"><i class="fas fa-edit"></i> Editar</button>
+                  <button class="btn btn-danger"><i class="fas fa-trash"></i> Excluir</button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>Monitores</td>
+              <td><i class="fas fa-times" style="color: #e74c3c;"></i></td>
+              <td>
+                <div class="action-buttons" style="justify-content: flex-end;">
+                  <button class="btn btn-outline"><i class="fas fa-edit"></i> Editar</button>
+                  <button class="btn btn-danger"><i class="fas fa-trash"></i> Excluir</button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>Impressoras</td>
+              <td><i class="fas fa-check" style="color: #27ae60;"></i></td>
+              <td>
+                <div class="action-buttons" style="justify-content: flex-end;">
+                  <button class="btn btn-outline"><i class="fas fa-edit"></i> Editar</button>
+                  <button class="btn btn-danger"><i class="fas fa-trash"></i> Excluir</button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="text-align: right; margin-top: 20px; padding: 0 20px 20px;">
+        <button id="btn-nova-categoria" class="btn btn-primary">
+          <i class="fas fa-plus"></i> Nova Categoria
+        </button>
+      </div>
+    </section>
+
+    <section id="tab-form" class="tab-content">
+      <div class="form-container">
+        <div class="form-header">
+          <h2 id="form-titulo"><i class="fas fa-plus-circle"></i> Nova Categoria</h2>
+        </div>
+        <form id="categoria-form">
+          <div class="form-section">
+            <label for="nome-categoria">
+              Categoria:
+            </label>
+            <select id="nome-categoria" name="nome" required style="width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #ddd;">
+              <option value="">Selecione uma categoria</option>
+              <option value="Notebooks">Notebooks</option>
+              <option value="Monitores">Monitores</option>
+              <option value="Impressoras">Impressoras</option>
+            </select>
+          </div>
+
+          <div class="form-section">
+            <div class="checkbox-container">
+              <input type="checkbox" id="recebe-termo" name="recebe_termo" />
+              <label for="recebe-termo" style="margin: 0;">Recebe Termo</label>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3><i class="fas fa-list-ul"></i> Campos da Categoria</h3>
+            <div id="campos-container">
+              <!-- Campos serão adicionados dinamicamente -->
+            </div>
+            <button type="button" id="btn-adicionar-campo" class="btn btn-outline" style="margin-top:10px;">
+              <i class="fas fa-plus"></i> Adicionar Campo
+            </button>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" id="btn-cancelar" class="btn btn-outline">
+              <i class="fas fa-times"></i> Cancelar
+            </button>
+            <button type="submit" id="btn-salvar" class="btn btn-primary">
+              <i class="fas fa-save"></i> Salvar
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/cadastroCategorias.js"></script>
+  <script src="js/cadastroCategoriasTabs.js"></script>
+</body>
+</html>
