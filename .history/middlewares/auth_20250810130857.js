@@ -2,7 +2,7 @@
 import jwt_decode from 'https://cdn.jsdelivr.net/npm/jwt-decode/build/jwt-decode.min.js';
 
 // Configurações compartilhadas (poderia vir de um arquivo de configuração)
-const API_BASE_URL = 'http://localhost:3000';
+const API_BASE_URL = 'http://10.218.172.40:3000';
 const TOKEN_KEY = 'inventario_token';
 
 let idUsuarioAlterandoSenha = null;

@@ -95,15 +95,16 @@
         </div>
 
         <input type="hidden" id="remover-termo" name="removerTermo" value="false" />
-        <button type="submit">Salvar Alterações</button>
-        <button type="button" id="btn-voltar">Voltar</button>
+<button type="submit">Salvar Alterações</button>
+<button type="button" id="btn-cancelar" class="btn">Cancelar</button>
+<button type="button" id="btn-voltar">Voltar</button>
       </form>
     </main>
 
     <script>
       const id = new URLSearchParams(window.location.search).get("id");
-      const API_URL = "http://localhost:3000/equipamentos/" + id;
-      const API_CATEGORIAS_URL = "http://localhost:3000/categorias";
+      const API_URL = "http://10.218.172.40:3000/equipamentos/" + id;
+      const API_CATEGORIAS_URL = "http://10.218.172.40:3000/categorias";
 
       const form = document.getElementById("form-editar");
       const termoDiv = document.getElementById("termo-existente");
@@ -192,7 +193,7 @@
           document.getElementById("edit-status").value = equipamento.status;
 
           if (equipamento.termo) {
-            termoLink.href = `http://localhost:3000/uploads/${equipamento.termo}`;
+            termoLink.href = `http://10.218.172.40:3000/uploads/${equipamento.termo}`;
             termoDiv.classList.remove("hidden");
           } else {
             termoDiv.classList.add("hidden");

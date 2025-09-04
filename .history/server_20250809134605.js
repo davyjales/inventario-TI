@@ -1075,5 +1075,5 @@ app.delete('/admin/excluir/:id', autenticarToken, verificarAdmin, async (req, re
 
 // Iniciar servidor
 app.listen(PORT, () => {
-  console.log(`Servidor rodando em http://localhost:${PORT}`);
+  console.log(`Servidor rodando em http://10.218.172.40:${PORT}`);
 });

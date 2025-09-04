@@ -342,14 +342,18 @@
         <li><a href="categorias.html" class= "active">Categorias</a></li>
         <li><a href="cadastroEquipamentos.html">Equipamentos</a></li>
         <li><a href="status.html">Status</a></li>
-        <li><a href="#" id="logout-link"><img src="logout.png" style="width: 23px;"></a></li>
       </ul>
     </nav>
+    <script>
+    // Autenticação básica via token
+    const token = localStorage.getItem('token');
+    if (!token) {
+      window.location.href = 'login.html';
+    }
+  </script>
   </header>
 
-  <main>
-    <h2 class="section-title">Cadastramento de Equipamentos</h2>
-    
+  <main> 
     <div class="tabs">
       <button class="tab-button active" data-tab="tab-lista">
         <i class="fas fa-list"></i> Lista de Categorias

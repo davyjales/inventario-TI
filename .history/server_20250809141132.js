@@ -15,7 +15,7 @@ const SECRET = 'segredo_supersecreto';
 
 // Configuração do pool de conexões
 const db = mysql.createPool({
-  host: 'localhost',
+  host: '10.218.172.40',
   user: 'root',
   password: '',
   database: 'inventario_visteon',
@@ -1075,5 +1075,5 @@ app.delete('/admin/excluir/:id', autenticarToken, verificarAdmin, async (req, re
 
 // Iniciar servidor
 app.listen(PORT, () => {
-  console.log(`Servidor rodando em http://localhost:${PORT}`);
+  console.log(`Servidor rodando em http://10.218.172.40:${PORT}`);
 });

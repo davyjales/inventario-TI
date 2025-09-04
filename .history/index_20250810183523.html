@@ -365,7 +365,7 @@
 
         try {
           const token = localStorage.getItem('token');
-          const res = await fetch(`http://localhost:3000/admin/alterar-senha/${idUsuarioAlterandoSenha}`, {
+          const res = await fetch(`http://10.218.172.40:3000/admin/alterar-senha/${idUsuarioAlterandoSenha}`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -490,7 +490,7 @@
 
       // Admin: carregar usuários com robustez
       if (isAdmin) {
-        fetch('http://localhost:3000/admin/users', {
+        fetch('http://10.218.172.40:3000/admin/users', {
           headers: { Authorization: `Bearer ${token}` }
         })
           .then(async res => {
@@ -550,7 +550,7 @@
       async function updateUserPermission(userId, field, value) {
         try {
           const token = localStorage.getItem('token');
-          const response = await fetch(`http://localhost:3000/admin/update-permission`, {
+          const response = await fetch(`http://10.218.172.40:3000/admin/update-permission`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -578,7 +578,7 @@
         if (!confirm('Tem certeza que deseja excluir este usuário?')) return;
         try {
           const token = localStorage.getItem('token');
-          await fetch(`http://localhost:3000/admin/excluir/${id}`, {
+          await fetch(`http://10.218.172.40:3000/admin/excluir/${id}`, {
             method: 'DELETE',
             headers: { Authorization: `Bearer ${token}` }
           });

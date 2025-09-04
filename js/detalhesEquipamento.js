@@ -11,6 +11,8 @@ document.addEventListener('DOMContentLoaded', () => {
     loadEquipmentDetails(equipmentId);
 });
 
+let globalEquipment = null;
+
 async function loadEquipmentDetails(id) {
     try {
         // Fetch equipment details
@@ -18,6 +20,7 @@ async function loadEquipmentDetails(id) {
         if (!response.ok) throw new Error('Erro ao carregar equipamento');
         
         const equipment = await response.json();
+        globalEquipment = equipment;
         
         // Fetch category details if exists
         let additionalFields = [];
@@ -96,13 +99,24 @@ function displayEquipmentDetails(equipment, additionalFields) {
         const keys = Object.keys(equipment.additionalFields);
         html += '<div class="detail-section"><h3>Campos Adicionais</h3><div class="field-group">';
         keys.forEach(key => {
+            const value = equipment.additionalFields[key];
             const label = labelMap[key] || key;
-            html += `
-                <div class="field-item">
-                    <div class="field-label">${label}:</div>
-                    <div class="field-value">${equipment.additionalFields[key]}</div>
-                </div>
-            `;
+
+            // Check if the value is an array (list)
+            if (Array.isArray(value)) {
+                html += `<div class="field-item"><div class="field-label">${label}:</div><ul>`;
+                value.forEach(item => {
+                    html += `<li>${item}</li>`;
+                });
+                html += '</ul></div>';
+            } else {
+                html += `
+                    <div class="field-item">
+                        <div class="field-label">${label}:</div>
+                        <div class="field-value">${value}</div>
+                    </div>
+                `;
+            }
         });
         html += '</div></div>';
     }
@@ -128,31 +142,30 @@ function printQRCode() {
 }
 
 function printQRCodeForZebra() {
-    const qrString = equipment.qrCode;
-    const zebraString = `^XA^FO50,50^BQN,2,10^FDLA,${qrString}^FS^XZ`;
+    if (!globalEquipment) {
+        alert('Dados do equipamento não carregados. Por favor, aguarde o carregamento completo.');
+        return;
+    }
+    const qrString = globalEquipment.qrCode.replace('.png', '');
+    const zebraString = `^XA~TA000~JSN^LT0^MNW^MTT^PON^PMN^LH0,0^JMA^PR2,2~SD25^JUS^LRN^CI0^XZ
+                            ^XA
+                            ^MMT
+                            ^PW900
+                            ^LL0600
+                            ^LS0
+                            ^FT200,164^BQN,2,3
+                            ^FDMA,${qrString}^FS
+                            ^PQ1,0,1,Y^XZ`
+                            ;
     
     // Copy to clipboard for Zebra printer
-    navigator.clipboard.writeText(zebraString)
-        .then(() => {
-            alert('Código QR copiado para área de transferência no formato Zebra!');
-        })
-        .catch(err => {
-            console.error('Erro ao copiar:', err);
-            alert('Erro ao copiar código QR. Por favor, copie manualmente: ' + zebraString);
-        });
-}
+    						chamarImpressora(zebraString);
 
-function printQRCodeForZebra() {
-    const qrString = equipment.qrCode;
-    const zebraString = `^XA^FO50,50^BQN,2,10^FDLA,${qrString}^FS^XZ`;
-    
-    // Copy to clipboard for Zebra printer
-    navigator.clipboard.writeText(zebraString)
-        .then(() => {
-            alert('Código QR copiado para área de transferência no formato Zebra!');
-        })
-        .catch(err => {
-            console.error('Erro ao copiar:', err);
-            alert('Erro ao copiar código QR. Por favor, copie manualmente: ' + zebraString);
-        });
 }
+function chamarImpressora(array1) {
+				if (typeof writeToSelectedPrinter === 'function') {
+					writeToSelectedPrinter(array1);
+				} else {
+					console.error("Função writeToSelectedPrinter não está definida.");
+				}
+			}

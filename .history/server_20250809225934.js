@@ -24,5 +24,5 @@ app.use('/api/historico', require('./routes/historico'));
 
 // Iniciar servidor
 app.listen(PORT, () => {
-  console.log(`Servidor rodando em http://localhost:${PORT}`);
+  console.log(`Servidor rodando em http://10.218.172.40:${PORT}`);
 });

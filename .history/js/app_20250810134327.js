@@ -167,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
         filtered.forEach(eq => {
             const tr = document.createElement('tr');
             const nomeImagemQRCode = `${eq.categoria}_${eq.qrCode}.png`.replace(/\s/g, "_");
-            const caminhoQRCode = `http://localhost:3000/uploads/${nomeImagemQRCode}`;
+            const caminhoQRCode = `http://10.218.172.40:3000/uploads/${nomeImagemQRCode}`;
             tr.innerHTML = `
                 <td class="service-tag-link" data-id="${eq.id}">${eq.nome || ''}</td>
                 <td><img src="${caminhoQRCode}" alt="QR Code" style="max-width: 100px; max-height: 50px;" /></td>

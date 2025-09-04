@@ -31,4 +31,7 @@ router.get('/opcoes', async (req, res) => {
   }
 });
 
+// Endpoint for fetching all additional fields from all categories (used by Excel export)
+router.get('/campos-adicionais', categoriasService.listarCategorias);
+
 module.exports = router;

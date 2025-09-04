@@ -1,7 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const camposAdicionaisRoutes = require("./routes/camposAdicionais");
 
 const app = express();
 const PORT = 3000;
@@ -23,7 +22,9 @@ app.use('/api/historico', require('./routes/historico'));
 app.use('/api/qrcode', require('./routes/qrcode'));
 app.use('/api/qrcode-string', require('./routes/qrcode-string'));
 app.use('/admin', require('./routes/admin'));
-app.use("/api/campos-adicionais", camposAdicionaisRoutes);
+
+// Endpoint for campos-adicionais (used by Excel export)
+app.get('/api/campos-adicionais', require('./services/categoriasService').listarCategorias);
 
 // Rota de registro
 app.post('/register', async (req, res) => {
@@ -46,6 +47,6 @@ module.exports = app;
 // Start the server only if this file is run directly
 if (require.main === module) {
   app.listen(PORT, () => {
-    console.log(`Servidor rodando em http://localhost:${PORT}`);
+    console.log(`Servidor rodando em http://10.218.172.40:${PORT}`);
   });
 }
