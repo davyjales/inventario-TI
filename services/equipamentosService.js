@@ -9,8 +9,8 @@ const cloneEquipmentToHistory = require('../utils/cloneEquipmentToHistory');
 module.exports = {
   // Criar equipamento
   async criarEquipamento(req, res) {
-const { categoria_id, nome, dono, setor, descricao, status_id, cargo, additionalFields } = req.body;
-console.log("Received payload:", req.body);
+    const { categoria_id, nome, dono, setor, descricao, status_id, cargo, additionalFields } = req.body;
+    console.log("Received payload:", req.body);
     const termo = req.file ? req.file.filename : null;
 
     if (!categoria_id || !nome || !dono || !setor) {
@@ -95,6 +95,17 @@ console.log("Received payload:", req.body);
     }
 
     try {
+      // Fetch categories and their additional fields metadata
+      const [camposCategorias] = await db.query(
+        'SELECT id, nome_exibicao FROM categoria_campos_adicionais'
+      );
+
+      // Build mapping from campo_id to display name
+      const campoIdToDisplayName = {};
+      camposCategorias.forEach(campo => {
+        campoIdToDisplayName[campo.id] = campo.nome_exibicao;
+      });
+
       const [equipamentos] = await db.query(query, values);
 
       const equipamentosComCampos = await Promise.all(
@@ -106,7 +117,8 @@ console.log("Received payload:", req.body);
           
           eq.additionalFields = {};
           campos.forEach(c => {
-            eq.additionalFields[c.nome_campo] = c.valor;
+            const displayName = campoIdToDisplayName[c.nome_campo] || c.nome_campo;
+            eq.additionalFields[displayName] = c.valor;
           });
           
           return eq;

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Editar Equipamento</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    main {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 1rem;
+      background-color: rgba(255, 255, 255, 0.95);
+      border-radius: 8px;
+    }
+
+    form label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+
+    form input,
+    form textarea,
+    form select {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 0.25rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+
+    form button[type="submit"],
+    button {
+      margin-top: 1.5rem;
+      padding: 0.75rem 1.5rem;
+      background-color: #e67e22;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    form button[type="submit"]:hover,
+    button:hover {
+      background-color: #d35400;
+    }
+
+    #termo-existente {
+      margin-top: 1rem;
+    }
+
+    #btn-remover-termo {
+      margin-top: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Editar Equipamento</h1>
+  </header>
+
+  <main>
+      <form id="form-editar" enctype="multipart/form-data">
+        <div id="campos-adicionais-equipamento"></div>
+
+        <label for="edit-dono">User:</label>
+        <input type="text" id="edit-dono" name="dono" />
+
+        <label for="edit-setor">Setor:</label>
+        <input type="text" id="edit-setor" name="setor" />
+
+        <label for="edit-hostname">Hostname:</label>
+        <input type="text" id="edit-hostname" name="hostname" />
+
+        <label for="edit-descricao">Descrição:</label>
+        <textarea id="edit-descricao" name="descricao"></textarea>
+
+        <label for="edit-status">Status:</label>
+        <select id="edit-status" name="status">
+          <option value="disponivel">Disponível</option>
+          <option value="indisponivel">Indisponível</option>
+        </select>
+
+        <label for="edit-termo">Anexar novo termo (PDF):</label>
+        <input type="file" id="edit-termo" name="termo" accept=".pdf" />
+
+        <div id="termo-existente" class="hidden">
+          <p>
+            Termo atual: <a id="link-termo" href="#" target="_blank">Visualizar PDF</a>
+          </p>
+          <button type="button" id="btn-remover-termo">Remover termo</button>
+        </div>
+
+        <input type="hidden" id="remover-termo" name="removerTermo" value="false" />
+<button type="submit">Salvar Alterações</button>
+<button type="button" id="btn-cancelar" class="btn">Cancelar</button>
+<button type="button" id="btn-voltar">Voltar</button>
+      </form>
+    </main>
+
+    <script>
+      const id = new URLSearchParams(window.location.search).get("id");
+      const API_URL = "http://10.218.172.40:3000/equipamentos/" + id;
+      const API_CATEGORIAS_URL = "http://10.218.172.40:3000/categorias";
+
+      const form = document.getElementById("form-editar");
+      const termoDiv = document.getElementById("termo-existente");
+      const termoLink = document.getElementById("link-termo");
+      const btnRemoverTermo = document.getElementById("btn-remover-termo");
+      const inputRemoverTermo = document.getElementById("remover-termo");
+      const btnVoltar = document.getElementById("btn-voltar");
+      const camposAdicionaisContainer = document.getElementById("campos-adicionais-equipamento");
+
+      let categorias = [];
+
+      async function fetchCategorias() {
+        try {
+          const token = localStorage.getItem('token');
+          const res = await fetch(API_CATEGORIAS_URL, {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          if (!res.ok) throw new Error("Erro ao buscar categorias");
+          categorias = await res.json();
+        } catch (error) {
+          alert("Erro ao carregar categorias: " + error.message);
+        }
+      }
+
+      function renderCamposAdicionais(categoriaNome, equipamento) {
+        camposAdicionaisContainer.innerHTML = "";
+        const categoria = categorias.find((cat) => cat.nome === categoriaNome);
+        if (categoria && categoria.additionalFields && categoria.additionalFields.length > 0) {
+          categoria.additionalFields.forEach((field, index) => {
+            const div = document.createElement("div");
+            div.style.marginBottom = "10px";
+
+            const label = document.createElement("label");
+            label.setAttribute("for", `campo-adicional-${index}`);
+            label.textContent = field.name + (field.unique ? " *" : "");
+            label.style.fontWeight = "bold";
+
+            const input = document.createElement("input");
+            input.type = "text";
+            input.id = `campo-adicional-${index}`;
+            input.name = `campoAdicional_${index}`;
+            input.setAttribute("aria-label", field.name);
+            input.required = true;
+
+            // Populate with existing value if available
+            if (equipamento && equipamento.additionalFields && equipamento.additionalFields[field.name]) {
+              input.value = equipamento.additionalFields[field.name];
+            }
+
+            div.appendChild(label);
+            div.appendChild(input);
+            camposAdicionaisContainer.appendChild(div);
+          });
+        }
+      }
+
+      async function carregarEquipamento() {
+        try {
+          await fetchCategorias();
+
+          const token = localStorage.getItem('token');
+          const res = await fetch(API_URL, {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          if (!res.ok) {
+            if (res.status === 404) {
+              alert("Equipamento não encontrado.");
+              window.location.href = "index.html";
+            } else {
+              alert("Erro ao carregar equipamento: " + res.statusText);
+            }
+            return;
+          }
+          const equipamento = await res.json();
+
+          renderCamposAdicionais(equipamento.categoria, equipamento);
+
+          document.getElementById("edit-dono").value = equipamento.dono;
+          document.getElementById("edit-setor").value = equipamento.setor;
+          document.getElementById("edit-hostname").value = equipamento.hostname || "";
+          document.getElementById("edit-descricao").value = equipamento.descricao;
+          document.getElementById("edit-status").value = equipamento.status;
+
+          if (equipamento.termo) {
+            termoLink.href = `http://10.218.172.40:3000/uploads/${equipamento.termo}`;
+            termoDiv.classList.remove("hidden");
+          } else {
+            termoDiv.classList.add("hidden");
+          }
+        } catch (error) {
+          alert("Erro ao carregar equipamento: " + error.message);
+        }
+      }
+
+      btnRemoverTermo.addEventListener("click", () => {
+        inputRemoverTermo.value = "true";
+        termoDiv.classList.add("hidden");
+      });
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const formData = new FormData(form);
+
+        // Collect additional fields data
+        const additionalFields = {};
+        const inputs = camposAdicionaisContainer.querySelectorAll("input");
+        inputs.forEach((input) => {
+          additionalFields[input.previousSibling.textContent.replace(" *", "")] = input.value.trim();
+        });
+        formData.append("additionalFields", JSON.stringify(additionalFields));
+
+        try {
+          const token = localStorage.getItem('token');
+          const response = await fetch(API_URL, {
+            method: "PUT",
+            headers: {
+              'Authorization': `Bearer ${token}`
+            },
+            body: formData,
+          });
+
+          if (!response.ok) {
+            if (response.status === 401) {
+              alert("Sessão expirada. Por favor, faça login novamente.");
+              window.location.href = "login.html";
+              return;
+            }
+            throw new Error("Erro ao atualizar equipamento.");
+          }
+
+          alert("Equipamento atualizado com sucesso!");
+          window.location.href = "detalhes.html?id=" + id;
+        } catch (error) {
+          alert("Erro ao atualizar equipamento: " + error.message);
+        }
+      });
+
+      btnVoltar.addEventListener("click", () => {
+        window.history.back();
+      });
+
+      window.addEventListener("DOMContentLoaded", carregarEquipamento);
+    </script>
+</body>
+</html>
