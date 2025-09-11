@@ -33,7 +33,7 @@ module.exports = {
         params.push('%' + adminUserFilter + '%');
       }
 
-      if (actionFilter && ['create', 'update', 'delete'].includes(actionFilter)) {
+      if (actionFilter && ['create', 'update', 'delete', 'consulta'].includes(actionFilter)) {
         conditions.push(`eh.action = ?`);
         params.push(actionFilter);
       }
@@ -73,16 +73,50 @@ module.exports = {
       }
 
       // ---------- snapshots históricos ----------
+      function deepMerge(obj1, obj2) {
+        const result = { ...obj1 };
+        for (const key in obj2) {
+          if (obj2[key] && typeof obj2[key] === 'object' && !Array.isArray(obj2[key])) {
+            result[key] = deepMerge(result[key] || {}, obj2[key]);
+          } else {
+            result[key] = obj2[key];
+          }
+        }
+        return result;
+      }
+
       const snapshots = {};
-      for (let i = historico.length - 1; i >= 0; i--) {
+      for (let i = 0; i < historico.length; i++) {
         const record = historico[i];
         try {
-          const changedFields = JSON.parse(record.changed_fields || '{}');
-          if (record.action === 'create') {
-            snapshots[record.id] = changedFields;
+          if (record.action === 'consulta') {
+            // For consulta action, fetch full equipment data and additional fields
+            const [equipments] = await db.query(
+              `SELECT e.*, c.nome AS categoria_nome, s.nome AS status_nome
+               FROM equipamentos e
+               LEFT JOIN categorias c ON e.categoria_id = c.id
+               LEFT JOIN status_equipamentos s ON e.status_id = s.id
+               WHERE e.id = ?`,
+              [record.equipment_id]
+            );
+            const equipment = equipments[0] || {};
+            const [additionalFields] = await db.query(
+              'SELECT nome_campo, valor FROM equipamento_campos_adicionais WHERE equipamento_id = ?',
+              [record.equipment_id]
+            );
+            equipment.additionalFields = additionalFields.reduce((acc, field) => {
+              acc[field.nome_campo] = field.valor;
+              return acc;
+            }, {});
+            snapshots[record.id] = equipment;
           } else {
-            const prevSnapshot = i < historico.length - 1 ? snapshots[historico[i + 1].id] : {};
-            snapshots[record.id] = { ...prevSnapshot, ...changedFields };
+            const changedFields = JSON.parse(record.changed_fields || '{}');
+            if (record.action === 'create') {
+              snapshots[record.id] = changedFields;
+            } else {
+              const prevSnapshot = i > 0 ? snapshots[historico[i - 1].id] : {};
+              snapshots[record.id] = deepMerge(prevSnapshot, changedFields);
+            }
           }
         } catch (e) {
           console.error('Erro ao construir snapshots:', e);

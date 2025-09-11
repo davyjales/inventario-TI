@@ -101,6 +101,28 @@
             background: #5a6268;
         }
 
+        .header-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn-edit {
+            background: #6c757d;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .btn-edit:hover {
+            background: #5a6268;
+        }
+
         #termo-container {
             margin-bottom: 20px;
             padding: 15px;
@@ -148,7 +170,10 @@
 <body>
     <header>
         <h1>Detalhes do Equipamento</h1>
-        <button class="btn-back" onclick="window.close()">← Voltar</button>
+        <div class="header-buttons">
+            <button class="btn-edit" id="btn-edit">Editar Equipamento</button>
+            <button class="btn-back" onclick="window.location.href='index.html'">← Voltar</button>
+        </div>
     </header>
 
     <main class="equipment-details">

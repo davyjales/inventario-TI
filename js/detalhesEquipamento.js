@@ -37,6 +37,7 @@ async function loadEquipmentDetails(id) {
         displayEquipmentDetails(equipment, additionalFields);
         generateQRCode(equipment);
         setupTermoUI(equipment);
+        setupEditButton(equipment.id);
     } catch (error) {
         console.error('Erro:', error);
         alert('Erro ao carregar detalhes do equipamento');
@@ -179,6 +180,12 @@ function setupTermoUI(equipment) {
     const btnAdicionarTermo = document.getElementById('btn-adicionar-termo');
     const termoFileInput = document.getElementById('termo-file-input');
 
+    // Check if the category allows termo
+    if (!equipment.categoria_recebe_termo) {
+        termoContainer.classList.add('hidden');
+        return;
+    }
+
     if (equipment.termo) {
         termoContainer.classList.remove('hidden');
         btnVerTermo.classList.remove('hidden');
@@ -253,4 +260,12 @@ function setupTermoUI(equipment) {
             alert('Erro ao enviar termo: ' + err.message);
         }
     };
+}
+
+function setupEditButton(equipmentId) {
+    const btnEdit = document.getElementById('btn-edit');
+    if (!btnEdit) return;
+    btnEdit.addEventListener('click', () => {
+        window.location.href = `editar.html?id=${equipmentId}`;
+    });
 }

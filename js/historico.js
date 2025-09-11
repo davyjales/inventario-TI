@@ -78,6 +78,12 @@ document.addEventListener('DOMContentLoaded', () => {
   pageData.forEach(item => {
     const tr = document.createElement('tr');
 
+    const actionNameMap = {
+      consulta: 'Inventario'
+    };
+    console.log('Action original:', item.action);
+    const displayAction = actionNameMap[item.action.toLowerCase()] || item.action;
+
     function formatValue(value, parentKey = '') {
       if (typeof value === 'object' && value !== null) {
         return '<ul>' + Object.entries(value).map(([k, v]) => {
@@ -172,7 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     tr.innerHTML = `
       <td>${new Date(item.timestamp).toLocaleString()}</td>
-      <td>${item.action}</td>
+      <td>${displayAction}</td>
       <td>${item.admin_name || ''}</td>
       <td>${item.dono || ''}</td>
       <td>

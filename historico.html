@@ -20,13 +20,18 @@
   <header>
     <h1>V-CONTROL</h1>
     <nav>
-      <ul class="nav-menu">
+      <div class="hamburger" id="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+      <ul class="nav-menu" id="nav-menu">
         <li><a href="index.html">Home</a></li>
         <li class="nav-dropdown">
-          <a href="#consulta" class="nav-link">Relatório</a>
+          <a href="index.html#consulta" class="nav-link">Relatório</a>
           <ul class="dropdown-menu">
-            <li><a href="index.html" class="nav-link">Relatório</a></li>
-            <li><a href="historico.html">Histórico</a></li>
+            <li><a href="index.html#consulta" class="nav-link">Equipamentos</a></li>
+            <li><a href="historico.html">Audit</a></li>
           </ul>
         </li>
         <li class="nav-dropdown">
@@ -91,6 +96,52 @@
       e.preventDefault();
       localStorage.removeItem('token');
       window.location.href = 'login.html';
+    });
+  </script>
+
+  <!-- Script para menu hambúrguer -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const hamburger = document.getElementById('hamburger');
+      const navMenu = document.getElementById('nav-menu');
+
+      hamburger.addEventListener('click', function() {
+        navMenu.classList.toggle('active');
+        hamburger.classList.toggle('active');
+      });
+
+      // Fechar menu ao clicar em um link
+      const navLinks = navMenu.querySelectorAll('a');
+      navLinks.forEach(link => {
+        link.addEventListener('click', function() {
+          navMenu.classList.remove('active');
+          hamburger.classList.remove('active');
+        });
+      });
+
+      // Handle dropdown menus on mobile
+      const dropdowns = navMenu.querySelectorAll('.nav-dropdown');
+      dropdowns.forEach(dropdown => {
+        const link = dropdown.querySelector('a');
+        const menu = dropdown.querySelector('.dropdown-menu');
+
+        link.addEventListener('click', function(e) {
+          // Only prevent default on mobile
+          if (window.innerWidth <= 768) {
+            e.preventDefault();
+            dropdown.classList.toggle('active');
+          }
+        });
+      });
+
+      // Close dropdowns when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!navMenu.contains(e.target)) {
+          dropdowns.forEach(dropdown => {
+            dropdown.classList.remove('active');
+          });
+        }
+      });
     });
   </script>
 </body>

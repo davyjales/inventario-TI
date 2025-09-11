@@ -12,7 +12,7 @@ document.getElementById('register-form').addEventListener('submit', async (e) =>
   }
 
   try {
-    const res = await fetch('http://localhost:3000/api/usuarios/register', {
+    const res = await fetch('http://10.137.174.213:3000/api/usuarios/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

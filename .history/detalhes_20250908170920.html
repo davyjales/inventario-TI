@@ -148,7 +148,7 @@
 
   <script>
     const id = new URLSearchParams(window.location.search).get("id");
-    const API_URL = "http://localhost:3000/equipamentos/" + id;
+    const API_URL = "http://10.137.174.213:3000/equipamentos/" + id;
     const container = document.getElementById("detalhes-container");
     const form = document.getElementById("form-editar");
     const btnEditar = document.getElementById("btn-editar");
@@ -167,7 +167,7 @@
       equipamento = await res.json();
 
       const nomeImagemQRCode = `${equipamento.categoria}_${equipamento.qrCode}.png`.replace(/\s/g, "_");
-      const caminhoQRCode = `http://localhost:3000/uploads/${nomeImagemQRCode}`;
+      const caminhoQRCode = `http://10.137.174.213:3000/uploads/${nomeImagemQRCode}`;
 
       container.innerHTML = `
         <h3>${equipamento.nome}</h3>
@@ -177,7 +177,7 @@
         <p><strong>Hostname:</strong> ${equipamento.hostname || "Não informado"}</p>
         <p><strong>Descrição:</strong> ${equipamento.descricao}</p>
         <p><strong>Status:</strong> ${equipamento.status === 'disponivel' ? 'Disponível' : 'Indisponível'}</p>
-        ${equipamento.termo ? `<p><strong>Termo:</strong> <a href="http://localhost:3000/uploads/${equipamento.termo}" target="_blank">Visualizar PDF</a></p>` : ""}
+        ${equipamento.termo ? `<p><strong>Termo:</strong> <a href="http://10.137.174.213:3000/uploads/${equipamento.termo}" target="_blank">Visualizar PDF</a></p>` : ""}
         <p><strong>ID (QR Code):</strong> ${equipamento.qrCode}</p>
         <p><strong>QR Code:</strong><br>
           <img id="qrcode-img" src="${caminhoQRCode}" alt="QR Code"><br>
@@ -252,7 +252,7 @@
       }
 
       if (equipamento.termo) {
-        termoLink.href = `http://localhost:3000/uploads/${equipamento.termo}`;
+        termoLink.href = `http://10.137.174.213:3000/uploads/${equipamento.termo}`;
         termoDiv.classList.remove("hidden");
       }
     }
