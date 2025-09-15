@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
           const token = localStorage.getItem('token');
-      const res = await fetch(`http://10.137.174.213:3000/api/usuarios/admin/alterar-senha/${idUsuarioAlterandoSenha}`, {
+      const res = await fetch(`http://localhost:3000/api/usuarios/admin/alterar-senha/${idUsuarioAlterandoSenha}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -152,7 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Admin: carregar usuários com robustez
       if (isAdmin) {
-        fetch('http://10.137.174.213:3000/api/usuarios/admin/users', {
+        fetch('http://localhost:3000/api/usuarios/admin/users', {
           headers: { Authorization: `Bearer ${token}` }
         })
           .then(async res => {
@@ -212,7 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
       async function updateUserPermission(userId, field, value) {
         try {
           const token = localStorage.getItem('token');
-          const response = await fetch(`http://10.137.174.213:3000/admin/update-permission`, {
+          const response = await fetch(`http://localhost:3000/admin/update-permission`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -240,7 +240,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!confirm('Tem certeza que deseja excluir este usuário?')) return;
         try {
           const token = localStorage.getItem('token');
-          await fetch(`http://10.137.174.213:3000/api/usuarios/admin/excluir/${id}`, {
+          await fetch(`http://localhost:3000/api/usuarios/admin/excluir/${id}`, {
             method: 'DELETE',
             headers: { Authorization: `Bearer ${token}` }
           });

@@ -3,7 +3,7 @@ const mysql = require('mysql2/promise');
 
 async function hashPlainPasswords() {
   const connection = await mysql.createConnection({
-    host: '10.137.174.213',
+    host: 'localhost',
     user: 'root',
     password: '', // ajuste conforme seu banco
     database: 'inventario_visteon'

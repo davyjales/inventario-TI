@@ -47,6 +47,6 @@ module.exports = app;
 // Start the server only if this file is run directly
 if (require.main === module) {
   app.listen(PORT, () => {
-    console.log(`Servidor rodando em http://10.137.174.213:${PORT}`);
+    console.log(`Servidor rodando em http://localhost:${PORT}`);
   });
 }
