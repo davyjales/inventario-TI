@@ -40,8 +40,21 @@ async function exportEquipmentTableToMultipleSheets(table, filename) {
     });
     const additionalFieldsArray = Array.from(allAdditionalFields);
 
-    // Exportar todos os equipamentos do banco de dados
-    const visibleEquipments = allEquipments;
+    // IDs visíveis na tabela
+    const visibleIds = [];
+    const tbody = table.querySelector('tbody');
+    if (tbody) {
+      tbody.querySelectorAll('tr').forEach(tr => {
+        const link = tr.querySelector('.service-tag-link');
+        if (link) {
+          const id = link.getAttribute('data-id');
+          if (id) visibleIds.push(id);
+        }
+      });
+    }
+
+    // Filtrar equipamentos visíveis
+    const visibleEquipments = allEquipments.filter(eq => visibleIds.includes(String(eq.id)));
 
     // Cabeçalhos padrão
     const headers = ['Nome', 'QRCode', 'Usuário', 'Setor', 'Cargo', 'Categoria', 'Status'];
