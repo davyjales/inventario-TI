@@ -353,26 +353,6 @@ module.exports = {
         try {
           const camposAdicionais = JSON.parse(req.body.additionalFields);
           if (Array.isArray(camposAdicionais)) {
-            if (camposAdicionais.length > 0) {
-              // Check uniqueness for each field
-              for (const campo of camposAdicionais) {
-                const campoId = campo.name;
-                const valor = campo.value;
-                const [uniqueRows] = await connection.query('SELECT conteudo_unico, nome_exibicao FROM categoria_campos_adicionais WHERE id = ?', [campoId]);
-                if (uniqueRows.length > 0 && uniqueRows[0].conteudo_unico) {
-                  const [existing] = await connection.query(
-                    `SELECT e.id FROM equipamentos e
-                     JOIN equipamento_campos_adicionais eca ON e.id = eca.equipamento_id
-                     WHERE e.categoria_id = ? AND eca.campo_id = ? AND eca.valor = ? AND e.id != ?`,
-                    [newState.categoria_id, campoId, valor, id]
-                  );
-                  if (existing.length > 0) {
-                    throw new Error(`Valor '${valor}' já existe para o campo único '${uniqueRows[0].nome_exibicao}'.`);
-                  }
-                }
-              }
-            }
-
             await connection.query(
               'DELETE FROM equipamento_campos_adicionais WHERE equipamento_id = ?',
               [id]
