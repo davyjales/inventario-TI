@@ -145,7 +145,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return cellValue.includes(filterValue);
       });
     });
-    window.filteredEquipmentsData = filteredData;
     currentPage = 1;
     renderTablePage(currentPage);
   }
