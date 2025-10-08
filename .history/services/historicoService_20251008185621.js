@@ -28,11 +28,6 @@ module.exports = {
         params.push('%' + equipmentUserFilter + '%');
       }
 
-      if (equipmentQrcodeFilter) {
-        conditions.push(`e.qrcode LIKE ?`);
-        params.push('%' + equipmentQrcodeFilter + '%');
-      }
-
       if (adminUserFilter) {
         conditions.push(`u.nome LIKE ?`);
         params.push('%' + adminUserFilter + '%');

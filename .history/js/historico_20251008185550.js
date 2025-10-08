@@ -404,7 +404,6 @@
 
     if (filters.equipmentNameFilter) params.append('equipmentNameFilter', filters.equipmentNameFilter);
     if (filters.equipmentUserFilter) params.append('equipmentUserFilter', filters.equipmentUserFilter);
-    if (filters.equipmentQrcodeFilter) params.append('equipmentQrcodeFilter', filters.equipmentQrcodeFilter);
     if (filters.adminUserFilter) params.append('adminUserFilter', filters.adminUserFilter);
     if (filters.actionFilter) params.append('actionFilter', filters.actionFilter);
     if (filters.startDate) params.append('startDate', filters.startDate);
@@ -431,7 +430,6 @@
     const filters = {
       equipmentNameFilter: filterEquipmentName.value.trim(),
       equipmentUserFilter: filterEquipmentUser.value.trim(),
-      equipmentQrcodeFilter: filterEquipmentQrcode.value.trim(),
       adminUserFilter: filterAdminUser.value.trim()
     };
     fetchHistory(filters);
